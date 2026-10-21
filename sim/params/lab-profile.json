@@ -1,0 +1,1160 @@
+{
+ "version": 1,
+ "written": "2026-10-21",
+ "site": {
+  "location": {
+   "value": "Biopole campus, Epalinges (Lausanne), Switzerland",
+   "source": [
+    "A1"
+   ],
+   "confidence": "confirmed"
+  },
+  "second_site": {
+   "value": "London lab opening Q4 2026",
+   "source": [
+    "A16",
+    "A26"
+   ],
+   "confidence": "confirmed"
+  },
+  "headcount_now": {
+   "value": 25,
+   "unit": "people",
+   "source": [
+    "A24",
+    "A25"
+   ],
+   "confidence": "confirmed",
+   "note": "'roughly 25 people to roughly 50 in the next year'. Whole company, not only the lab."
+  },
+  "headcount_next_year": {
+   "value": 50,
+   "unit": "people",
+   "source": [
+    "A24",
+    "A25"
+   ],
+   "confidence": "confirmed"
+  },
+  "customers": {
+   "value": "100+",
+   "source": [
+    "A16"
+   ],
+   "confidence": "confirmed"
+  },
+  "machines_run_overnight": {
+   "value": true,
+   "source": [
+    "A27"
+   ],
+   "confidence": "confirmed",
+   "note": "Work cells meant to 'run biology around the clock'. People still work day shifts."
+  }
+ },
+ "people": {
+  "roles": [
+   {
+    "role": "lab_manager",
+    "count": 1,
+    "source": [
+     "A23",
+     "A24"
+    ],
+    "confidence": "confirmed",
+    "note": "Role named in two posts; count is ours."
+   },
+   {
+    "role": "lab_operations",
+    "count": 2,
+    "source": [
+     "A23",
+     "A24"
+    ],
+    "confidence": "guess",
+    "does": "receive deliveries, put away in freezers, ordering, reconstitute and aliquot target proteins, weekly buffer production, inventory counts, Hamilton and Echo calibration"
+   },
+   {
+    "role": "production_scientist_or_technician",
+    "count": 4,
+    "source": [
+     "A21",
+     "A22"
+    ],
+    "confidence": "guess",
+    "does": "DNA assembly, expression, plate prep, run BLI/SPR, troubleshoot failed batches"
+   },
+   {
+    "role": "binding_data_reviewer",
+    "count": 1,
+    "source": [
+     "A20"
+    ],
+    "confidence": "guess",
+    "does": "review every BLI/SPR run after the processing pipeline; decide deliver, flag or re-run"
+   },
+   {
+    "role": "lab_automation_engineer",
+    "count": 2,
+    "source": [
+     "A27",
+     "A28"
+    ],
+    "confidence": "guess",
+    "does": "instrument drivers, work cells, error recovery"
+   },
+   {
+    "role": "procurement",
+    "count": 0,
+    "source": [
+     "A25"
+    ],
+    "confidence": "confirmed",
+    "note": "First dedicated supply chain hire is being recruited; so far 'scientists have bought what they need'."
+   }
+  ],
+  "shift": {
+   "day_start": {
+    "value": "08:00",
+    "source": [],
+    "confidence": "guess"
+   },
+   "day_end": {
+    "value": "18:00",
+    "source": [
+     "A22"
+    ],
+    "confidence": "guess",
+    "note": "Post says 'experiments don't always finish at 6pm'."
+   },
+   "workdays": {
+    "value": [
+     "mon",
+     "tue",
+     "wed",
+     "thu",
+     "fri"
+    ],
+    "source": [],
+    "confidence": "guess"
+   }
+  }
+ },
+ "instruments": [
+  {
+   "name": "hamilton",
+   "kind": "liquid_handler",
+   "exists": {
+    "value": true,
+    "source": [
+     "A23",
+     "A35"
+    ],
+    "confidence": "confirmed",
+    "note": "'daily and weekly calibration of our Hamilton liquid handling systems' (plural)."
+   },
+   "count": {
+    "value": 2,
+    "source": [
+     "A23"
+    ],
+    "confidence": "guess"
+   },
+   "model": {
+    "value": "STAR with CoRe 384 head",
+    "source": [
+     "A30"
+    ],
+    "confidence": "likely",
+    "note": "Their PyLabRobot fork has a branch adding CoRe 384 head firmware commands."
+   },
+   "control": {
+    "value": "PyLabRobot / PyHamilton, not the vendor GUI",
+    "source": [
+     "A27",
+     "A28"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  {
+   "name": "echo",
+   "kind": "acoustic_dispenser",
+   "exists": {
+    "value": true,
+    "source": [
+     "A23"
+    ],
+    "confidence": "confirmed",
+    "note": "'Calibrate and maintain key instruments, including the Echo'. Model not named."
+   },
+   "count": {
+    "value": 1,
+    "source": [],
+    "confidence": "guess"
+   }
+  },
+  {
+   "name": "agilent_bravo",
+   "kind": "liquid_handler",
+   "exists": {
+    "value": true,
+    "source": [
+     "A30"
+    ],
+    "confidence": "likely",
+    "note": "Branch 'bravo-hw-fixes' in adaptyvbio/pylabrobot, commits Sep 2026."
+   },
+   "count": {
+    "value": 1,
+    "source": [],
+    "confidence": "guess"
+   }
+  },
+  {
+   "name": "gator_pro",
+   "kind": "bli",
+   "model": {
+    "value": "Gator Bio Gator Pro",
+    "source": [
+     "A10"
+    ],
+    "confidence": "confirmed"
+   },
+   "count": {
+    "value": 2,
+    "source": [
+     "A20"
+    ],
+    "confidence": "likely",
+    "note": "'Runs come off the Gators' (plural)."
+   },
+   "channels": {
+    "value": 32,
+    "source": [
+     "A31"
+    ],
+    "confidence": "likely",
+    "note": "Vendor spec for this model."
+   },
+   "plate_positions": {
+    "value": 3,
+    "formats": [
+     96,
+     384
+    ],
+    "source": [
+     "A31"
+    ],
+    "confidence": "likely"
+   },
+   "max_samples_per_batch": {
+    "value": 1152,
+    "source": [
+     "A31"
+    ],
+    "confidence": "likely"
+   },
+   "min_well_volume_ul": {
+    "value": 40,
+    "source": [
+     "A31"
+    ],
+    "confidence": "likely"
+   },
+   "setup": {
+    "value": "Strep-Tactin XT probe holds the designed protein by its Twin-Strep tag; the target is in the wells",
+    "source": [
+     "A6",
+     "A10"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  {
+   "name": "carterra_lsa_xt",
+   "kind": "spr",
+   "model": {
+    "value": "Carterra LSA XT",
+    "source": [
+     "A7"
+    ],
+    "confidence": "confirmed"
+   },
+   "count": {
+    "value": 1,
+    "source": [
+     "A20"
+    ],
+    "confidence": "likely",
+    "note": "'the Carterra' (singular)."
+   },
+   "printhead_channels": {
+    "value": 96,
+    "source": [
+     "A7",
+     "A32"
+    ],
+    "confidence": "confirmed"
+   },
+   "ligands_per_array": {
+    "value": 384,
+    "source": [
+     "A32"
+    ],
+    "confidence": "likely"
+   },
+   "unattended_days": {
+    "value": 7,
+    "source": [
+     "A32"
+    ],
+    "confidence": "likely"
+   },
+   "chip": {
+    "value": "CMDP or HC30M, Strep-Tactin XT coupled",
+    "source": [
+     "A7"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  {
+   "name": "plate_reader",
+   "kind": "fluorescence_reader",
+   "exists": {
+    "value": true,
+    "source": [
+     "A22",
+     "A35"
+    ],
+    "confidence": "confirmed",
+    "note": "Used for split-GFP. Model not named."
+   },
+   "count": {
+    "value": 1,
+    "source": [],
+    "confidence": "guess"
+   }
+  },
+  {
+   "name": "nanodsf",
+   "kind": "thermostability",
+   "exists": {
+    "value": true,
+    "source": [
+     "A4",
+     "A22"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  {
+   "name": "capillary_electrophoresis",
+   "kind": "analytical",
+   "exists": {
+    "value": true,
+    "source": [
+     "A3",
+     "A22"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  {
+   "name": "hplc_sec",
+   "kind": "analytical",
+   "exists": {
+    "value": true,
+    "source": [
+     "A22"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  {
+   "name": "robot_arms_and_incubators",
+   "kind": "work_cell_parts",
+   "exists": {
+    "value": true,
+    "source": [
+     "A27",
+     "A28"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  {
+   "name": "label_printer",
+   "kind": "barcode_label_printer",
+   "model": {
+    "value": "Brother P-touch",
+    "source": [
+     "A30"
+    ],
+    "confidence": "likely",
+    "note": "They keep a patched ptouch-print fork and a bwip-js (barcode writer) fork."
+   }
+  },
+  {
+   "name": "freezer_minus80",
+   "count": {
+    "value": 3,
+    "source": [],
+    "confidence": "guess"
+   }
+  },
+  {
+   "name": "freezer_minus20",
+   "count": {
+    "value": 2,
+    "source": [],
+    "confidence": "guess"
+   }
+  },
+  {
+   "name": "fridge_4c",
+   "count": {
+    "value": 3,
+    "source": [],
+    "confidence": "guess"
+   }
+  }
+ ],
+ "plate_formats": {
+  "dna_plate": {
+   "value": 96,
+   "unit": "wells",
+   "source": [
+    "brief"
+   ],
+   "confidence": "likely",
+   "note": "Diagram draws a 'Twist plate'. Twist ships 96 or 384."
+  },
+  "expression_plate": {
+   "value": 384,
+   "unit": "wells",
+   "source": [
+    "A7"
+   ],
+   "confidence": "guess",
+   "note": "8 \u00b5L reactions suit 384-well plates; not stated."
+  },
+  "split_gfp_plate": {
+   "value": 384,
+   "unit": "wells",
+   "source": [],
+   "confidence": "guess"
+  },
+  "bli_sample_plate": {
+   "value": 384,
+   "unit": "wells",
+   "source": [
+    "A31"
+   ],
+   "confidence": "guess"
+  },
+  "bli_target_plate": {
+   "value": 96,
+   "unit": "wells",
+   "source": [
+    "A31"
+   ],
+   "confidence": "guess"
+  },
+  "spr_plate": {
+   "value": 384,
+   "unit": "wells",
+   "source": [
+    "A32"
+   ],
+   "confidence": "guess"
+  }
+ },
+ "throughput": {
+  "constructs_per_week": {
+   "value": 2000,
+   "range": [
+    1000,
+    5000
+   ],
+   "source": [
+    "A22",
+    "A23"
+   ],
+   "confidence": "likely",
+   "note": "Posts say 'thousands of constructs a week'. 2,000 is our pick inside that."
+  },
+  "experiments_per_month": {
+   "value": 150,
+   "source": [
+    "A21"
+   ],
+   "confidence": "confirmed",
+   "note": "'150+ experiments per month across expression, BLI, SPR, thermostability, and enzyme activity'."
+  },
+  "designs_per_experiment": {
+   "min_per_target": {
+    "value": 20,
+    "source": [
+     "A11"
+    ],
+    "confidence": "confirmed"
+   },
+   "configurator_steps": {
+    "value": [
+     20,
+     48,
+     96,
+     192,
+     384,
+     768
+    ],
+    "source": [
+     "A3"
+    ],
+    "confidence": "likely",
+    "note": "Slider labels came through garbled."
+   },
+   "homepage_default": {
+    "value": 96,
+    "source": [
+     "A1"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  "replicates_default": {
+   "value": 2,
+   "source": [
+    "A2",
+    "A11"
+   ],
+   "confidence": "confirmed"
+  },
+  "growth_last_year": {
+   "value": "5x",
+   "source": [
+    "A16"
+   ],
+   "confidence": "confirmed"
+  },
+  "campaigns": [
+   {
+    "name": "EGFR competition round 2 (2024)",
+    "designs": 400,
+    "expressed": 378,
+    "binders": 53,
+    "source": [
+     "A17",
+     "A18"
+    ],
+    "confidence": "confirmed"
+   },
+   {
+    "name": "EGFR competition, both rounds",
+    "designs": 601,
+    "source": [
+     "A17"
+    ],
+    "confidence": "confirmed"
+   },
+   {
+    "name": "Claude-designed binders (Aug 2026)",
+    "designs": 1320,
+    "targets": 16,
+    "expressed_pct": 95,
+    "binders": 354,
+    "source": [
+     "A14"
+    ],
+    "confidence": "confirmed"
+   },
+   {
+    "name": "Anthropic x Adaptyv competition (2026)",
+    "designs": 5000,
+    "targets": 5,
+    "validation_by": "2026-12-07",
+    "source": [
+     "A19"
+    ],
+    "confidence": "confirmed"
+   }
+  ]
+ },
+ "turnaround_days": {
+  "binding": {
+   "value": 21,
+   "range": [
+    21,
+    28
+   ],
+   "source": [
+    "A2",
+    "A11"
+   ],
+   "confidence": "confirmed"
+  },
+  "expression": {
+   "value": 14,
+   "range": [
+    14,
+    21
+   ],
+   "source": [
+    "A3",
+    "A11"
+   ],
+   "confidence": "confirmed"
+  },
+  "thermostability": {
+   "value": 14,
+   "range": [
+    14,
+    21
+   ],
+   "source": [
+    "A4",
+    "A11"
+   ],
+   "confidence": "confirmed"
+  },
+  "prime_fast_lane": {
+   "value": 3,
+   "source": [
+    "A1"
+   ],
+   "confidence": "confirmed",
+   "note": "'As little as 3 days', private beta."
+  },
+  "binding_timeline": {
+   "prep_and_dna": {
+    "days": [
+     1,
+     7
+    ],
+    "source": [
+     "A2"
+    ],
+    "confidence": "confirmed"
+   },
+   "expression": {
+    "days": [
+     8,
+     9
+    ],
+    "source": [
+     "A2"
+    ],
+    "confidence": "confirmed"
+   },
+   "kinetic_measurements": {
+    "days": [
+     10,
+     15
+    ],
+    "source": [
+     "A2"
+    ],
+    "confidence": "confirmed"
+   },
+   "review_and_release": {
+    "days": [
+     16,
+     21
+    ],
+    "source": [
+     "A2"
+    ],
+    "confidence": "confirmed"
+   }
+  }
+ },
+ "steps": {
+  "dna_order_external": {
+   "lead_time_days": [
+    5,
+    10
+   ],
+   "vendor": "Twist",
+   "source": [
+    "brief",
+    "A17"
+   ],
+   "confidence": "confirmed",
+   "note": "Twist part-sponsored DNA in the EGFR competition; diagram says 'Twist plate'."
+  },
+  "dna_make_in_house": {
+   "lead_time_days": 2,
+   "method": "assembled from fragments (PCR, Golden Gate, Gibson); linear DNA straight into expression, no cloning",
+   "source": [
+    "brief",
+    "A7",
+    "A8",
+    "A14",
+    "A22"
+   ],
+   "confidence": "confirmed"
+  },
+  "dna_reconstitution": {
+   "minutes": 60,
+   "source": [],
+   "confidence": "guess"
+  },
+  "dna_dilution": {
+   "minutes": 30,
+   "optional": true,
+   "source": [
+    "brief"
+   ],
+   "confidence": "guess"
+  },
+  "expression_plate_prep": {
+   "minutes": 45,
+   "source": [],
+   "confidence": "guess"
+  },
+  "expression_run": {
+   "system": {
+    "value": "PURE (reconstituted E. coli cell-free); lysate-based also used",
+    "source": [
+     "A8",
+     "A22"
+    ],
+    "confidence": "confirmed"
+   },
+   "reaction_volume_ul": {
+    "value": 8,
+    "source": [
+     "A7"
+    ],
+    "confidence": "confirmed"
+   },
+   "dna_input_nm": {
+    "value": 4,
+    "source": [
+     "A7"
+    ],
+    "confidence": "confirmed"
+   },
+   "hours": {
+    "value": 8,
+    "range": [
+     2,
+     8
+    ],
+    "source": [
+     "A7",
+     "A8"
+    ],
+    "confidence": "confirmed",
+    "note": "SPR methods: 8 h at 37 \u00b0C. Wiki: 4\u20136 h for max yield, 2\u20133 h enough for screening."
+   },
+   "temperature_c": {
+    "value": 37,
+    "source": [
+     "A7"
+    ],
+    "confidence": "confirmed"
+   },
+   "success_rate": {
+    "value": 0.95,
+    "range": [
+     0.9,
+     0.95
+    ],
+    "source": [
+     "A2",
+     "A14",
+     "A17"
+    ],
+    "confidence": "confirmed"
+   },
+   "yield_ug_per_ml": {
+    "range": [
+     50,
+     600
+    ],
+    "source": [
+     "A8"
+    ],
+    "confidence": "confirmed"
+   },
+   "expression_plate_shelf_life_days": {
+    "value": 14,
+    "source": [
+     "brief"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  "split_gfp": {
+   "tag": {
+    "value": "GFP11 on the C-terminus next to the Twin-Strep tag; GFP1-10 added in excess",
+    "source": [
+     "A9"
+    ],
+    "confidence": "confirmed"
+   },
+   "incubation_minutes": {
+    "value": 120,
+    "source": [],
+    "confidence": "guess"
+   },
+   "read_minutes": {
+    "value": 10,
+    "source": [],
+    "confidence": "guess"
+   },
+   "feeds_bli_normalisation": {
+    "value": "in progress",
+    "source": [
+     "brief"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  "target_reconstitution_bufferexchange_qc": {
+   "hours": 4,
+   "source": [
+    "brief",
+    "A24"
+   ],
+   "confidence": "guess",
+   "note": "Lab operations do 'reconstituting and aliquoting target proteins'."
+  },
+  "bli_target_plate_prep": {
+   "minutes": 30,
+   "source": [],
+   "confidence": "guess"
+  },
+  "bli_sample_plate_prep": {
+   "minutes": 30,
+   "source": [],
+   "confidence": "guess"
+  },
+  "bli_run": {
+   "capture_and_baselines_s": {
+    "value": 440,
+    "source": [
+     "A6"
+    ],
+    "confidence": "confirmed"
+   },
+   "association_s": {
+    "value": 220,
+    "source": [
+     "A6"
+    ],
+    "confidence": "confirmed"
+   },
+   "dissociation_s": {
+    "value": 240,
+    "source": [
+     "A6"
+    ],
+    "confidence": "confirmed"
+   },
+   "concentrations_full": {
+    "value": 4,
+    "range_nm": [
+     30,
+     1000
+    ],
+    "source": [
+     "A6"
+    ],
+    "confidence": "confirmed"
+   },
+   "concentrations_screen": {
+    "value": 2,
+    "source": [
+     "A2",
+     "A11"
+    ],
+    "confidence": "confirmed"
+   },
+   "minutes_per_32_probe_cycle": {
+    "value": 40,
+    "source": [
+     "A6",
+     "A31"
+    ],
+    "confidence": "likely",
+    "note": "440 s + 4 \u00d7 460 s \u2248 38 min, plus regeneration."
+   },
+   "temperature_c": {
+    "value": 25,
+    "source": [
+     "A6"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  "spr_run": {
+   "capture_s": {
+    "value": 750,
+    "source": [
+     "A7"
+    ],
+    "confidence": "confirmed"
+   },
+   "concentrations": {
+    "value": 7,
+    "source": [
+     "A7"
+    ],
+    "confidence": "confirmed"
+   },
+   "hours_per_array": {
+    "value": 2.7,
+    "source": [
+     "A7"
+    ],
+    "confidence": "likely",
+    "note": "22 min capture and baseline, 7 \u00d7 16 min single-cycle, 25 min regeneration and wash."
+   }
+  },
+  "data_processing": {
+   "hours": 1,
+   "automated": true,
+   "source": [
+    "A20"
+   ],
+   "confidence": "guess"
+  },
+  "data_review": {
+   "days": [
+    1,
+    6
+   ],
+   "source": [
+    "A2",
+    "A20"
+   ],
+   "confidence": "likely"
+  },
+  "rerun_rule": {
+   "value": "unclear calls are re-run, not reported as ambiguous; reviewer decides re-runs",
+   "source": [
+    "A20",
+    "A15"
+   ],
+   "confidence": "confirmed"
+  }
+ },
+ "materials": {
+  "targets": {
+   "vendors": {
+    "value": [
+     "ACRO Biosystems",
+     "Sino Biological",
+     "Kactus Biosciences"
+    ],
+    "source": [
+     "A5",
+     "A13"
+    ],
+    "confidence": "confirmed"
+   },
+   "catalog": {
+    "value": "targets.adaptyvbio.com; each entry has vendor, catalog number, tags, expression system",
+    "source": [
+     "A5",
+     "A13"
+    ],
+    "confidence": "confirmed"
+   },
+   "typical_amount_per_run_ug": {
+    "value": 150,
+    "source": [
+     "A5"
+    ],
+    "confidence": "confirmed",
+    "note": "What they ask from customers who ship their own target."
+   },
+   "min_stock_conc_mg_ml": {
+    "value": 0.5,
+    "source": [
+     "A5"
+    ],
+    "confidence": "confirmed"
+   },
+   "lot_serves_sequences": {
+    "value": 33,
+    "source": [
+     "A13"
+    ],
+    "confidence": "confirmed",
+    "note": "API example of 'per_broken_lot' pricing: a $300 lot serves up to 33 sequences."
+   },
+   "leftover_reused": {
+    "value": true,
+    "source": [
+     "A11"
+    ],
+    "confidence": "confirmed",
+    "note": "'Previously held target material is reused, not re-charged.'"
+   },
+   "forbidden_tags": {
+    "value": [
+     "Twin-Strep",
+     "biotin"
+    ],
+    "source": [
+     "A5"
+    ],
+    "confidence": "confirmed"
+   },
+   "in_house_target_turnaround_weeks": {
+    "value": 4,
+    "source": [
+     "A5"
+    ],
+    "confidence": "confirmed"
+   },
+   "stock_tube_abe_art_format": {
+    "value": "unknown",
+    "source": [
+     "brief"
+    ],
+    "confidence": "guess",
+    "note": "No public meaning found. Treat as a free-text format label on the stock tube."
+   }
+  },
+  "dna": {
+   "main_vendor": {
+    "value": "Twist",
+    "source": [
+     "brief",
+     "A17"
+    ],
+    "confidence": "confirmed"
+   },
+   "in_house_synthesis_platform_in_rnd": {
+    "value": true,
+    "source": [
+     "A22",
+     "A34"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  "buffers": {
+   "bli_running_buffer": {
+    "value": "10 mM HEPES, 150 mM NaCl, 3 mM EDTA, 0.2% Tween-20, pH 7.4",
+    "source": [
+     "A6"
+    ],
+    "confidence": "confirmed"
+   },
+   "regeneration": {
+    "value": "10 mM glycine-HCl pH 1.5",
+    "source": [
+     "A6",
+     "A7"
+    ],
+    "confidence": "confirmed"
+   },
+   "production_cadence": {
+    "value": "weekly",
+    "source": [
+     "A23"
+    ],
+    "confidence": "confirmed"
+   }
+  },
+  "consumables": {
+   "bli_biosensors": {
+    "value": "Strep-Tactin XT probes",
+    "source": [
+     "A6"
+    ],
+    "confidence": "confirmed"
+   },
+   "spr_chips": {
+    "value": [
+     "CMDP",
+     "HC30M"
+    ],
+    "source": [
+     "A7"
+    ],
+    "confidence": "confirmed"
+   }
+  }
+ },
+ "software": {
+  "lab_system": {
+   "value": "LabOS (internal: scheduling, execution, data capture, sample tracking; has an API)",
+   "source": [
+    "A21",
+    "A22",
+    "A25",
+    "A29",
+    "A35"
+   ],
+   "confidence": "confirmed"
+  },
+  "database": {
+   "value": "Postgres on Supabase",
+   "source": [
+    "A28"
+   ],
+   "confidence": "confirmed"
+  },
+  "compute": {
+   "value": "Modal",
+   "source": [
+    "A28"
+   ],
+   "confidence": "confirmed"
+  },
+  "languages": {
+   "value": [
+    "Python",
+    "TypeScript"
+   ],
+   "source": [
+    "A28",
+    "A29"
+   ],
+   "confidence": "confirmed"
+  },
+  "benchling": {
+   "value": false,
+   "source": [
+    "A37"
+   ],
+   "confidence": "likely",
+   "note": "Not mentioned in any of 34 open job posts."
+  },
+  "customer_side": {
+   "value": "Foundry portal, public API, MCP server",
+   "source": [
+    "A1",
+    "A12"
+   ],
+   "confidence": "confirmed"
+  },
+  "sequence_input": {
+   "value": [
+    "CSV",
+    "FASTA"
+   ],
+   "source": [
+    "A11"
+   ],
+   "confidence": "confirmed"
+  },
+  "inventory_today": {
+   "value": "inventory system exists but rollout of new inventory process is under way; stock 'remembered rather than planned'",
+   "source": [
+    "A23",
+    "A24",
+    "A25"
+   ],
+   "confidence": "confirmed"
+  }
+ }
+}

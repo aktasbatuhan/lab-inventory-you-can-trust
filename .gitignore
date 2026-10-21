@@ -9,3 +9,5 @@ node_modules/
 *.sqlite
 sim/out/
 .claude/worktrees/
+sim/out/
+sim/__pycache__/
