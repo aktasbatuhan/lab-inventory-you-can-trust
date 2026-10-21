@@ -1,0 +1,413 @@
+<title>Lab Ledger Review</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a lab notebook with a ledger. Sticky header with three views; the test
+   view is a list on the left and the ledger of one test on the right. */
+:root {
+  --paper: #f3f5f2;      /* bench paper, faintly green */
+  --sheet: #fbfcfa;
+  --ink: #17221e;
+  --muted: #5c6b65;
+  --line: #d9e0dc;
+  --accent: #2f7d5b;     /* a muted GFP green */
+  --accent-soft: #e2efe8;
+  --ok: #2f7d5b;
+  --bad: #b3402a;
+  --bad-soft: #f7e4df;
+  --warn: #9a6a12;
+  --warn-soft: #f6ecd6;
+  --rule: #5a4fb3;       /* things the system assumed by rule */
+  --rule-soft: #e9e7f7;
+  --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #111815; --sheet: #172019; --ink: #e3ebe6; --muted: #93a39b; --line: #2a3530;
+    --accent: #6cc39a; --accent-soft: #1d3a2d; --ok: #6cc39a; --bad: #ef8a73; --bad-soft: #3d221c;
+    --warn: #e2b45a; --warn-soft: #382c14; --rule: #a99ff0; --rule-soft: #262245; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #111815; --sheet: #172019; --ink: #e3ebe6; --muted: #93a39b; --line: #2a3530;
+  --accent: #6cc39a; --accent-soft: #1d3a2d; --ok: #6cc39a; --bad: #ef8a73; --bad-soft: #3d221c;
+  --warn: #e2b45a; --warn-soft: #382c14; --rule: #a99ff0; --rule-soft: #262245; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sheet); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--sheet); border-bottom: 1px solid var(--line); }
+header .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; padding-block: 14px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: 22px; margin: 0; letter-spacing: -0.01em; }
+h2 { font-family: var(--display); font-weight: 700; font-size: 26px; line-height: 1.2; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h3 { font-family: var(--display); font-weight: 500; font-size: 17px; margin: 0; text-wrap: balance; }
+nav { display: flex; gap: 4px; flex-wrap: wrap; }
+nav button { font: 500 14px var(--body); color: var(--muted); background: none; border: 1px solid transparent; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+nav button[aria-current="true"] { color: var(--ink); background: var(--accent-soft); border-color: var(--line); }
+nav button:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tally { margin-left: auto; font: 13px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+main { padding-block: 24px 64px; }
+
+/* Tests view */
+.split { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 860px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.list { display: grid; gap: 2px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); max-height: calc(100vh - 100px); overflow: auto; }
+@media (max-width: 860px) { .list { position: static; max-height: 320px; } }
+.item { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; text-align: left; font: inherit; color: inherit; background: none; border: 1px solid transparent; border-radius: 8px; padding: 8px 10px; cursor: pointer; }
+.item:hover { background: var(--sheet); }
+.item[aria-current="true"] { background: var(--sheet); border-color: var(--line); }
+.item .n { font: 12px var(--mono); color: var(--muted); }
+.item .t { font-weight: 500; text-transform: capitalize; }
+.pill { display: inline-flex; align-items: center; gap: 4px; font: 500 12px var(--mono); padding: 1px 8px; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pill.ok { color: var(--ok); background: var(--accent-soft); }
+.pill.bad { color: var(--bad); background: var(--bad-soft); }
+.detail { display: grid; gap: 24px; min-width: 0; }
+.head { display: grid; gap: 10px; }
+.summary { color: var(--muted); max-width: 72ch; white-space: pre-line; margin: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 12px var(--mono); padding: 3px 9px; border-radius: 6px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; }
+.chip.decision { cursor: default; color: var(--muted); }
+.block { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 16px; min-width: 0; }
+.story { white-space: pre-line; max-width: 75ch; margin: 0; }
+.cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 1080px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+.label { font: 600 12px var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+
+.events { display: grid; gap: 6px; }
+.ev { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); }
+.ev.voided { opacity: 0.6; }
+.ev.voided .what { text-decoration: line-through; text-decoration-color: var(--bad); }
+.ev.correction { background: var(--warn-soft); border-color: transparent; }
+.ev.byrule { background: var(--rule-soft); border-color: transparent; }
+.when { font: 12px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.4; }
+.what { display: grid; gap: 2px; min-width: 0; }
+.evtop { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
+.kind { font-weight: 600; }
+.who { font-size: 13px; color: var(--muted); }
+.src { font: 11px var(--mono); padding: 0 6px; border-radius: 4px; background: var(--paper); color: var(--muted); }
+.src.rule { background: var(--rule); color: var(--sheet); }
+.src.robot_log { background: var(--accent-soft); color: var(--accent); }
+.late { font: 11px var(--mono); color: var(--warn); }
+.ln { font-size: 13.5px; overflow-wrap: anywhere; }
+.ln .amt { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.ln .amt.neg { color: var(--bad); }
+.ln .amt.pos { color: var(--ok); }
+.note { font-size: 13px; color: var(--muted); font-style: italic; }
+code, .mono { font-family: var(--mono); font-size: 0.92em; }
+
+.checks { display: grid; gap: 6px; }
+.ck { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; font-size: 13.5px; padding: 6px 8px; border-radius: 6px; }
+.ck.no { background: var(--bad-soft); }
+.mark { font-weight: 700; }
+.ck.yes .mark { color: var(--ok); }
+.ck.no .mark { color: var(--bad); }
+.ck .val { font: 12px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.err { color: var(--bad); font: 13px var(--mono); }
+details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+pre.sql { margin: 10px 0 0; padding: 14px; background: var(--paper); border-radius: 8px; overflow-x: auto; font: 12px/1.55 var(--mono); }
+
+/* Scenarios view */
+.filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
+.filters input[type=search], .filters select { font: inherit; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--sheet); color: var(--ink); min-width: 0; }
+.filters input[type=search] { flex: 1 1 260px; }
+.filters label { font-size: 14px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.count { font: 13px var(--mono); color: var(--muted); }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; }
+.card { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.card:hover { border-color: var(--muted); }
+.card .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tag { font: 11px var(--mono); padding: 1px 7px; border-radius: 4px; background: var(--paper); color: var(--muted); }
+.tag.core { background: var(--accent-soft); color: var(--accent); }
+.tag.tested { background: var(--accent); color: var(--sheet); }
+.card p { margin: 0; font-size: 13.5px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Scenario drawer */
+.scrim { position: fixed; inset: 0; background: rgb(0 0 0 / 0.35); z-index: 20; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 100%); background: var(--sheet); z-index: 21; overflow-y: auto; padding: calc(24px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) calc(32px + env(safe-area-inset-bottom, 0px)) 24px; display: grid; gap: 16px; align-content: start; border-left: 1px solid var(--line); }
+.drawer .close { justify-self: end; font: inherit; background: none; border: 1px solid var(--line); border-radius: 8px; padding: 4px 12px; color: var(--ink); cursor: pointer; }
+.drawer section p { margin: 0; white-space: pre-line; }
+.drawer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+
+/* Simulation view */
+.empty { background: var(--sheet); border: 1px dashed var(--line); border-radius: 12px; padding: 28px; display: grid; gap: 12px; max-width: 760px; }
+.empty p { margin: 0; color: var(--muted); max-width: 70ch; }
+.runs { display: grid; gap: 14px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 10px; }
+.stat { display: grid; gap: 2px; }
+.stat .k { font-size: 12.5px; color: var(--muted); }
+.stat .v { font: 500 20px var(--mono); font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: no-preference) { .item, .card, nav button { transition: background-color .15s, border-color .15s; } }
+</style>
+
+<header>
+  <div class="wrap">
+    <h1>Lab Ledger Review</h1>
+    <nav aria-label="Views">
+      <button id="nav-tests" data-view="tests">Scenario tests</button>
+      <button id="nav-sim" data-view="sim">Simulation</button>
+      <button id="nav-scenarios" data-view="scenarios">Scenario catalog</button>
+    </nav>
+    <span class="tally" id="tally">Loading…</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="view-tests" class="split" aria-label="Scenario tests">
+    <div class="list" id="test-list" role="list"></div>
+    <div class="detail" id="test-detail"><p class="summary">Loading the test traces…</p></div>
+  </section>
+
+  <section id="view-sim" hidden aria-label="Simulation runs">
+    <div id="sim-body"></div>
+  </section>
+
+  <section id="view-scenarios" hidden aria-label="Scenario catalog">
+    <div class="filters">
+      <input type="search" id="sc-q" placeholder="Search stories, noise, ids" aria-label="Search scenarios">
+      <select id="sc-cluster" aria-label="Theme"><option value="">All themes</option></select>
+      <label><input type="checkbox" id="sc-short"> Shortlisted only</label>
+      <label><input type="checkbox" id="sc-tested"> Covered by a test</label>
+      <span class="count" id="sc-count"></span>
+    </div>
+    <div class="cards" id="sc-cards"></div>
+  </section>
+</main>
+
+<div id="drawer-root"></div>
+
+<script>
+const UNIT = { volume: "µL", mass: "µg", count: "pcs", activity: "U" };
+const KIND = {
+  receive: "Delivery received", register: "Registered", move: "Moved", transfer: "Transfer", split: "Split",
+  make: "Made", consume: "Used", loss: "Lost", scan: "Scanned", discard: "Thrown away", ship: "Shipped",
+  qc: "QC result", hold: "Put on hold", release: "Hold released", count: "Physical count",
+  "count approved": "Count approved", correction: "Correction", label: "Barcode", "run started": "Run started",
+  "run finished": "Run finished", "run aborted": "Run aborted", reconstitute: "Dissolved", measure: "Measured"
+};
+const state = { tests: [], scenarios: [], sim: [], byId: {}, tested: new Set(), view: "tests", test: 0 };
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const num = v => { const n = Number(v); return Number.isInteger(n) ? String(n) : String(+n.toFixed(3)); };
+const when = iso => {
+  if (!iso) return "";
+  const d = new Date(iso.slice(0, 10) + "T00:00:00Z");
+  const day = d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+  return `${day}<br>${iso.slice(11, 16)}`;
+};
+const lag = (a, b) => {
+  const ms = new Date(b) - new Date(a);
+  if (!(ms > 60000)) return "";
+  const h = ms / 3600000;
+  const txt = h < 1 ? `${Math.round(h * 60)} min` : h < 48 ? `${Math.round(h)} h` : `${Math.round(h / 24)} days`;
+  return `written down ${txt} later`;
+};
+const who = id => id ? id.replace(/^p:/, "").replace(/^robot:/, "robot ").replace(/^instrument:/, "").replace(/^rule:protocol-defaults/, "protocol rule") : "";
+const mat = m => m ? m.replace(/^[a-z_]+:/, "") : "";
+
+function line(l) {
+  switch (l.type) {
+    case "amount": {
+      const neg = Number(l.amount) < 0;
+      return `<span class="amt ${neg ? "neg" : "pos"}">${neg ? "−" : "+"}${num(Math.abs(l.amount))} ${UNIT[l.dimension] || l.dimension}</span> ${esc(mat(l.material))} <span class="mono">lot ${l.lot}</span> ${neg ? "out of" : "into"} <b>${esc(l.container)}</b>`;
+    }
+    case "move": return `<b>${esc(l.container)}</b> into ${esc(l.into)}${l.slot ? ` at ${esc(l.slot)}` : ""}`;
+    case "label": return `${l.action === "attach" ? "Label" : "Label removed"} <span class="mono">${esc(l.barcode)}</span> on ${esc(l.container)}`;
+    case "scan": return `Saw <b>${esc(l.container)}</b>${l.code ? ` (read <span class="mono">${esc(l.code)}</span>)` : ""}`;
+    case "exit": return `<b>${esc(l.container)}</b> ${l.kind === "discard" ? "thrown away" : "shipped to " + esc(l.destination || "?")}`;
+    case "qc": return `QC <b>${esc(l.outcome)}</b> for <span class="mono">lot ${l.lot}</span>, ${esc(l.assay)}`;
+    case "hold": return `Hold on ${l.lot ? `<span class="mono">lot ${l.lot}</span>` : `<b>${esc(l.container)}</b>`}: ${esc(l.reason)}`;
+    case "release": return `Releases the hold from event #${l.hold}`;
+    case "count": return `<b>${esc(l.container)}</b> ${l.found ? "found" + (l.amount != null ? `, about <span class="amt">${num(l.amount)}</span>` : "") : "<b>not found</b>"}`;
+    case "measure": return `${esc(l.property)} of <span class="mono">lot ${l.lot}</span> in ${esc(l.container)}: <span class="amt">${num(l.value)} ${esc(l.unit)}</span>`;
+    case "new lot": return `New <span class="mono">lot ${l.lot}</span> of ${esc(mat(l.material))}${l.supplier_lot ? `, supplier lot <span class="mono">${esc(l.supplier_lot)}</span>` : ""}${l.parents ? `, made from lots ${l.parents.join(", ")}` : ""}`;
+    default: return esc(JSON.stringify(l));
+  }
+}
+
+function eventRow(e) {
+  const cls = ["ev"];
+  if (e.voided_by) cls.push("voided");
+  if (e.voids) cls.push("correction");
+  if (e.source === "rule") cls.push("byrule");
+  const late = lag(e.occurred_at, e.recorded_at);
+  return `<div class="${cls.join(" ")}">
+    <div class="when">${when(e.occurred_at)}</div>
+    <div class="what">
+      <div class="evtop">
+        <span class="kind">${esc(KIND[e.kind] || e.kind)}</span>
+        <span class="who">${esc(who(e.performed_by || e.by))}</span>
+        <span class="src ${esc(e.source)}">${esc(e.source.replace("_", " "))}</span>
+        ${e.run ? `<span class="src">run ${e.run}${e.step ? ` step ${e.step}` : ""}</span>` : ""}
+        ${late ? `<span class="late">${late}</span>` : ""}
+        <span class="src">#${e.id}</span>
+      </div>
+      ${e.lines.map(l => `<div class="ln">${line(l)}</div>`).join("")}
+      ${e.voids ? `<div class="note">Corrects event #${e.voids}: ${esc(e.note)}</div>` : e.note ? `<div class="note">${esc(e.note)}</div>` : ""}
+      ${e.voided_by ? `<div class="note">Corrected by event #${e.voided_by}</div>` : ""}
+    </div>
+  </div>`;
+}
+
+function checkRow(c) {
+  return `<div class="ck ${c.ok ? "yes" : "no"}">
+    <span class="mark" aria-label="${c.ok ? "passed" : "failed"}">${c.ok ? "✓" : "✗"}</span>
+    <div><div>${esc(c.what)}</div><div class="val">${c.ok ? esc(c.actual) : `expected ${esc(c.expected)}, got ${esc(c.actual)}`}</div></div>
+  </div>`;
+}
+
+function renderList() {
+  document.getElementById("test-list").innerHTML = state.tests.map((t, i) => `
+    <button class="item" role="listitem" id="test-btn-${i}" data-i="${i}" aria-current="${i === state.test}">
+      <span class="n">${String(t.number).padStart(2, "0")}</span>
+      <span class="t">${esc(t.name)}</span>
+      <span class="pill ${t.passed ? "ok" : "bad"}">${t.checks_passed}/${t.checks_total}</span>
+    </button>`).join("");
+}
+
+function renderTest() {
+  const t = state.tests[state.test];
+  if (!t) return;
+  const chips = t.scenarios.map(id => `<button class="chip" data-sc="${id}">${id}</button>`).join("")
+    + t.decisions.map(d => `<span class="chip decision" title="See docs/decisions.md">${d}</span>`).join("");
+  document.getElementById("test-detail").innerHTML = `
+    <div class="head">
+      <div class="chips"><span class="pill ${t.passed ? "ok" : "bad"}">${t.passed ? "passes" : "fails"}, ${t.checks_passed} of ${t.checks_total} checks</span><span class="tag">${esc(t.file)}</span></div>
+      <h2 style="text-transform:capitalize">${esc(t.name)}</h2>
+      ${chips ? `<div class="chips">${chips}</div>` : ""}
+    </div>
+    ${t.blocks.map((b, j) => `
+      <article class="block">
+        ${b.story ? `<p class="story">${esc(b.story)}</p>` : ""}
+        ${b.error ? `<p class="err">${esc(b.error)}</p>` : ""}
+        <div class="cols">
+          <div><h3 class="label">What was recorded, in the order it happened (${b.events.length})</h3><div class="events">${b.events.map(eventRow).join("")}</div></div>
+          <div><h3 class="label">What the system had to say (${b.checks.length})</h3><div class="checks">${b.checks.map(checkRow).join("")}</div></div>
+        </div>
+        <details><summary>The test as SQL</summary><pre class="sql">${esc(b.sql)}</pre></details>
+      </article>`).join("")}`;
+}
+
+function scenarioCard(s) {
+  return `<button class="card" data-sc="${esc(s.id)}">
+    <div class="meta"><span class="mono">${esc(s.id)}</span>
+      ${s.depth === "core" ? `<span class="tag core">core</span>` : `<span class="tag">${esc(s.depth)}</span>`}
+      ${state.tested.has(s.id) ? `<span class="tag tested">tested</span>` : ""}
+      ${s.duplicate_of ? `<span class="tag">copy of ${esc(s.duplicate_of)}</span>` : ""}</div>
+    <h3>${esc(s.title)}</h3>
+    <p>${esc(s.story)}</p>
+    <div class="meta"><span class="tag">${esc((s.cluster || "").replaceAll("_", " "))}</span><span class="tag">${esc(s.frequency)}</span><span class="tag">cost if wrong: ${esc(s.cost_if_wrong)}</span></div>
+  </button>`;
+}
+
+function renderScenarios() {
+  const q = document.getElementById("sc-q").value.trim().toLowerCase();
+  const cl = document.getElementById("sc-cluster").value;
+  const short = document.getElementById("sc-short").checked;
+  const tested = document.getElementById("sc-tested").checked;
+  const rows = state.scenarios.filter(s =>
+    (!cl || s.cluster === cl) && (!short || s.shortlisted) && (!tested || state.tested.has(s.id)) &&
+    (!q || JSON.stringify([s.id, s.title, s.story, s.real_life_noise, s.system_should]).toLowerCase().includes(q)));
+  document.getElementById("sc-count").textContent = `${rows.length} of ${state.scenarios.length}`;
+  document.getElementById("sc-cards").innerHTML = rows.map(scenarioCard).join("") || `<p class="summary">Nothing matches. Try a shorter search or another theme.</p>`;
+}
+
+function openScenario(id) {
+  const s = state.byId[id];
+  if (!s) return;
+  const tests = state.tests.filter(t => t.scenarios.includes(id));
+  const list = v => Array.isArray(v) ? `<ul>${v.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p>${esc(v)}</p>`;
+  document.getElementById("drawer-root").innerHTML = `
+    <div class="scrim" id="scrim"></div>
+    <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="dr-title">
+      <button class="close" id="dr-close">Close</button>
+      <div class="meta chips"><span class="mono">${esc(s.id)}</span><span class="tag">${esc((s.cluster || "").replaceAll("_", " "))}</span><span class="tag ${s.depth === "core" ? "core" : ""}">${esc(s.depth)}</span></div>
+      <h2 id="dr-title">${esc(s.title)}</h2>
+      <section><h3 class="label">Story</h3><p>${esc(s.story)}</p></section>
+      <section><h3 class="label">How it goes wrong in real life</h3>${list(s.real_life_noise)}</section>
+      <section><h3 class="label">What the system should do</h3><p>${esc(s.system_should)}</p></section>
+      <section><h3 class="label">Why it matters</h3><p>${esc(s.frequency)}, cost if wrong ${esc(s.cost_if_wrong)}: ${esc(s.cost_reason)}</p></section>
+      ${tests.length ? `<section><h3 class="label">Tested in</h3><div class="chips">${tests.map(t => `<button class="chip" data-goto="${state.tests.indexOf(t)}">${String(t.number).padStart(2, "0")} ${esc(t.name)}</button>`).join("")}</div></section>` : ""}
+    </aside>`;
+  document.getElementById("dr-close").focus();
+}
+const closeDrawer = () => { document.getElementById("drawer-root").innerHTML = ""; };
+
+function renderSim() {
+  const el = document.getElementById("sim-body");
+  if (!state.sim.length) {
+    el.innerHTML = `<div class="empty">
+      <h2>No simulation runs yet</h2>
+      <p>Two simulations will show up here. The first rolls dice for every mistake people make in a lab, at researched rates, and compares what really happened with what the inventory was told. The second lets AI agents play the lab staff for a week under time pressure, with a referee writing up what went wrong.</p>
+      <p>Each run will show how far the inventory drifted from the truth, how many mistakes its flags caught, and the ones that slipped through, with the events behind each one.</p>
+    </div>`;
+    return;
+  }
+  el.innerHTML = `<div class="runs">${state.sim.map(r => `
+    <article class="block">
+      <h3>${esc(r.title || r.path)}</h3>
+      <div class="stats">${Object.entries(r).filter(([k, v]) => typeof v === "number").map(([k, v]) => `<div class="stat"><span class="k">${esc(k.replaceAll("_", " "))}</span><span class="v">${num(v)}</span></div>`).join("")}</div>
+      <span class="tag">${esc(r.path)}</span>
+    </article>`).join("")}</div>`;
+}
+
+function show(view, push = true) {
+  state.view = view;
+  for (const v of ["tests", "sim", "scenarios"]) {
+    document.getElementById("view-" + v).hidden = v !== view;
+    document.getElementById("nav-" + v).setAttribute("aria-current", String(v === view));
+  }
+  if (push) {
+    const h = view === "tests" ? "test-" + String(state.tests[state.test]?.number ?? 1).padStart(2, "0") : view;
+    try { history.replaceState(null, "", "#" + h); } catch (e) {}
+  }
+}
+
+function selectTest(i) {
+  state.test = i;
+  renderList();
+  renderTest();
+  show("tests");
+}
+
+document.addEventListener("click", e => {
+  const nav = e.target.closest("nav button[data-view]");
+  if (nav) return show(nav.dataset.view);
+  const item = e.target.closest(".item[data-i]");
+  if (item) return selectTest(Number(item.dataset.i));
+  const go = e.target.closest("[data-goto]");
+  if (go) { closeDrawer(); return selectTest(Number(go.dataset.goto)); }
+  const sc = e.target.closest("[data-sc]");
+  if (sc) return openScenario(sc.dataset.sc);
+  if (e.target.id === "scrim" || e.target.id === "dr-close") closeDrawer();
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+for (const id of ["sc-q", "sc-cluster", "sc-short", "sc-tested"]) document.getElementById(id).addEventListener("input", renderScenarios);
+
+async function load(name) {
+  try { const r = await fetch(`data/${name}.json`); return r.ok ? r.json() : []; } catch (e) { return []; }
+}
+
+(async () => {
+  [state.tests, state.scenarios, state.sim] = await Promise.all([load("tests"), load("scenarios"), load("sim")]);
+  state.tests.sort((a, b) => a.number - b.number);
+  for (const s of state.scenarios) state.byId[s.id] = s;
+  for (const t of state.tests) for (const id of t.scenarios) state.tested.add(id);
+  const clusters = [...new Set(state.scenarios.map(s => s.cluster).filter(Boolean))].sort();
+  document.getElementById("sc-cluster").insertAdjacentHTML("beforeend", clusters.map(c => `<option value="${esc(c)}">${esc(c.replaceAll("_", " "))}</option>`).join(""));
+  const passed = state.tests.filter(t => t.passed).length;
+  const checks = state.tests.reduce((n, t) => n + t.checks_total, 0);
+  document.getElementById("tally").textContent = `${passed}/${state.tests.length} tests pass, ${checks} checks, ${state.scenarios.length} scenarios`;
+  renderList(); renderScenarios(); renderSim();
+  const h = (location.hash || "").slice(1);
+  const m = h.match(/^test-(\d+)$/);
+  if (m) { const i = state.tests.findIndex(t => t.number === Number(m[1])); if (i >= 0) state.test = i; }
+  renderList(); renderTest();
+  show(["sim", "scenarios"].includes(h) ? h : "tests", false);
+})();
+</script>
