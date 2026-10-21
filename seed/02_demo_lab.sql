@@ -158,7 +158,7 @@ begin
   box2 := register_container('box_9x9', '2026-09-17 09:10', 'p:lena', 'BOX-0012', 'Box PD-L1 P-2231', p_into => rack_a, p_position => 'slot 2');
   pdl1_kids := split(pdl1, pdl1_l, 8, 25, 'tube_matrix', '2026-09-17 09:20', 'p:lena', 'PDL1-P2231-', p_into => box2);
   perform move(pdl1, f1, null, '2026-09-17 09:40', 'p:lena');
-  select e.id into dup_ev from event e where e.external_ref = 'acro-portal:SHP-88123';
+  select e.id into dup_ev from event e where e.external_ref like 'acro-portal:SHP-88123 / %';
   perform void(dup_ev, 'p:sara', 'Same delivery as DN-5530, imported a second time from the supplier portal', '2026-09-18 08:40');
 
   ---------------------------------------------------------------------------

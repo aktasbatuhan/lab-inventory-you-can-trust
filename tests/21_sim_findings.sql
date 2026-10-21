@@ -1,4 +1,5 @@
--- Gaps the dice simulation found (journal/agent-runs/schema-gaps-sim.md, items 2, 4, 5 and 7).
+-- Gaps the dice simulation found (journal/agent-runs/schema-gaps-sim.md, items 2, 4, 5 and 7)
+-- and the agent lab found (journal/agent-runs/schema-gaps-agentlab.md, items 1 and 2).
 begin;
 do $$
 declare
@@ -52,5 +53,20 @@ begin
   perform discard(plate, '2026-09-16 09:00', 'p:lena');
   perform consume(well(plate, 'A1'), pl, 20, 'volume', '2026-09-16 11:00', 'p:marco');
   perform expect((select count(*) from flags('2026-09-16 12:00', 'infinity') where flag = 'seen after it left' and container_id = plate), 1::bigint, 'pipetting from a binned plate is flagged');
+
+  -- From the agent lab: one packing slip, two vials. Both can be booked on the
+  -- same note; the same vial twice still can't.
+  t1 := register_container('tube_1_5ml', '2026-09-20 09:00', 'p:lena', 'PDL-01', p_into => p.freezer);
+  t2 := register_container('tube_1_5ml', '2026-09-20 09:00', 'p:lena', 'PDL-02', p_into => p.freezer);
+  l1 := receive('vendorA:PDL1-200', t1, 200, 'volume', '2026-09-20 09:00', 'p:lena', p_supplier_lot => 'P5', p_ref => 'delivery:DN-900');
+  l2 := receive('vendorA:PDL1-200', t2, 200, 'volume', '2026-09-20 09:00', 'p:lena', p_supplier_lot => 'P6', p_ref => 'delivery:DN-900');
+  perform expect((select count(*) from lot where id in (l1, l2)), 2::bigint, 'two vials on one note');
+  perform expect_error(format('select receive(%L, %s, 200, %L, %L, %L, p_supplier_lot => %L, p_ref => %L)',
+                              'vendorA:PDL1-200', t1, 'volume', '2026-09-20 09:05', 'p:lena', 'P5', 'delivery:DN-900'),
+                       'duplicate key', 'the same vial on the same note twice');
+
+  -- And a QC result can take its sample in the same step.
+  perform qc(l1, 'pass', 'SDS-PAGE', '2026-09-20 12:00', 'p:marco', p_sample_from => t1, p_sample_ul => 5);
+  perform expect((select amount from balances('2026-09-20 13:00', 'infinity') where container_id = t1), 195::numeric, 'vial after the QC sample');
 end $$;
 rollback;

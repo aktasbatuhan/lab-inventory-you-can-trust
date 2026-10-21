@@ -106,8 +106,12 @@ returns bigint language plpgsql as $$
 -- are one lot), or re-attaches a corrected amount to the lot it belongs to.
 -- p_material is for made-to-order products: one "custom gene" product, a
 -- different material (design) on every delivery.
+-- A delivery note can list several vials, so the reference that stops a
+-- delivery being counted twice is the note plus the container it was booked
+-- into: the same vial on the same note can't be booked twice, a second vial can.
 declare
-  ev bigint := coalesce(p_event, new_event('receive', p_at, p_by, p_source, p_ref => p_ref, p_recorded => p_recorded));
+  ev bigint := coalesce(p_event, new_event('receive', p_at, p_by, p_source,
+                                           p_ref => p_ref || ' / container ' || p_container, p_recorded => p_recorded));
   l bigint := p_lot;
 begin
   if l is null then
@@ -259,12 +263,19 @@ begin
   return ev;
 end $$;
 
+-- The sample the assay used can be recorded in the same step, so the honest
+-- record is also the easy one.
 create function qc(p_lot bigint, p_outcome text, p_assay text, p_at timestamptz, p_by text,
-                   p_measured jsonb default null, p_recorded timestamptz default null)
+                   p_measured jsonb default null, p_recorded timestamptz default null,
+                   p_sample_from bigint default null, p_sample_ul numeric default null)
 returns bigint language plpgsql as $$
 declare ev bigint := new_event('qc', p_at, p_by, 'manual', p_recorded => p_recorded);
 begin
   insert into qc_result (event_id, lot_id, assay, outcome, measured) values (ev, p_lot, p_assay, p_outcome, p_measured);
+  if p_sample_from is not null and p_sample_ul is not null then
+    insert into quantity_entry (event_id, container_id, lot_id, dimension, amount, reason)
+    values (ev, p_sample_from, p_lot, 'volume', -p_sample_ul, 'consume');
+  end if;
   return ev;
 end $$;
 

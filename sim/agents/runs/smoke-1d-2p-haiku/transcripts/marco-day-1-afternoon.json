@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 94423,
+ "stop_reason": "end_turn",
+ "session_id": "d83dba79-93b4-4283-8128-13272381bf49",
+ "total_cost_usd": 0.020885639999999997,
+ "usage": {
+  "input_tokens": 8,
+  "cache_creation_input_tokens": 2954,
+  "cache_read_input_tokens": 140224,
+  "output_tokens": 1318,
+  "output_tokens_details": {
+   "thinking_tokens": 377
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 2954,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 642,
+    "cache_read_input_tokens": 35982,
+    "cache_creation_input_tokens": 796,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 796
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-haiku-5-5": {
+   "inputTokens": 76,
+   "outputTokens": 13534,
+   "thinkingTokens": 4929,
+   "cacheReadInputTokens": 795584,
+   "cacheCreationInputTokens": 30776,
+   "webSearchRequests": 0,
+   "costUSD": 0.020885639999999997,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "canonicalModel": "claude-haiku-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 4,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "Afternoon block handover, Marco, Monday 7 Sep.\n\n**Task list:** all four original tasks (T1\u2013T4) were ticked off this morning. Nothing new is on the list except Sara's request.\n\n**Sara's request (open):** at 13:45 she asked whether I could be ready for Gator 1 at 10:45, in case the slot moved up 15 minutes. That time had already passed when her message reached me, so I didn't know whether the 11:00 run went ahead. I messaged her at 13:47 asking for the new slot time, or whether the run has already happened. She hasn't replied yet.\n\n**Ready for the run (if it's still pending):**\n- BLI plate TP-00048 on Bench B2, 4 \u00b5L EGFR in each of A1\u2013H1.\n- Running buffer BUF-00049 (40 mL) on Bench B2.\n- 32 sensors taken from SEN-00003, which is back on Shelf S1 (352 left).\n\n**Things to watch:**\n- **Plate has been out since about 08:20.** TP-00048 has been on the bench for about five and a half hours. Target is fine for a working day, but if the run is delayed much further, someone should decide whether to make a fresh plate.\n- **Records checked:** the inventory matches the bench for TP-00048, BUF-00049 and SEN-00003.\n- **Morning issues still stand:** the duplicate buffer entry I corrected (event 172), the EGFR and PD-L1 volumes being estimates rather than checked values, and the two frosted PD-L1 labels (ALQ-00013-004, ALQ-00029-002) are all still relevant for whoever picks up the work.",
+ "ttft_ms": 1640,
+ "type": "result",
+ "duration_ms": 10615,
+ "uuid": "e20da2b7-a62b-4d13-887c-632c7cd3c7b2",
+ "ttft_stream_ms": 1404,
+ "time_to_request_ms": 53,
+ "first_content_frame_ms": 1405,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 11.8,
+ "exit_code": 0
+}

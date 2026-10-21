@@ -1,0 +1,176 @@
+{
+ "drift": [
+  {
+   "what": "amount",
+   "container": "ALQ-00011-001",
+   "material": "target:egfr",
+   "really": 12.91,
+   "inventory_says": 13.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00029-002",
+   "material": "target:pdl1",
+   "really": 45.39,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "TP-00048:B1",
+   "material": "target:egfr",
+   "really": 4.06,
+   "inventory_says": 4.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "TP-00048:C1",
+   "material": "target:egfr",
+   "really": 4.03,
+   "inventory_says": 4.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "TP-00048:D1",
+   "material": "target:egfr",
+   "really": 3.95,
+   "inventory_says": 4.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "TP-00048:G1",
+   "material": "target:egfr",
+   "really": 4.02,
+   "inventory_says": 4.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "TP-00048:H1",
+   "material": "target:egfr",
+   "really": 4.03,
+   "inventory_says": 4.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "TGT-00050",
+   "material": "target:egfr",
+   "really": 14.98,
+   "inventory_says": 20.0,
+   "class": "off",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "TGT-00051",
+   "material": "target:pdl1",
+   "really": 194.96,
+   "inventory_says": 0.0,
+   "class": "off",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00053-001",
+   "material": "target:egfr",
+   "really": 44.51,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00053-002",
+   "material": "target:egfr",
+   "really": 45.48,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  }
+ ],
+ "flags": [],
+ "friction": [
+  {
+   "at": "2026-09-07T08:29:13.678761+02:00",
+   "who": "lena",
+   "what": "frosted label on KIT-00034"
+  },
+  {
+   "at": "2026-09-07T08:47:34.000660+02:00",
+   "who": "marco",
+   "what": "frosted label on ALQ-00013-004"
+  },
+  {
+   "at": "2026-09-07T08:48:04.000660+02:00",
+   "who": "marco",
+   "what": "frosted label on ALQ-00029-002"
+  }
+ ],
+ "tasks": {
+  "tech": [
+   {
+    "id": "T1",
+    "text": "A target delivery is due around 09:00 on the Goods-in shelf. Book every vial in as soon as it arrives.",
+    "due": "10:30",
+    "done_at": null,
+    "note": ""
+   },
+   {
+    "id": "T2",
+    "text": "QC each new target vial (qc_check) and record the result.",
+    "due": "13:00",
+    "done_at": null,
+    "note": ""
+   },
+   {
+    "id": "T3",
+    "text": "Split every vial that passed QC into 45 \u00b5L aliquots in a new box in Freezer F80-1, then bin the empty vial.",
+    "due": "16:00",
+    "done_at": null,
+    "note": ""
+   }
+  ],
+  "scientist": [
+   {
+    "id": "T1",
+    "text": "BLI run for experiment EXP-07 (EGFR) is booked on Gator 1 at 11:00. Prepare the target plate: a new BLI plate with 4 \u00b5L of EGFR target in each of wells A1 to H1, from the EGFR aliquots in Freezer F80-1. Use part-used aliquots first.",
+    "due": "10:45",
+    "done_at": "08:42",
+    "note": "TP-00048 loaded A1-H1, 4 \u00b5L EGFR each from ALQ-00011-001"
+   },
+   {
+    "id": "T2",
+    "text": "For the same run, take 40 mL of BLI running buffer from Fridge R1 and 32 sensors from a sensor box on Shelf S1.",
+    "due": "11:00",
+    "done_at": "08:44",
+    "note": "40 mL bli-running in BUF-00049 (Bench B2); 32 sensors from SEN-00003"
+   },
+   {
+    "id": "T3",
+    "text": "Put the EGFR aliquots you used back in their box in the -80, or bin any that are empty.",
+    "due": "11:30",
+    "done_at": "08:49",
+    "note": "ALQ-00011-001 (~13 \u00b5L left) returned to BOX-00010 slot 1, Freezer F80-1. Not empty so not binned."
+   },
+   {
+    "id": "T4",
+    "text": "Priya (data reviewer) is planning a PD-L1 re-run for Thursday and needs to know how much PD-L1 target is usable. Find out and tell her.",
+    "due": "14:00",
+    "done_at": "08:52",
+    "note": "Told Priya PD-L1 usable: 420 \u00b5L, 12 tubes, 3 lots, all in F80-1; no run consumption recorded; records last confirmed 19\u201327 Aug."
+   }
+  ]
+ }
+}

@@ -1,0 +1,165 @@
+# What happened in the lab
+
+Every tool call in order of simulated time, in plain words. The full calls with arguments and answers are in `calls.jsonl` and `log/day-N.txt`.
+
+## Day 1, Monday 7 September
+
+- 08:00 Marco checked the task list.
+- 08:00 Lena checked the task list.
+- 08:00 Lena looked in Goods-in shelf.
+- 08:00 Marco asked the inventory (shared_target_left protein=EGFR).
+- 08:00 Lena asked the inventory (expiring days=7).
+- 08:01 Marco asked the inventory (where_is_it barcodes=ALQ-00011-001,ALQ-00027-001,ALQ-00038-001).
+- 08:02 Lena asked the inventory (shared_target_left protein=EGFR).
+- 08:03 Marco asked the inventory (flags ).
+- 08:03 Lena looked in Goods-in shelf.
+- 08:03 Lena asked the inventory (waste from=2026-09-01).
+- 08:04 Marco looked in BOX-00010.
+- 08:05 Marco looked in BOX-00026.
+- 08:05 Marco looked in BOX-00037.
+- 08:05 Lena asked the inventory (flags ).
+- 08:06 Lena looked in Goods-in shelf.
+- 08:06 Marco: aLQ-00011-001 is a tube_matrix with egfr, about 45 µL by eye. It is BOX-00010 slot 1 in Freezer F80-1. Supplier lot on the label: S000.
+- 08:06 Marco: took a new plate_bli, printed and stuck on label TP-00048, and put it on Bench B2.
+- 08:07 Lena asked the inventory (where_is_it barcodes=BUF-00046).
+- 08:08 Lena looked in Goods-in shelf.
+- 08:08 Marco take ALQ-00011-001 (egfr, about 45 µL by eye) out of BOX-00010 slot 1 in Freezer F80-1 and put it on Bench B2.
+- 08:08 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00048:A1.
+- 08:09 Lena asked the inventory (where_is_it barcodes=ALQ-00011-001).
+- 08:09 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00048:B1.
+- 08:10 Lena looked in Goods-in shelf.
+- 08:10 Lena looked in Goods-in shelf.
+- 08:10 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00048:C1.
+- 08:11 Lena looked in Goods-in shelf.
+- 08:11 Lena looked in Freezer F80-1.
+- 08:11 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00048:D1.
+- 08:12 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00048:E1.
+- 08:12 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00048:F1.
+- 08:13 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00048:G1.
+- 08:14 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00048:H1.
+- 08:15 Marco tried record transfer but couldn't: the inventory doesn't know 'PLATE'
+- 08:15 Marco tried record transfer but couldn't: the inventory doesn't know 'PLATE'
+- 08:15 Marco tried record transfer but couldn't: the inventory doesn't know 'TP-00048'
+- 08:15 Marco tried record transfer but couldn't: the inventory doesn't know 'TP-00048'
+- 08:16 Marco recorded it. new plate_bli TP-00048 in Bench B2.
+- 08:16 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00048:A1 (event 161).
+- 08:17 Lena looked in Goods-in shelf.
+- 08:17 Lena looked in BOX-00010.
+- 08:17 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00048:B1 (event 162).
+- 08:18 Lena looked in Goods-in shelf.
+- 08:18 Lena looked in Goods-in shelf.
+- 08:18 Lena looked in Freezer F80-1.
+- 08:18 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00048:C1 (event 163).
+- 08:19 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00048:D1 (event 164).
+- 08:20 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00048:E1 (event 165).
+- 08:21 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00048:F1 (event 166).
+- 08:21 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00048:G1 (event 167).
+- 08:22 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00048:H1 (event 168).
+- 08:23 Lena looked in Goods-in shelf.
+- 08:23 Lena looked in Goods-in shelf.
+- 08:23 Lena looked in Goods-in shelf.
+- 08:23 Lena looked in Freezer F80-2.
+- 08:23 Marco: aLQ-00011-001 is now in BOX-00010 at slot 1.
+- 08:24 Marco recorded it. ALQ-00011-001 moved to BOX-00010 slot 1 at 08:24 (event 169).
+- 08:25 Marco looked in Fridge R1.
+- 08:28 Marco looked in Shelf S1.
+- 08:28 Marco asked the inventory (where_is_it barcodes=SEN-00003,SEN-00018,SEN-00031,SEN-00043,SEN-00045).
+- 08:29 Lena looked in Goods-in shelf.
+- 08:29 Lena looked in Goods-in shelf.
+- 08:29 Lena looked in Goods-in shelf.
+- 08:29 Marco: took a new bottle, printed and stuck on label BUF-00049, and put it on Bench B2.
+- 08:29 The lab itself: frosted label on KIT-00034.
+- 08:30 Lena looked in Freezer F80-3.
+- 08:31 Marco take BUF-00047 (bli-running, about 364 mL by eye) out of Fridge R1 and put it on Bench B2.
+- 08:31 Marco recorded it. new bottle BUF-00049 in Bench B2.
+- 08:32 Lena looked in Goods-in shelf.
+- 08:32 Lena looked in Goods-in shelf.
+- 08:32 Marco: sEN-00045 is a box_9x9 with bli-sensors, 384 pieces. It is Shelf S1. Supplier lot on the label: LOT-SENSORS-0.
+- 08:33 Lena looked in Goods-in shelf.
+- 08:33 Lena looked in Goods-in shelf.
+- 08:33 Lena looked in Goods-in shelf.
+- 08:33 Marco: sEN-00043 is a box_9x9 with bli-sensors, 384 pieces. It is Shelf S1. Supplier lot on the label: LOT-SENSORS-0.
+- 08:33 Marco: pipetted 40000 µL from BUF-00047 into BUF-00049.
+- 08:34 Lena looked in Goods-in shelf.
+- 08:34 Lena looked in Goods-in shelf.
+- 08:34 Lena looked in Goods-in shelf.
+- 08:34 Marco take SEN-00003 (a box) out of Shelf S1 and put it on Bench B2.
+- 08:34 Marco recorded it. 40000 µL from BUF-00047 to BUF-00049 (event 171).
+- 08:35 Lena looked in Goods-in shelf.
+- 08:35 Lena looked in Goods-in shelf.
+- 08:35 Lena looked in Goods-in shelf.
+- 08:35 Lena looked in Goods-in shelf.
+- 08:35 Marco recorded it. made 40000 µL of buffer:bli-running in BUF-00049 from 1 inputs (lot 28, event 172).
+- 08:36 Lena looked in Goods-in shelf.
+- 08:36 Lena looked in Goods-in shelf.
+- 08:36 Lena looked in Goods-in shelf.
+- 08:37 Lena looked in Goods-in shelf.
+- 08:37 Lena looked in Goods-in shelf.
+- 08:37 Lena looked in Goods-in shelf.
+- 08:37 Marco asked the inventory (history barcode=BUF-00049).
+- 08:38 Lena looked in Goods-in shelf.
+- 08:38 Marco asked the inventory (history barcode=BUF-00047).
+- 08:38 Lena looked in Goods-in shelf.
+- 08:38 Lena looked in Goods-in shelf.
+- 08:38 Lena looked in Goods-in shelf.
+- 08:39 Lena looked in Goods-in shelf.
+- 08:39 Lena looked in Goods-in shelf.
+- 08:40 Marco recorded it. event 172 is now marked as wrong (correction event 173). Record the right version if there is one.
+- 08:40 Marco: took 32 pieces of bli-sensors from SEN-00003.
+- 08:41 Marco recorded it. used 32 pieces from SEN-00003 (event 174).
+- 08:42 Marco: ticked off T1.
+- 08:42 Marco: sEN-00003 is now in Shelf S1.
+- 08:43 Marco: bUF-00047 is now in Fridge R1.
+- 08:43 Marco: ticked off T2.
+- 08:44 Marco recorded it. SEN-00003 moved to Shelf S1 at 08:44 (event 175).
+- 08:44 Marco recorded it. BUF-00047 moved to Fridge R1 at 08:44 (event 176).
+- 08:45 Marco asked the inventory (shared_target_left protein=PD-L1).
+- 08:47 Marco looked in BOX-00012.
+- 08:47 Marco looked in BOX-00028.
+- 08:47 The lab itself: frosted label on ALQ-00013-004.
+- 08:48 Marco looked in BOX-00039.
+- 08:48 Marco: aLQ-00013-004 is a tube_matrix with pdl1, about 45 µL by eye. It is BOX-00012 slot 4 in Freezer F80-1. Supplier lot on the label: S010.
+- 08:48 The lab itself: frosted label on ALQ-00029-002.
+- 08:49 Marco: aLQ-00029-002 is a tube_matrix with pdl1, about 45 µL by eye. It is BOX-00028 slot 2 in Freezer F80-1. Supplier lot on the label: S011.
+- 08:49 Marco: ticked off T3.
+- 08:49 Marco told Priya: "Hi Priya, PD-L1 target status for your Thursday re-run: the inventory shows 420 µL usable, from 12 tubes in 3 lots (S010, S011, S012). Each tube is 45 µL held, 35 µL usable, 1 thaw so far. All 12 are in Freezer F80-1: BOX-00012 (lot S010), BOX-00028 (S011), BOX-00039 (S012), 4 tubes each. I eyeballed the tubes this morning and they look like 40–50 µL each, so roughly consistent. Caveats: the inventory has no per-run consumption recorded, so I can't say how many runs that covers. The records were last confirmed 19–27 Aug, so I'd re-check the boxes before you commit. Two tubes have frosted labels but I identified them: ALQ-00013-004 and ALQ-00029-002. Marco"
+- 08:51 Marco: ticked off T4.
+- 08:52 Marco asked the inventory (flags ).
+- 13:45 Marco checked the task list.
+- 13:45 Lena checked the task list.
+- 13:45 Lena looked in Goods-in shelf.
+- 13:45 Lena recorded it. received 200 µL of vendorA:EGFR-100 into TGT-00050, supplier lot S050 (lot 29, event 178). New lots wait for QC before they count as usable.
+- 13:45 Marco told Sara: "Hi Sara, I got your note at 13:45. The 10:45 ready time has already passed, so I don't know whether the Gator 1 run went ahead at 11:00 or moved. My BLI plate TP-00048 (EGFR, A1–H1), buffer BUF-00049 (40 mL) and 32 sensors are all on Bench B2 and ready. The plate has been out on the bench since about 08:20, so if the run is still pending it should be checked before use. Can you tell me the new slot time, or whether it has already run? Marco"
+- 13:45 A delivery landed on the Goods-in shelf: vial TGT-00050: catalog EGFR-100, supplier lot S050, 200 µL; vial TGT-00051: catalog PDL1-200, supplier lot S051, 200 µL.
+- 13:46 Lena tried record receive but couldn't: the inventory refused it: duplicate key value violates unique constraint "event_external_ref_key"
+- 13:47 Marco asked the inventory (where_is_it barcodes=TP-00048,BUF-00049,SEN-00003).
+- 13:47 Lena asked the inventory (where_is_it barcodes=TGT-00050,TGT-00051).
+- 13:49 Lena asked the inventory (history barcode=TGT-00051).
+- 13:50 Lena tried record receive but couldn't: the inventory refused it: duplicate key value violates unique constraint "event_external_ref_key"
+- 13:52 Lena tried record receive but couldn't: the inventory refused it: duplicate key value violates unique constraint "event_external_ref_key"
+- 13:53 Lena: tGT-00050 is now in BOX-INBOX.
+- 13:54 Lena recorded it. TGT-00050 moved to BOX-INBOX at 13:54 (event 183).
+- 13:55 Lena: tGT-00051 is now in BOX-INBOX.
+- 13:56 Lena recorded it. TGT-00051 moved to BOX-INBOX at 13:56 (event 184).
+- 13:56 Lena tried qc check but couldn't: TGT-00050 is still in the freezer (BOX-INBOX in Freezer F80-1). Take it out first (pick_up).
+- 13:56 Lena told Marco: "Hi Marco, EGFR aliquots per the inventory: BOX-00010 slots 1-4 (ALQ-00011-001 to -004, lot 6), BOX-00026 slots 1-4 (ALQ-00027-001 to -004, lot 12), BOX-00037 slots 1-4 (ALQ-00038-001 to -004, lot 18). Heads-up: ALQ-00011-001 is listed in BOX-00010 slot 1 but is not physically there, so I'm looking into it. Nothing in the boxes looks part-used by eye, so please check with me if one is short."
+- 13:58 Lena take TGT-00050 (egfr, about 210 µL by eye) out of BOX-INBOX in Freezer F80-1 and put it on Bench B1. It took 3 minutes to find it in the freezer.
+- 14:02 Lena take TGT-00051 (pdl1, about 210 µL by eye) out of BOX-INBOX in Freezer F80-1 and put it on Bench B1. It took 6 minutes to find it in the freezer.
+- 14:08 Lena: took a 5 µL sample from TGT-00050 and ran SDS-PAGE and A280 (an hour). Result: PASS, clean band at the right size.
+- 15:08 Lena recorded it. QC pass for the lot in TGT-00050 (event 185).
+- 15:08 Lena: took a 5 µL sample from TGT-00051 and ran SDS-PAGE and A280 (an hour). Result: PASS, clean band at the right size.
+- 16:08 Lena tried record qc but couldn't: the inventory has no material on record in that container
+- 16:09 Lena looked in Fridge R1.
+- 16:14 Lena told Sara: "Yes. Loading buffer BUF-00046 is in Fridge R1, it is on record, and about 53 mL is left. It was made 4 Sep and its 7-day life ends 11 Sep 11:00, so it covers Thursday. Also, the PD-L1 target TGT-00051 (supplier lot S051) will not book into the inventory: the receive keeps failing with a duplicate-key error. It is in BOX-INBOX in F80-1 and passed QC. Can you or IT look at it?"
+- 16:16 Lena: took a new box_9x9, printed and stuck on label BOX-00052, and put it on Bench B1.
+- 16:18 Lena: printed labels ALQ-00053-001 to ALQ-00053-004 and filled 4 tubes with 45 µL each into BOX-00052, slots 1 to 4. Left in TGT-00050: egfr, about 15 µL by eye.
+- 16:28 Lena tried record split but couldn't: the inventory doesn't know 'BOX-00052'
+- 16:28 Lena recorded it. new box_9x9 BOX-00052 in Bench B1.
+- 16:28 Lena recorded it. TGT-00050 split into 4 tubes of 45 µL, labels ALQ-00053-001 to ALQ-00053-004, in BOX-00052 (event 191).
+- 16:30 Lena: bOX-00052 is now in Freezer F80-1.
+- 16:31 Lena recorded it. BOX-00052 moved to Freezer F80-1 at 16:31 (event 192).
+- 16:31 Lena: tGT-00051 is now in BOX-INBOX.
+- 16:32 Lena: tGT-00050 is now in BOX-INBOX.
+- 16:33 Lena recorded it. TGT-00050 moved to BOX-INBOX at 16:33 (event 193).
+- 16:34 Lena tried record receive but couldn't: the inventory refused it: duplicate key value violates unique constraint "event_external_ref_key"
+- 16:35 Lena checked the task list.

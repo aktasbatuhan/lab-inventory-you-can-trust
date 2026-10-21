@@ -66,7 +66,7 @@ New scenarios that hold up get merged into `scenarios/catalog.yaml` with `source
 ## Build order
 
 1. Wait for the dice simulation's world model and scorer, and reuse them for notebook A.
-2. `lab_mcp.py`: an MCP server over stdio exposing hands, pen and scanner. It's one process per run, shared by all agents, so they're working in the same lab.
+2. `lab_mcp.py`: an MCP server over stdio exposing hands, pen and scanner. Claude Code starts one per person, but it holds no state: every call goes over JSON-over-HTTP on localhost to the one lab (`lab.py`) that `run.py` keeps in its own process, so everyone works in the same lab, one call at a time.
 3. `run.py`: the orchestrator. Simulated clock, task lists, interruptions, one `claude -p` call per person per turn block, retries on limits.
 4. `referee.py`: the end-of-day `codex exec` call and the merge into `discovered/`.
 5. A one-day smoke run with two people before the full week.
@@ -82,3 +82,7 @@ New scenarios that hold up get merged into `scenarios/catalog.yaml` with `source
 
 - 2026-10-21: a headless `claude -p` session (Haiku, `--strict-mcp-config`, built-in tools off) found a tool on our dependency-free MCP server (`mcp_stdio.py`), called it and answered from the result in 2 turns.
 - 2026-10-21: headless `codex exec` refuses MCP tool calls without approval, so the referee works from files only.
+- 2026-10-22: `claude -p` with `--tools ""`, `--setting-sources ""`, `--strict-mcp-config` and `--allowedTools "mcp__lab__*"` sees only the lab's 28 tools and none of the user's own memory or settings.
+- 2026-10-22: smoke run `runs/smoke-1d-2p-haiku`: one day, Lena and Marco on Haiku, 4 claude sessions and 1 codex call, about 6 minutes of wall time, no rate limits, nothing hung. 155 tool calls, 11 refused. The opening stock comes from the dice lab's setup, the scorer's `compare()` runs unchanged on the shared World, and the referee wrote 4 candidate scenarios (1 new, 3 variants) with log lines as evidence.
+- What it showed: the best finding was not planted. Two vials on one packing slip can't both be booked in, because the delivery note is unique per event (`journal/agent-runs/schema-gaps-agentlab.md`). Lena also recorded a QC pass without taking the 5 µL sample off the vial, and Marco recorded the returns of tubes he never recorded taking out, so the final places matched while the trail had holes.
+- Fixed after the smoke run, not yet tried by agents: a `wait` tool (Lena used up her morning turns looking at an empty Goods-in shelf, so the 09:00 delivery was only seen at 13:45), sensor boxes showing their sensors in `look`, and booking a new vial now registers and receives it in one statement. Agents also finish blocks well before the block ends in simulated time, so small task lists leave long idle gaps; longer lists or a resume when time is left would fix that.

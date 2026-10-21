@@ -12,8 +12,9 @@ PROTOCOL_VERSION = "2025-06-18"
 _tools = {}
 
 
-def tool(name, description, params):
-    """Register a function as a tool. `params` maps argument name to (json type, description)."""
+def tool(name, description, params, required=None):
+    """Register a function as a tool. `params` maps argument name to (json type, description).
+    Every argument is required unless `required` lists the ones that are."""
     def wrap(fn):
         _tools[name] = {
             "fn": fn,
@@ -23,7 +24,7 @@ def tool(name, description, params):
                 "inputSchema": {
                     "type": "object",
                     "properties": {k: {"type": t, "description": d} for k, (t, d) in params.items()},
-                    "required": list(params),
+                    "required": list(params) if required is None else list(required),
                 },
             },
         }
