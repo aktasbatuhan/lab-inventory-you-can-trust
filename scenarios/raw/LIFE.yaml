@@ -1,0 +1,816 @@
+# LIFE: the life of material.
+# Expiry that depends on storage and start time, thawing, freeze-thaw limits,
+# excursions, disposal (with and without material inside), material leaving the lab,
+# count-limited consumables, and new material types with their own rules.
+#
+# Anything marked "Assumption" is our guess about how Adaptyv works inside, not
+# something the brief says.
+
+- id: LIFE-001
+  title: Loading buffer made on Monday expires the next Monday
+  story: |
+    Given a scientist makes 50 mL of loading buffer on Monday 2026-10-19 at 10:00 from PBS lot P7 and a detergent lot D2, and puts it in the 4 °C fridge.
+    When the system is asked on Monday 2026-10-26 at 10:30 what loading buffer is usable.
+    Then this bottle shows as expired since 10:00 that morning (made plus 7 days), with the reason "expired", and it no longer counts in usable stock even though 30 mL is still in it.
+  real_life_noise:
+    - the bottle is registered on Tuesday because the scientist forgot, so the record says "made" a day late and the expiry is a day too generous
+    - two bottles made on different days sit side by side with the same handwritten label "LB"
+    - someone tops up an old bottle with freshly made buffer, so the bottle now holds a mix of two ages
+    - the label on the bottle says "exp 27/10" in a European date format and a visiting student reads it as month 27
+  system_should: |
+    Start the clock from the time the buffer was made, not the time it was typed in, and keep both. Count the 7 days from the making event. When fresh buffer is poured into an old bottle, treat the result as the older age (the mix expires when its oldest part does). Show the date unambiguously, as text like "26 Oct 2026".
+  question_it_answers: Which loading buffer can I use today?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Old loading buffer can shift BLI baselines, so a whole run's data may need re-running
+  depth: core
+  sim_hook: |
+    Actor scientist, action make_buffer(type=loading, volume=50 mL). Error late_registration with p≈0.15, delay drawn 2–30 h, recorded_at moves but happened_at should not. Error top_up_old_bottle with p≈0.05.
+  source: brief
+
+- id: LIFE-002
+  title: GFP stock buffer lasts 6 months frozen but only a month once kept in the fridge
+  story: |
+    Given 10 tubes of GFP stock buffer made on 2026-06-01, stored at -20 °C, so each expires 2026-12-01.
+    When on 2026-10-21 a scientist takes one tube out and moves it to the 4 °C fridge to use over the next weeks.
+    Then that tube's expiry becomes the earlier of 2026-12-01 and 2026-11-20 (one month in the fridge, Assumption), so 2026-11-20. The 9 tubes still in the freezer keep 2026-12-01.
+  real_life_noise:
+    - the tube is moved but not scanned, so the system thinks it is still frozen and keeps the 6-month date
+    - the tube goes back into the freezer after a week; nobody is sure if the clock should reset
+    - all 10 tubes share one barcode on the rack instead of one each
+  system_should: |
+    Work out expiry from the storage history, not from one fixed field. Each storage condition has its own lifetime, and moving to a warmer condition can only bring the date closer, never push it further away. Putting the tube back in the freezer does not give the lost time back. If a container has no scan for a long time, show its expiry as uncertain rather than trusting the last known place.
+  question_it_answers: Is this GFP buffer still good, given where it has been?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: A degraded GFP buffer gives wrong concentration numbers, which feed sample normalisation
+  depth: core
+  sim_hook: |
+    Actor scientist, action move(container, freezer_-20 -> fridge_4). Error unscanned_move with p≈0.10. Follow-up action move(fridge -> freezer) with p≈0.3 within 3–14 days.
+  source: brief
+
+- id: LIFE-003
+  title: Expression plate expires 2 weeks after expression
+  story: |
+    Given an expression plate whose expression run finished on 2026-10-07 at 16:00, stored at 4 °C.
+    When on 2026-10-21 at 17:00 someone plans a re-run of BLI sample plate prep from it.
+    Then the plate and all 96 protein wells show expired since 16:00 that day, and the planner sees "expired" as the reason they are not usable.
+  real_life_noise:
+    - the expression run was recorded as started, not finished, so the clock begins 18 h early
+    - the plate was frozen at -80 °C on day 3 by a scientist who wanted to keep it longer (Assumption, labs do this)
+    - 4 wells were already pulled for a split-GFP plate and are near empty
+  system_should: |
+    Start the 2-week clock when the protein exists, which is the end of the expression run. Expire every well with the plate since each well is its own material but they share one making event. If the plate was frozen, keep the 2-week rule unless the lab has said frozen expression plates have a different lifetime. The system should not invent a longer one.
+  question_it_answers: Can this re-run still use the original expression plate, or do we need to express again?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Re-expressing takes days and DNA; using old protein gives bad binding data delivered to a customer
+  depth: core
+  sim_hook: |
+    Actor robot, action expression_run(end_time). Error record_start_not_end with p≈0.05. Actor scientist, action rerun_request on plate with age drawn 5–20 days.
+  source: brief
+
+- id: LIFE-004
+  title: GFP and BLI plates are thrown away right after the run
+  story: |
+    Given a split-GFP plate and two BLI sample plates and one BLI target plate are used in runs that end on 2026-10-21 at 14:00.
+    When the runs are recorded as finished.
+    Then the plates are marked as used up and disposed of, the material left inside them stops counting as usable, and the target protein left in the target plate wells is recorded as lost, not as still in stock.
+  real_life_noise:
+    - the run finishes but nobody scans the plates into the waste, so they stay "in instrument" for days
+    - a scientist keeps one BLI target plate in the fridge "in case we need to re-read it" and it is reused the next day
+    - the instrument aborts at well 60; plates are reused for a second attempt
+  system_should: |
+    Make "disposed after use" a rule of the plate type, so ending the run is enough to retire them even if nobody scans the bin. Still allow a recorded exception, like an aborted run, where the plate is kept on purpose and gets a short life (Assumption: 24 h at 4 °C). Count the lost target volume, because the target is expensive and that loss is part of how much each experiment costs.
+  question_it_answers: How much target did that run actually consume, including what was left in the plate?
+  frequency: many-per-day
+  cost_if_wrong: high
+  cost_reason: Used plates that look usable get picked for re-runs; target loss is invisible otherwise
+  depth: core
+  sim_hook: |
+    Actor robot, action finish_bli_run. Auto-dispose event follows. Error plate_kept_for_reuse with p≈0.03, abort_mid_run with p≈0.02.
+  source: brief
+
+- id: LIFE-005
+  title: Target stock in the freezer lasts years, but only within the supplier's own expiry
+  story: |
+    Given Target X lot L1 arrives on 2026-03-01 with a certificate of analysis (the supplier's quality sheet) saying "use by 2027-03-01 when stored at -80 °C".
+    When it is reconstituted, QC'd, split into tubes and stored at -80 °C.
+    Then the tubes show expiry 2027-03-01, the earlier of the supplier date and our own "many years" rule.
+  real_life_noise:
+    - the certificate is a PDF in an email and the use-by date is never typed in
+    - the certificate gives "stable 12 months from date of receipt" instead of a date
+    - the supplier sends an updated certificate months later with a longer date
+  system_should: |
+    Keep the supplier's date as a separate limit on the lot, alongside our own rule, and use the earliest. Accept relative rules (12 months from receipt) and turn them into a date using the receiving event. If no supplier date was entered, show that as missing data, not as "never expires".
+  question_it_answers: When does this target lot expire, and why that date?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Using a target past the supplier date risks customer data; throwing away good target costs money
+  depth: core
+  sim_hook: |
+    Actor scientist, action receive_lot with coa. Error coa_expiry_missing with p≈0.25. Coa format drawn: absolute date 60%, relative 30%, none 10%.
+  source: brief
+
+- id: LIFE-006
+  title: Expiry starts from manufacture, from opening, or from making, depending on the material
+  story: |
+    Given three things arrive or are made the same week: a bottle of PBS powder (expires 3 years from the manufacture date on the label), a bottle of detergent stock (good for 6 months once opened, Assumption), and a buffer made in-house (1 month from making).
+    When each is checked on 2026-10-21.
+    Then each one's expiry uses its own start event: the label date, the first-opening event, and the making event.
+  real_life_noise:
+    - nobody records when the detergent was opened; the bottle has "opened 3/9" scribbled on it
+    - a sealed bottle is opened, then a second sealed bottle of the same lot is opened by someone else a month later
+    - the supplier label has only a lot number and the manufacture date must be looked up on their site
+  system_should: |
+    Let each material type say which event starts its clock (manufacture, receipt, opening, making, thawing). Store opening as an event on the container. If the start event is missing, use the earliest safe guess (receipt date) and mark the expiry as estimated.
+  question_it_answers: Why does this bottle expire on that date?
+  frequency: monthly
+  cost_if_wrong: low
+  cost_reason: Mostly cheap reagents, but a bad component spoils every buffer made from it
+  depth: core
+  sim_hook: |
+    Actor scientist, action open_container. Error forget_open_event with p≈0.4 for consumable reagents, which is the common real case.
+  source: inferred
+
+- id: LIFE-007
+  title: A made buffer cannot outlive its components
+  story: |
+    Given PBS lot P7 expires 2026-10-30 and a buffer is made from it on 2026-10-20 with a 1-month rule (would be 2026-11-20).
+    When the buffer's expiry is worked out.
+    Then it shows 2026-10-30 plus a warning, or 2026-11-20 with a note, depending on the lab's rule for that buffer type. Our default: the earliest component expiry caps it (Assumption).
+  real_life_noise:
+    - the PBS was already expired on the day of making and the scientist used it anyway
+    - the component lot was not scanned, so the system does not know which PBS went in
+  system_should: |
+    Carry each component's expiry into the made material, and make the cap rule a setting of the material type. If a component was already expired when used, record that and flag the new buffer, but do not block the making event, since it already happened at the bench.
+  question_it_answers: Was anything made from an expired component?
+  frequency: weekly
+  cost_if_wrong: low
+  cost_reason: Buffer is cheap but silently bad buffer is hard to trace later
+  depth: supported
+  sim_hook: |
+    Actor scientist, action make_buffer with components. Error use_expired_component with p≈0.04, skip_component_scan with p≈0.1.
+  source: inferred
+
+- id: LIFE-008
+  title: Target aliquot is thawed, used, and refrozen; freeze-thaw count goes up
+  story: |
+    Given a 24 µL tube of Target X lot L1 at -80 °C with 0 freeze-thaw cycles, and a limit of 3 cycles for this target (Assumption, many protein suppliers say "avoid repeated freeze-thaw" and some state 3).
+    When a scientist takes it out at 09:00, thaws it on ice, uses 10 µL for a BLI target plate, and puts it back at -80 °C at 11:30.
+    Then the tube has 14 µL left and 1 freeze-thaw cycle, still usable.
+  real_life_noise:
+    - the tube is put back without a scan, so the system never sees the cycle
+    - the scientist takes 3 tubes out, uses one, and puts all 3 back; the 2 unused ones also had a cycle
+    - the tube is placed on the bench, not on ice, for 2.5 h
+  system_should: |
+    Count a cycle from the pair of events "left the freezer" and "came back", not from a number someone types. Unused tubes taken out and returned also get a cycle. If the return was not scanned but the tube is later seen in the freezer, infer a cycle and mark it as inferred.
+  question_it_answers: How many times has this target tube been thawed?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Damaged target gives weak or no binding signal, so customer results look negative when they are not
+  depth: core
+  sim_hook: |
+    Actor scientist, action thaw(container) then refreeze(container). Error no_scan_on_return with p≈0.12. Error take_extra_tubes with p≈0.08, extra count 1–3.
+  source: research
+
+- id: LIFE-009
+  title: Fourth thaw goes past the limit
+  story: |
+    Given a target tube with 3 freeze-thaw cycles already, limit 3.
+    When a scientist thaws it again at 10:00 for a re-run.
+    Then the system shows the tube as "over freeze-thaw limit". It does not stop the scientist (the thaw already happened), but the tube leaves usable stock and any plate made from it is flagged.
+  real_life_noise:
+    - there is no other tube of the lot, so the scientist uses it anyway with a note
+    - a lead scientist decides this target is fine up to 5 cycles and changes the limit for the lot
+  system_should: |
+    Keep the limit on the material type with a possible override on the lot, and record who changed it and why. Flag downstream plates instead of blocking. A plate made from an over-limit tube should be traceable later, so if binding looks odd someone can find the cause.
+  question_it_answers: Did any of our results use a tube past its freeze-thaw limit?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Bad data delivered to a customer with no way to explain it later
+  depth: core
+  sim_hook: |
+    Actor scientist, action thaw on tube with cycles>=limit. Choice use_anyway with p≈0.6 when no other tube exists, else p≈0.1. Actor lead, action override_limit with p≈0.05.
+  source: research
+
+- id: LIFE-010
+  title: Thawed target kept in the fridge has a short life of its own
+  story: |
+    Given a target tube thawed on 2026-10-20 at 09:00 and kept at 4 °C for use over the week instead of being refrozen.
+    When on 2026-10-27 at 10:00 someone wants to use it.
+    Then it shows expired since 2026-10-27 09:00, because thawed target at 4 °C lasts 7 days (Assumption, a common supplier statement for reconstituted proteins), even though the lot itself is good until 2027.
+  real_life_noise:
+    - it is unclear whether the tube was refrozen on day 2 and thawed again
+    - the fridge holds three thawed tubes of the same lot; people use whichever is at the front
+  system_should: |
+    Let thawing start a new, shorter clock on the container while the lot's long expiry stays the same. The container's expiry is the earliest of its clocks. The same lot can be usable in one tube and expired in another.
+  question_it_answers: Which tube of this target lot should I use first?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Using an old thawed tube wastes a BLI run; throwing out a fresh one wastes expensive target
+  depth: core
+  sim_hook: |
+    Actor scientist, action thaw then move(fridge_4) without refreeze, p≈0.3 of thaws. Later actor picks a random tube from fridge rather than oldest, p≈0.5.
+  source: research
+
+- id: LIFE-011
+  title: Target tube left on the bench overnight
+  story: |
+    Given a target tube thawed at 16:00 on Tuesday for a BLI target plate.
+    When a scientist finds it on the bench at 08:30 Wednesday, 16.5 hours at room temperature (about 22 °C).
+    Then the scientist records "left out overnight", and the tube is put on hold (not usable) until someone decides: throw it away or keep it with a note.
+  real_life_noise:
+    - the finder does not know when it was left; last scan was the thaw at 16:00
+    - nobody records anything and the tube goes back to the freezer looking normal
+    - the tube is unlabelled, so the finder guesses from the cap colour
+  system_should: |
+    Support an "on hold" status with a reason, separate from expired. A hold is set by a person and lifted by a person, and both are recorded. Use the last scan to say how long it might have been out (at most 16.5 h here). If the tube was never put back, its state should eventually show up as "out of storage for a long time".
+  question_it_answers: Which containers are on hold, and why?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Degraded target silently used in a run, or a whole tube thrown out by mistake
+  depth: core
+  sim_hook: |
+    Actor scientist, action thaw then forget_return with p≈0.02 per thaw. Finder actor records left_out with p≈0.6, otherwise silent refreeze.
+  source: inferred
+
+- id: LIFE-012
+  title: Freezer warms up over the weekend
+  story: |
+    Given freezer F2 (-80 °C) holds 240 target tubes and 12 DNA plates.
+    When the freezer's monitor shows it rose to -40 °C from Saturday 02:00 to Saturday 09:00, then to -15 °C by Sunday 07:00, before someone moved everything to F3 on Sunday at 08:00.
+    Then every container whose last known place was F2 at that time gets an "excursion" record with the peak temperature and duration, and target tubes go on hold. DNA plates stay usable (DNA tolerates this much better, Assumption).
+  real_life_noise:
+    - some containers were moved to F3 without being scanned during the rescue
+    - two boxes were in F2 according to the system but were actually in F1
+    - the monitor log has a 3-hour gap
+    - a scientist puts everything back into F2 on Monday after the repair, again without scanning
+  system_should: |
+    Record the excursion once, on the storage place, with start, end and peak. Work out which containers were affected from where they were during that time window, not where they are now. Let each material type say how much excursion it tolerates. Hold the affected ones until someone reviews, and keep a list that can be worked through.
+  question_it_answers: What was in the freezer when it failed, and what can we still use?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Hundreds of expensive target tubes; either using damaged ones or reordering everything
+  depth: core
+  sim_hook: |
+    Actor environment, action temperature_excursion(place, start, end, peak), p≈1 per freezer per year. Rescue actor moves containers, error unscanned_move with p≈0.3 under time pressure.
+  source: inferred
+
+- id: LIFE-013
+  title: Fridge door left open for 40 minutes
+  story: |
+    Given the buffer fridge reaches 12 °C for 40 minutes on a Thursday afternoon.
+    When the excursion is logged.
+    Then nothing changes status, because buffers tolerate short warm-ups (Assumption), but the excursion is stored and visible on each container's history.
+  real_life_noise:
+    - the door alarm is muted and nobody logs it; only the monitor CSV shows it
+    - someone logs it twice, once from the alarm and once by hand
+  system_should: |
+    Store small excursions too, but let the material rules decide they change nothing. Merge duplicate reports that cover the same place and time. A record with no action taken is still useful later if a buffer behaves oddly.
+  question_it_answers: Has this buffer ever been out of its storage range?
+  frequency: monthly
+  cost_if_wrong: low
+  cost_reason: Usually nothing happens; noise if every small event put things on hold
+  depth: supported
+  sim_hook: |
+    Actor environment, action temperature_excursion small, p≈0.1 per fridge per week. Error duplicate_report with p≈0.2.
+  source: inferred
+
+- id: LIFE-014
+  title: Lead scientist re-checks an expired target lot and extends it
+  story: |
+    Given Target Y lot L4 expired by our rule on 2026-10-01, with 600 µL left across 25 tubes.
+    When a scientist runs a QC check (a test binding with a known reference) on one tube on 2026-10-15, it passes, and the lead extends the lot's expiry to 2027-04-15.
+    Then all 25 tubes are usable again, the old expiry stays in the history, and the extension is linked to the QC result and the person who approved it.
+  real_life_noise:
+    - the extension is entered on only the tube that was tested, not the lot
+    - three of the tubes have had 4 thaws and should not be extended even though the lot is
+    - the re-QC tube was taken from a different lot by mistake
+  system_should: |
+    Extend at the lot level, with a link to the QC event, but keep container-level limits (thaws, holds, excursions) in force. Never edit the old expiry; add a new one that takes over from a date. Check that the QC'd tube belongs to the lot being extended.
+  question_it_answers: Why is this target usable when its date passed?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Target is expensive, so extending saves money, but extending the wrong lot puts bad data out
+  depth: core
+  sim_hook: |
+    Actor lead, action extend_expiry(lot, qc_event). Error extend_container_not_lot with p≈0.2. Error qc_on_wrong_lot with p≈0.02.
+  source: inferred
+
+- id: LIFE-015
+  title: Re-QC fails, lot is retired with material still inside
+  story: |
+    Given the same expired lot as LIFE-014, but the re-check shows weak binding.
+    When the lead marks the lot as failed on 2026-10-15.
+    Then all 25 tubes stop being usable with reason "QC failed", but they still exist in the freezer until someone throws them away, and the 600 µL is shown as held but not usable.
+  real_life_noise:
+    - tubes are thrown away weeks later in one go, and only some are scanned into the bin
+    - one tube was already lent to another team and is not in the freezer
+  system_should: |
+    Separate "failed" (a state of the lot) from "disposed" (something that happened to each container). Let the bulk disposal be recorded and show which tubes are still physically somewhere.
+  question_it_answers: What do we hold that is failed but not thrown away yet?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Failed tubes picked by mistake; freezer space wasted
+  depth: core
+  sim_hook: |
+    Actor lead, action fail_lot. Later actor scientist, action dispose_batch with p_scan_each≈0.7.
+  source: inferred
+
+- id: LIFE-016
+  title: Material expires in the middle of a run
+  story: |
+    Given a BLI run starts at 22:00 on Sunday 2026-10-25 and runs 6 hours. The loading buffer in the instrument was made 2026-10-18 at 23:00, so it expires at 23:00 on 2026-10-25.
+    When the run finishes at 04:00.
+    Then the run record says the buffer was usable when the run started and expired during it. The system marks the run with a warning, not an error, and the lab decides whether the data stands.
+  real_life_noise:
+    - the run is queued on Friday and nobody checks expiry at queue time
+    - the robot has a 2-hour delay before start, which pushes the start past expiry
+  system_should: |
+    Check usability at the time the material was actually used (the transfer time), not at the time of planning or of typing in. Have a clear rule for "expired during the run" and store which rule was applied. Our default is: usable at the moment of transfer is fine; flag if expiry falls inside the run window.
+  question_it_answers: Were all materials in date when this run used them?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Questioning valid data or keeping invalid data; both annoy customers
+  depth: core
+  sim_hook: |
+    Actor robot, action bli_run with queue_delay drawn 0–4 h. Expiry check at transfer time. Rate of mid-run expiry arises naturally from buffer ages.
+  source: inferred
+
+- id: LIFE-017
+  title: Plate thrown away with protein still in the wells, on purpose
+  story: |
+    Given an expression plate with about 80 µL left per well after sample plates were made, 10 days old.
+    When the scientist decides the project is done and throws it away, scanning the plate into the bin.
+    Then the plate and all its wells are disposed, and the 96 × 80 µL is recorded as discarded, not consumed by any run.
+  real_life_noise:
+    - the scientist does not know how much was left and records 0
+    - the customer asks for a re-run three days later
+  system_should: |
+    Record disposal with the remaining amount, even an estimated one, and a reason (project done, expired, contaminated, broken). Keep discarded separate from consumed so cost and usage reports stay honest. When a re-run is requested later, say clearly that the plate is gone.
+  question_it_answers: How much did we throw away rather than use?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Waste is invisible; re-run planning trusts a plate that no longer exists
+  depth: core
+  sim_hook: |
+    Actor scientist, action dispose(container, reason, remaining). Error remaining_recorded_zero with p≈0.3.
+  source: brief
+
+- id: LIFE-018
+  title: Wrong plate thrown away by accident
+  story: |
+    Given two expression plates of similar age sit on the same fridge shelf, one finished (EP-0412) and one still needed (EP-0415).
+    When a scientist throws away EP-0415 and scans EP-0412 into the bin.
+    Then the system says EP-0412 is gone and EP-0415 is still in the fridge, which is the opposite of the truth, until someone finds EP-0412 still on the shelf.
+  real_life_noise:
+    - the mistake is found only when a robot fails to find EP-0415 two days later
+    - the disposal is corrected but the bin was emptied already
+  system_should: |
+    Let a disposal be reversed by a new correction event, keeping both in the history. When a container marked disposed is scanned again in a real place, flag it loudly. Support "lost" as a separate state for EP-0415 once it can't be found.
+  question_it_answers: What did the record say before the correction, and who changed it?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: A needed plate is gone and re-expression costs days; the record points people to the wrong thing
+  depth: core
+  sim_hook: |
+    Actor scientist, action dispose, error scan_neighbour with p≈0.01 when two similar containers share a shelf. Discovery after 1–3 days via robot not_found.
+  source: brief
+
+- id: LIFE-019
+  title: Tube thrown away by accident with lots of target in it
+  story: |
+    Given a 200 µL tube of an expensive target sits on the bench with a "done" pile of empty tubes.
+    When a cleaner or colleague clears the bench at 18:00 and it goes to the biohazard bin unscanned.
+    Then the system still shows the tube as on the bench. Days later a scientist searches for it, cannot find it, and marks it lost, then later "disposed (likely)".
+  real_life_noise:
+    - nobody knows for sure it was thrown away; it might be in another fridge
+    - planning already counted the 200 µL as available for a re-run next week
+  system_should: |
+    Keep "lost" separate from "disposed" and from "usable". A lost container should stop counting as usable right away but stay findable if it turns up. Flag containers on the bench that haven't been scanned in more than a day.
+  question_it_answers: Is this target really available, or is it just in the record?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Expensive target; a planned run fails on the day
+  depth: core
+  sim_hook: |
+    Actor other_person, action clear_bench, error dispose_unscanned with p≈0.005 per bench container per day. Finder marks lost after search with p≈0.8.
+  source: brief
+
+- id: LIFE-020
+  title: Empty-looking tube thrown away still has 6 µL
+  story: |
+    Given a target tube whose record says 6 µL left, below the 10 µL a pipette can get out reliably (Assumption).
+    When a scientist throws it away as empty.
+    Then the 6 µL is recorded as dead volume discarded, and the tube's record closes at zero.
+  real_life_noise:
+    - the scientist records it as "empty" and the 6 µL disappears from the books
+    - the record actually said 30 µL because earlier draws were not recorded
+  system_should: |
+    On disposal, close the container's balance with an explicit "discarded" entry equal to what the record said was left. If that is large, ask for a reason, since it often means earlier use was never recorded.
+  question_it_answers: Where did the missing target go?
+  frequency: daily
+  cost_if_wrong: low
+  cost_reason: Small amounts each, but a pattern hints at missing records
+  depth: core
+  sim_hook: |
+    Actor scientist, action dispose(remaining=record). Error unrecorded_draw earlier with p≈0.05 per use, showing up here as a large discarded amount.
+  source: inferred
+
+- id: LIFE-021
+  title: Target tubes sent to a partner lab
+  story: |
+    Given Target X lot L1 with 20 tubes in our freezer.
+    When on 2026-10-21 we ship 5 tubes on dry ice to a partner lab for a joint study, with a courier tracking number.
+    Then those 5 tubes leave our usable stock and our lab, but they stay in the history with the destination and date, and the lot still links to them.
+  real_life_noise:
+    - the shipment is delayed and the tubes sit in the dispatch fridge at 4 °C for a day
+    - the partner returns 2 unused tubes a month later
+    - only the box is scanned, not the tubes inside
+  system_should: |
+    Record "left the lab" as an event with destination, rather than deleting the containers. If tubes come back, treat them as returning with an unknown storage history (on hold until checked), not as if they never left. Scanning a box should move its contents with it.
+  question_it_answers: Where did this lot go, including outside the lab?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: If the lot turns out bad, the partner must be told
+  depth: core
+  sim_hook: |
+    Actor scientist, action ship(containers, destination). Error scan_box_only with p≈0.5. Return event p≈0.1 within 60 days.
+  source: brief
+
+- id: LIFE-022
+  title: Leftover protein sent back to the customer
+  story: |
+    Given a customer asked to get back the leftover expressed proteins after their binding results.
+    When the scientist copies 40 µL per well from the expression plate into a new shipping plate and sends it on 2026-10-21.
+    Then the shipping plate is recorded as a new container that left the lab to "Customer C", with each well linked to its source well, and the expression plate keeps whatever is left.
+  real_life_noise:
+    - the whole expression plate is shipped instead of a copy, so the original is gone
+    - the customer's well layout differs, so a mapping file is needed
+  system_should: |
+    Treat it like any transfer followed by a shipment. Keep the well-to-well link so the customer's question "which well is my design 34" can be answered later.
+  question_it_answers: What exactly did we send to this customer?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Customer confusion, wrong proteins tested on their side
+  depth: supported
+  sim_hook: |
+    Actor scientist, action transfer_plate then ship(customer). Error ship_original_not_copy with p≈0.1.
+  source: inferred
+
+- id: LIFE-023
+  title: DNA plate moved to a second site
+  story: |
+    Given Adaptyv opens a second site (Assumption, as the lab grows) and a reconstituted DNA plate must move there.
+    When it is shipped frozen and scanned in at the other site 30 hours later.
+    Then the plate is still ours, its location changes to the second site's freezer, and the transit time is recorded. Nothing in its lifetime changes for DNA.
+  real_life_noise:
+    - the receiving site scans it in, but the sending site never scanned it out
+    - the dry ice ran out in transit and it arrived at about 0 °C
+  system_should: |
+    Treat a site as just another top-level place, so a move between sites is a move, not leaving and re-entering. Record transit as a place with no temperature guarantee. If arrival temperature is noted as off, it is an excursion like any other.
+  question_it_answers: Where is this DNA plate, across all our sites?
+  frequency: rare
+  cost_if_wrong: medium
+  cost_reason: DNA is slow and costly to reorder
+  depth: supported
+  sim_hook: |
+    Actor scientist, action ship_internal(site_b). Error no_scan_out with p≈0.3. Error transit_excursion with p≈0.05.
+  source: inferred
+
+- id: LIFE-024
+  title: DNA stored for years is still fine, but this freezer has had two failures
+  story: |
+    Given a DNA plate from 2022, stored at -20 °C, with two recorded freezer excursions since then.
+    When someone wants to re-express a design from it in 2026.
+    Then it is usable by date ("many years"), and the history shows the two excursions so the scientist can decide whether to check it first.
+  real_life_noise:
+    - the plate moved freezers three times and one move was never recorded
+    - the DNA has been thawed 9 times for different re-expressions
+  system_should: |
+    For long-lived material, the date alone says little, so show the history summary: number of thaws, excursions, places. Do not invent an expiry; "no expiry set" should be clear and not mistaken for "unknown".
+  question_it_answers: Can we trust this old DNA plate?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Bad DNA means failed expression and a wasted week
+  depth: supported
+  sim_hook: |
+    Actor scientist, action reuse_old_dna with plate age 1–5 years. Thaw count grows by 1 per reuse.
+  source: brief
+
+- id: LIFE-025
+  title: Tip boxes have no expiry but run out
+  story: |
+    Given a rack of 96-tip boxes is used by the liquid handling robot.
+    When the robot uses 3 boxes per expression plate prep and 30 boxes are left on the shelf.
+    Then the system shows 30 boxes, no expiry, and how many plate preps that covers (10).
+  real_life_noise:
+    - a half-used box is put back on the shelf and counted as full
+    - a box is dropped and its tips are unusable
+    - a delivery of 20 boxes is registered as 20 cases of 10
+  system_should: |
+    Count consumables by unit, with a pack size so "cases" and "boxes" don't get mixed up. Allow a partial box. No expiry is a normal state for these, not missing data.
+  question_it_answers: How many tip boxes do we have, and when do we run out?
+  frequency: daily
+  cost_if_wrong: low
+  cost_reason: Running out stops the robot for a day; cheap otherwise
+  depth: supported
+  sim_hook: |
+    Actor robot, action consume_tip_box per plate prep. Error partial_box_counted_full with p≈0.05. Receive error pack_size_confusion with p≈0.03.
+  source: brief
+
+- id: LIFE-026
+  title: BLI sensor tray regenerated a few times, then retired
+  story: |
+    Given a tray of 96 Protein A biosensors (the dip-in tips used to measure binding on a BLI instrument) is used in a run.
+    When after the run the sensors are regenerated (stripped with a low-pH glycine solution so they can be reused), and this happens 4 times.
+    Then the tray shows 4 regenerations. With a limit of 5 for this sensor type (Assumption, suppliers say several cycles depending on the target), one more use is allowed, then it is retired.
+  real_life_noise:
+    - regeneration is done inside the run program, so nobody records it separately
+    - a tray is reused without regeneration because the next run is the same target
+    - two half-used trays are combined into one
+  system_should: |
+    Track uses and regenerations as a count on the consumable container, with a limit on the type. Because regeneration is part of the run method, let the run record it automatically. When trays are combined, keep the highest count, to stay on the safe side.
+  question_it_answers: Can we use this sensor tray again?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Worn sensors give lower signal; sensors are costly to throw away early
+  depth: supported
+  sim_hook: |
+    Actor robot, action bli_run with regenerate step. Error manual_reuse_unrecorded with p≈0.1. Retirement when count>limit.
+  source: research
+
+- id: LIFE-027
+  title: A sensor that held a bad target lot must not be reused
+  story: |
+    Given a BLI sensor tray loaded with Target Y lot L4, which later fails QC.
+    When the team looks back at what lot L4 touched.
+    Then the sensor tray appears in the list, and if it was regenerated and reused, the runs that followed are flagged too, because some target may remain on the sensor.
+  real_life_noise:
+    - sensor trays have no barcode, only a label on the box
+  system_should: |
+    Treat reusable consumables as containers that held material, so they show up in "what did this lot touch". Mark carry-over risk on later runs that reused them.
+  question_it_answers: What did this bad target lot touch?
+  frequency: rare
+  cost_if_wrong: medium
+  cost_reason: Hidden carry-over spoils data that otherwise looks clean
+  depth: supported
+  sim_hook: |
+    Actor lead, action fail_lot after use. Query trace includes sensor trays, error tray_without_barcode with p≈0.3.
+  source: inferred
+
+- id: LIFE-028
+  title: First small molecule arrives, dissolved in DMSO, light-sensitive
+  story: |
+    Given the lab starts testing a small molecule (a drug-like compound, not a protein) as a binding partner.
+    When 5 mg of powder arrives, is dissolved to 10 mM in DMSO (a common solvent for these), split into 20 × 20 µL tubes in amber (light-blocking) tubes, and stored at -20 °C.
+    Then the system has a new material type "small molecule" with its own rules: powder 2 years at room temperature dry, DMSO stock 6 months at -20 °C (Assumption, a common rule of thumb), max 5 freeze-thaw cycles, must be kept dark.
+  real_life_noise:
+    - the powder's amount is by mass (mg) and the stock is by volume and concentration; someone records µL as mg
+    - a tube is put in a clear rack under the bench light for a day
+    - DMSO freezes at about 18.5 °C, so tubes in a cold room look frozen and people think they are thawed when they are not
+  system_should: |
+    Add the new type with rows and settings, not new tables. Handle units properly: mass for powder, volume plus concentration for the stock. Let a type carry conditions like "keep dark" that can be broken and recorded like a temperature excursion.
+  question_it_answers: Can the model take a new kind of material without a schema change?
+  frequency: rare
+  cost_if_wrong: medium
+  cost_reason: Shows whether the model scales; compounds are cheap but data from bad ones is not
+  depth: core
+  sim_hook: |
+    Actor scientist, action register_material_type(small_molecule, rules). Error unit_mismatch with p≈0.05. Action light_exposure event with p≈0.02 per day on bench.
+  source: brief
+
+- id: LIFE-029
+  title: DMSO stock left open absorbs water
+  story: |
+    Given a 10 mM DMSO stock tube of compound C1.
+    When it sits uncapped on the bench for 3 hours in humid weather while a plate is set up.
+    Then the scientist records "left open", the tube's concentration is now uncertain (DMSO pulls water from the air, which dilutes the stock and can make the compound fall out of solution), and it goes on hold.
+  real_life_noise:
+    - nobody records it; it shows up later as a weaker dose response
+  system_should: |
+    Let material-type rules list conditions that put a container on hold (open time for DMSO stocks, light for light-sensitive). Mark concentration as "uncertain" rather than changing the number.
+  question_it_answers: Is this stock's concentration still what the label says?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Wrong concentration gives wrong binding numbers
+  depth: supported
+  sim_hook: |
+    Actor scientist, action leave_open(duration). Recorded with p≈0.3. Hidden effect on simulated measurement.
+  source: research
+
+- id: LIFE-030
+  title: The lab changes a lifetime rule; what happens to what's already on the shelf
+  story: |
+    Given loading buffer's lifetime is 1 week, and 6 bottles exist.
+    When on 2026-10-21 the lead shortens it to 5 days after seeing drift in BLI baselines.
+    Then the 6 bottles' expiry is worked out again under the new rule from today, and the history shows both the old and the new date with the rule change as the reason. Runs done before today stay judged under the old rule.
+  real_life_noise:
+    - someone edits the rule to "5" without units, meaning 5 days, but the field was in weeks
+    - a rule is changed for one bottle by mistake instead of the type
+  system_should: |
+    Version the lifetime rules with a start date, so any past question ("was this usable on 10 Oct?") uses the rule in force then. Store units with numbers.
+  question_it_answers: Was this buffer usable on the day of that run, by the rules of that day?
+  frequency: rare
+  cost_if_wrong: medium
+  cost_reason: Changing past answers silently breaks audits
+  depth: core
+  sim_hook: |
+    Actor lead, action update_lifetime_rule. Error unit_mistake with p≈0.05.
+  source: inferred
+
+- id: LIFE-031
+  title: What expires in the next 14 days, by the right clock
+  story: |
+    Given a mix: 3 loading buffer bottles (1 week rule), 2 expression plates (2 weeks), 1 GFP buffer tube moved to the fridge (1 month cap), 4 thawed target tubes at 4 °C (7 days), and target lots with supplier dates in 10 days.
+    When someone asks on 2026-10-21 what expires by 2026-11-04.
+    Then each shows with its expiry date and which rule set it (made plus 7 days, thawed plus 7 days, supplier date, and so on), sorted by date.
+  real_life_noise:
+    - some items have no expiry because a start event is missing
+    - some are on hold already and should be listed separately
+  system_should: |
+    Answer with the date and the reason for each. Show "unknown expiry" items in their own group, not hidden. Leave out items already disposed.
+  question_it_answers: What expires soon, and why?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Missed expiry wastes material or spoils runs
+  depth: core
+  sim_hook: |
+    Daily query by scientist actor; checks against the sim's own true expiry to measure how often the system disagrees.
+  source: brief
+
+- id: LIFE-032
+  title: Supplier recalls a lot after we've used it
+  story: |
+    Given supplier lot S9 of a buffer component was used in 4 buffers over 3 weeks, and those buffers in 30 runs.
+    When the supplier emails a recall on 2026-10-21 saying S9 may be contaminated.
+    Then the lot is marked "recalled", every container still holding S9 or anything made from it goes on hold, and the 30 runs are listed for review.
+  real_life_noise:
+    - the recall names a lot number with a typo, matching no lot exactly
+    - one buffer was made from a mix of S9 and S10 and nobody recorded the split
+  system_should: |
+    Follow the made-from links down to all descendants. Holding is automatic; disposal is a separate decision. If the lot number doesn't match, show close matches instead of silently doing nothing.
+  question_it_answers: What did this recalled lot end up in?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Contaminated reagent in customer data
+  depth: core
+  sim_hook: |
+    Actor supplier, action recall(lot) with p≈0.01 per lot. Error lot_number_typo with p≈0.1.
+  source: inferred
+
+- id: LIFE-033
+  title: Plate in the instrument longer than planned
+  story: |
+    Given BLI sample plates are loaded in the instrument at 25 °C (Assumption, BLI instruments usually hold plates at a set temperature) for a run planned for 4 hours.
+    When the instrument errors and the plates stay inside overnight, 14 hours in total.
+    Then the plates are thrown away by rule, but if someone wants to use them for a retry, the system shows they've been at 25 °C for 14 hours and warns.
+  real_life_noise:
+    - instrument does not report the error; plate is only found next morning
+    - scientist retries with the same plates to save expression time
+  system_should: |
+    Count time in the instrument as time at the instrument's temperature. Allow the retry, with a warning that is stored on the new run.
+  question_it_answers: How long has this plate been sitting at room temperature?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Evaporation and protein loss lead to poor data
+  depth: supported
+  sim_hook: |
+    Actor robot, action instrument_hang with p≈0.01 per run, duration 6–16 h. Retry choice p≈0.5.
+  source: inferred
+
+- id: LIFE-034
+  title: Evaporation in a plate over days in the fridge
+  story: |
+    Given an expression plate sealed with foil, stored at 4 °C, record says 100 µL per well.
+    When after 9 days the seal is found partly peeled at one corner and edge wells have about 70 µL.
+    Then the scientist records a volume correction for the affected wells, with reason "evaporation", and the history keeps the old numbers.
+  real_life_noise:
+    - correction done for the whole plate with an average instead of per well
+    - nobody checks and the robot aspirates air at the edges
+  system_should: |
+    Support a correction that applies to some wells, with a reason. Corrections are new entries, not edits of the old amount.
+  question_it_answers: Why does the robot not find the volume the system promised?
+  frequency: weekly
+  cost_if_wrong: low
+  cost_reason: A few wells give bad data; robot errors
+  depth: supported
+  sim_hook: |
+    Actor environment, action evaporate(plate, edge_wells, rate) with p≈0.1 per plate per week when seal_quality is poor.
+  source: inferred
+
+- id: LIFE-035
+  title: Container expired but people want to use it for a test run
+  story: |
+    Given an expired loading buffer bottle and an expired expression plate.
+    When a scientist uses them for an instrument check run that produces no customer data.
+    Then the system lets this through, recording "used while expired, purpose: test", and the run is marked as not for customer data.
+  real_life_noise:
+    - the test run's data ends up in the customer report by accident
+  system_should: |
+    Allow use of expired material with a reason, rather than blocking. Keep that flag on everything made in the run so it shows up if someone later tries to use that data or material for real.
+  question_it_answers: Which runs used expired material, and why?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Blocking frustrates people into not recording; not flagging lets expired material leak into results
+  depth: supported
+  sim_hook: |
+    Actor scientist, action use_expired_with_reason, p≈0.02 of runs.
+  source: inferred
+
+- id: LIFE-036
+  title: Daylight saving switch shifts an expiry by an hour
+  story: |
+    Given a loading buffer made on Saturday 2026-10-24 at 02:30 Swiss time (Assumption, Adaptyv is in Lausanne), with a 7-day rule.
+    When clocks go back on Sunday 2026-10-25.
+    Then expiry is 2026-10-31 at 02:30 local time, with times stored in UTC underneath so the 7 days are exact.
+  real_life_noise:
+    - the robot's clock was not changed and logs times one hour off for a week
+  system_should: |
+    Store times in UTC and show local time. Keep the device clock offset in mind when a robot's times disagree with scans.
+  question_it_answers: Exactly when does this buffer expire?
+  frequency: rare
+  cost_if_wrong: low
+  cost_reason: An hour rarely matters, but wrong clocks confuse audit trails
+  depth: supported
+  sim_hook: |
+    Actor robot, error clock_offset +1 h for 7 days after DST switch with p≈0.3.
+  source: inferred
+
+- id: LIFE-037
+  title: Expired material keeps taking up freezer space
+  story: |
+    Given 120 containers that expired more than 90 days ago are still in freezers.
+    When a lab manager asks for a clean-out list.
+    Then the system lists them by place (freezer, shelf, box), with a total count per freezer, so someone can clear them in one pass and scan each into the bin.
+  real_life_noise:
+    - a third of them are not where the record says
+    - someone throws away a whole box without scanning each tube
+  system_should: |
+    Support disposing a box and everything recorded inside it in one action, and list what the record said was inside so leftovers can be found.
+  question_it_answers: What can we throw away to free freezer space?
+  frequency: monthly
+  cost_if_wrong: low
+  cost_reason: Clutter makes finding the right tube harder
+  depth: supported
+  sim_hook: |
+    Actor lab_manager, action cleanout(place) monthly. Error dispose_box_unscanned_contents with p≈0.4.
+  source: inferred
+
+- id: LIFE-038
+  title: Target bought as a finished frozen protein vs. made in-house have different rules
+  story: |
+    Given Target Z is usually bought from a supplier (QC'd, many years at -80 °C) but this time is expressed in-house as lot IH-3.
+    When IH-3 is made on 2026-10-10.
+    Then it gets the in-house rules: QC needed before use, and a lifetime the lab sets for in-house target (Assumption: 1 year at -80 °C until we know more).
+  real_life_noise:
+    - IH-3 is recorded under the supplier lot's name, so it inherits a supplier expiry
+  system_should: |
+    Rules depend on the material type and the source (bought or made), not only the material name. Keep the lot's source explicit.
+  question_it_answers: Where did this target lot come from, and which rules apply to it?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Wrong expiry on an in-house target that has less stability data
+  depth: supported
+  sim_hook: |
+    Actor scientist, action express_target_in_house with p≈0.1 of target lots. Error register_under_supplier_lot with p≈0.05.
+  source: brief
+
+- id: LIFE-039
+  title: Buffer made with the wrong date on the label
+  story: |
+    Given a scientist makes GFP buffer on 2026-10-21 but writes 2026-01-21 on the tubes and in the record.
+    When the system works out expiry.
+    Then it shows these tubes as expiring 2026-07-21, so already expired. Someone notices, corrects the made date, and the expiry moves to 2027-04-21.
+  real_life_noise:
+    - the error is caught only when someone tries to throw the "expired" tubes away
+  system_should: |
+    Warn when a made date is far from the time it was typed in. Allow correcting the made date with a reason, recalculating expiry, and keeping the history.
+  question_it_answers: Why did this buffer's expiry change?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Good buffer thrown out or bad buffer kept
+  depth: supported
+  sim_hook: |
+    Actor scientist, action make_buffer, error wrong_date (month typo) with p≈0.01.
+  source: inferred
+
+- id: LIFE-040
+  title: SPR chip reused across runs, with a cycle count
+  story: |
+    Given the lab also runs SPR (another binding method that uses a sensor chip with the target fixed on its surface), and one chip holds Target X lot L1.
+    When the chip is used for 6 runs over 3 days, stored at 4 °C in between.
+    Then the chip shows its uses, the target lot on it, and its age, and after a set number of uses or days (Assumption, 7 days at 4 °C) it is retired.
+  real_life_noise:
+    - chip is moved between two instruments and the count resets in someone's head
+  system_should: |
+    Treat the chip as a container that holds target with its own clock and use count, like a sensor tray. Link it to the target lot for tracing.
+  question_it_answers: Is this chip still good, and what target is on it?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Chips are costly; a worn chip gives poor data
+  depth: supported
+  sim_hook: |
+    Actor robot, action spr_run(chip). Use count grows; error count_not_recorded with p≈0.1.
+  source: workflow

@@ -1,0 +1,974 @@
+# XFER: material moving between containers.
+# Draft by the XFER agent, 2026-10-21. Numbers are realistic guesses unless marked otherwise.
+# "Assumption:" marks anything we guess about how Adaptyv does things inside its own lab.
+
+# ---------------------------------------------------------------------------
+# Splitting and manual pipetting
+# ---------------------------------------------------------------------------
+
+- id: XFER-001
+  title: Scientist splits a target stock tube into single-use aliquots
+  story: |
+    Given a 400 µL tube of Target X at 1.0 mg/mL (lot T-0412, QC passed) in freezer F2.
+    When a scientist thaws it, splits it into 15 tubes of 25 µL, scans each new barcode, and puts the box back in F2.
+    Then there are 15 tubes of lot T-0412 with 375 µL in total, the parent shows 25 µL left (or is marked empty and thrown away), and the parent counts one freeze-thaw.
+  real_life_noise:
+    - scans 14 of the 15 new tubes, the 15th sits in the box with a barcode the system has never seen
+    - types 30 µL per tube because that was the plan, so children add up to 450 µL from a 400 µL parent
+    - pipette set to 25 µL but real delivery is 24 to 26 µL, so the last tube gets 18 µL
+    - writes the split on paper and enters it two days later, after one aliquot is already used
+    - throws the parent away with 25 µL in it and never records the disposal
+  system_should: |
+    Keep the lot the same on every child and copy the freeze-thaw count and QC status down. Refuse or flag a split where children plus leftover exceed what the parent had. Keep the time of the split separate from the time it was typed. A barcode that shows up later should be attachable to the split as a late child, not created as a new lot.
+  question_it_answers: How many single-use tubes of Target X do we have, and how many times has each been thawed?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Target is expensive and shared; a lost aliquot leads to a needless reorder
+  depth: core
+  sim_hook: |
+    Actor scientist, action split_tube(n=10..24, vol=20..50 µL). Errors: forget_scan per child p≈0.03, record_planned_not_actual volume p≈0.10, late_entry (1 to 72 h) p≈0.15, unrecorded_parent_disposal p≈0.05.
+  source: brief
+
+- id: XFER-002
+  title: Scientist pipettes by hand from a tube into a few wells of a plate
+  story: |
+    Given a 50 mL bottle of HBS-EP buffer lot B-221 and an empty 96-well plate P-77.
+    When a scientist pipettes 50 µL into wells A1 to A12 by hand.
+    Then A1 to A12 each hold 50 µL of B-221 and the bottle goes down by 600 µL.
+  real_life_noise:
+    - records the transfer against the tube that was scanned first, not the one actually used
+    - uses a reservoir trough poured from a 50 mL bottle and never records the trough at all
+    - pipettes into row B instead of row A
+    - records the whole row as one transfer, the system needs twelve wells
+  system_should: |
+    Let a person record one action that covers a set of wells ("A1 to A12, 50 µL each") and expand it into well-level entries. Reject or flag a transfer that would push the source below zero, and show which source was likely meant. Allow an intermediate trough as a short-lived container, or allow the bottle to be the source directly.
+  question_it_answers: Where did the buffer in this well come from?
+  frequency: many-per-day
+  cost_if_wrong: medium
+  cost_reason: Buffer is cheap, but a wrong source breaks lineage when a buffer lot goes bad
+  depth: core
+  sim_hook: |
+    Actor scientist, action manual_transfer(src, dest_wells, vol). Errors: wrong_source_scan p≈0.02, wrong_row_offset p≈0.01, skip_intermediate_container p≈0.30.
+  source: brief
+
+- id: XFER-003
+  title: Pipetting more than the source holds
+  story: |
+    Given a tube of Target X that the system thinks holds 25 µL.
+    When a task records taking 30 µL from it.
+    Then the transfer is saved but flagged, because either the earlier record was wrong or this one is.
+  real_life_noise:
+    - the tube really had 32 µL because an earlier split over-recorded loss
+    - the scientist typed 30 instead of 3.0
+    - two people took from the same tube in parallel and both recorded against 25 µL
+  system_should: |
+    Never silently clamp to zero and never block the bench (the liquid already moved). Save the fact as it was reported, mark the container's balance as negative or uncertain, and put it on a list for someone to reconcile with a recount entry.
+  question_it_answers: Which containers have balances we cannot trust?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Planning reads these numbers; a hidden negative balance means an experiment is planned on air
+  depth: core
+  sim_hook: |
+    Actor scientist or robot, action any_transfer. Error over_draw where vol > recorded balance, p≈0.02 per manual transfer; decimal_slip (×10) p≈0.005.
+  source: brief
+
+- id: XFER-004
+  title: Last few microlitres can't be pipetted out (dead volume)
+  story: |
+    Given a 1.5 mL tube with 6 µL of Target X left.
+    When a scientist tries to take 10 µL and can only get 4 µL.
+    Then the tube shows 2 µL, which counts as existing but not usable, and the 4 µL is recorded as moved.
+  real_life_noise:
+    - records 10 µL anyway because that was the plan
+    - writes off the tube as empty and throws it away while the system still shows 6 µL
+    - the "dead volume" is different per container type (about 2 µL in a PCR tube, 5 to 10 µL in a 1.5 mL tube, 10 to 20 µL per well in an Echo source plate)
+  system_should: |
+    Store dead volume on the container type, and report usable volume as total minus dead volume. Accept a "tube is empty" event that writes off whatever is left as a loss, with a reason.
+  question_it_answers: How much of what we hold can actually be used?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Overstated usable stock means a planned run fails at the bench
+  depth: core
+  sim_hook: |
+    Actor scientist, action transfer with request > usable. Behaviour: record_requested_not_actual p≈0.25; mark_empty_discard p≈0.6 when balance < 2× dead volume.
+  source: inferred
+
+- id: XFER-005
+  title: Transfer recorded against the wrong source plate
+  story: |
+    Given two DNA plates on the bench, D-1001 and D-1002, same layout, different customers.
+    When the robot actually aspirates from D-1002 but the scientist scanned D-1001 into the run.
+    Then the record says D-1001 lost material and the expression plate came from D-1001, both wrong.
+  real_life_noise:
+    - found out a week later when the BLI results for customer A look like customer B's
+    - the scientist corrects it by editing the source on the run, so the original claim disappears
+    - only half the wells came from the wrong plate because the plates were swapped mid-run
+  system_should: |
+    Let someone correct a run's source by adding a correction that reverses the old entries and adds new ones, keeping both visible. After correction, lineage from the expression plate must point at D-1002 and both DNA plates' balances must be right.
+  question_it_answers: Which DNA plate did this protein really come from, and what did the record say before the fix?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Wrong customer data delivered, and the audit trail is the only way to prove what happened
+  depth: core
+  sim_hook: |
+    Actor scientist, action start_robot_run. Error wrong_source_scan p≈0.005 per run when two same-layout plates are on deck; detection delay 1 to 10 days; correction_by_overwrite p≈0.3 (to test that the system refuses it).
+  source: brief
+
+- id: XFER-006
+  title: Plate loaded rotated 180 degrees
+  story: |
+    Given a 96-well source plate loaded on the robot deck turned around, so A1 sits where H12 should be.
+    When the robot runs a worklist from A1 to H12.
+    Then well A1 of the destination actually holds material from source H12, and so on for every well.
+  real_life_noise:
+    - nobody notices; the plate barcode is on the short side and was scanned fine
+    - it's caught at Split GFP because the empty wells (column 12) show signal and column 1 doesn't
+    - only the destination was rotated, not the source
+  system_should: |
+    Support a single correction that remaps every well of a run by a known rule (rotate 180) instead of 96 manual fixes. Keep the original run as recorded and the corrected mapping as a later fact.
+  question_it_answers: For destination well A1, which source well did the material really come from?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Every result on the plate is assigned to the wrong design
+  depth: supported
+  sim_hook: |
+    Actor scientist, action load_plate. Error rotate_180 p≈0.002 per plate load; detected by empty-well pattern p≈0.7.
+  source: research
+
+# ---------------------------------------------------------------------------
+# Robots and worklists
+# ---------------------------------------------------------------------------
+
+- id: XFER-007
+  title: Liquid handler copies a plate well by well from a worklist
+  story: |
+    Given DNA plate D-1001 (96 wells, 40 µL each) and an empty destination plate.
+    When a Hamilton-style liquid handler runs a worklist moving 5 µL from each source well to the same well in the destination.
+    Then 96 transfers are recorded, each source well shows 35 µL, each destination well holds 5 µL of the same DNA lot as its source.
+  real_life_noise:
+    - the worklist is a CSV with columns that differ by robot (SourcePlate, SourceWell, DestWell, Volume)
+    - well names come as "A1", "A01" or as numbers 1 to 96 counted down columns
+    - the robot log is uploaded hours after the run, or never
+  system_should: |
+    Import one run from a worklist or robot log, normalise well names, and create one transfer per well under a single run. Keep the lot of each destination well equal to its source well because nothing changed chemically.
+  question_it_answers: Where did each well of this plate come from?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Plate copies are the backbone of lineage for every sample
+  depth: core
+  sim_hook: |
+    Actor robot, action run_worklist(n_wells=96 or 384). Errors: log_upload_missing p≈0.03, log_upload_delay 0.5 to 24 h, well_name_format random.
+  source: brief
+
+- id: XFER-008
+  title: Robot run fails halfway
+  story: |
+    Given a worklist with 96 transfers.
+    When the robot stops after 52 transfers with a tip pickup error and the scientist aborts.
+    Then only 52 transfers are recorded, the destination plate is marked as partly filled, and the run is marked aborted.
+  real_life_noise:
+    - the scientist records the whole worklist because that is what the template does
+    - she restarts the run from the beginning, so wells 1 to 52 get a second 5 µL
+    - she finishes the last 44 wells by hand with a multichannel and records nothing
+    - the robot log says 53 because the 53rd aspirated but never dispensed, so the tip went to waste with 5 µL in it
+  system_should: |
+    Record transfers from what the robot says it did, not from what was planned. Allow a run to be aborted and resumed or completed by a second manual run. Flag wells that received twice. Treat an aspirated but not dispensed volume as lost.
+  question_it_answers: Which wells on this plate are really filled, and with how much?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Half-filled plates look complete and produce empty-well data
+  depth: core
+  sim_hook: |
+    Actor robot, action run_worklist. Error abort_at step ~ Uniform(1, n) with p≈0.03 per run; then scientist chooses restart_full p≈0.2, resume p≈0.5, finish_by_hand_unrecorded p≈0.3.
+  source: research
+
+- id: XFER-009
+  title: Worklist says one thing, robot log says another
+  story: |
+    Given a worklist asking for 2.5 µL per well and a robot log that reports 2.5 µL for 94 wells, 0 µL for B7 (clot detected) and 2.5 µL for G3 that was flagged as a short aspirate.
+    When the run is imported.
+    Then 94 wells get 2.5 µL, B7 gets nothing, G3 is recorded with an uncertain volume.
+  real_life_noise:
+    - someone imports the worklist instead of the log
+    - the log is in the robot's own format and the columns are renamed in the latest software update
+    - the scientist re-does B7 by hand and forgets to record it
+  system_should: |
+    Prefer the instrument log over the plan when both exist, and keep the plan attached for comparison. Mark per-well status (done, skipped, error). Allow a volume to be flagged as uncertain rather than forcing a number.
+  question_it_answers: Did this well get what the plan said?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: One bad well per plate is normal; not knowing which is the problem
+  depth: core
+  sim_hook: |
+    Actor robot, action run_worklist. Error per-well clot_or_bubble p≈0.005, short_aspirate p≈0.003; import_plan_instead_of_log p≈0.05.
+  source: research
+
+- id: XFER-010
+  title: A well is skipped and nobody notices
+  story: |
+    Given a 384-well run where D14 was skipped by the robot because its source well was empty.
+    When the destination plate is used downstream.
+    Then D14 has no material and the inventory knows it, so the empty well is not reported as a failed protein.
+  real_life_noise:
+    - the source well was empty because the DNA supplier failed that design (Twist marks it in the plate map)
+    - the robot doesn't log skips at all, only successes
+  system_should: |
+    Treat a well with no recorded transfer as empty, not as "unknown". Carry known-empty wells from the supplier plate map so they never look like failures.
+  question_it_answers: Is this well empty because nothing went in, or because the experiment failed?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Customers get "no expression" for a design that was never made
+  depth: supported
+  sim_hook: |
+    Actor robot, action run_worklist. Error skip_well p≈0.002 per well; supplier_failed_well p≈0.01 per DNA well.
+  source: research
+
+- id: XFER-011
+  title: Echo acoustic dispenser moves nanolitres from a 384 source plate
+  story: |
+    Given an Echo-qualified 384-well source plate with 40 µL per well of DNA at 50 ng/µL.
+    When an Echo run moves 500 nL from 120 source wells into a 384-well expression plate, in 2.5 nL droplets.
+    Then each source well shows 39.5 µL, each destination well gets 25 ng of DNA, and the source plate's usable volume accounts for a dead volume of about 15 µL per well.
+  real_life_noise:
+    - the Echo survey reads 37 µL in a well the system says has 39.5 µL (evaporation or earlier miscount)
+    - volumes are logged in nL and someone imports them as µL
+    - the Echo refuses wells below its minimum working volume and logs them as exceptions
+  system_should: |
+    Store quantities with units and convert, so 500 nL and 0.5 µL are the same number. Let an instrument survey reading become a recount fact for each well. Treat the instrument's exception list as skipped wells.
+  question_it_answers: How much DNA is left in each source well, and is it above what the Echo can still use?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Unit slips of 1000× wreck balances quietly
+  depth: core
+  sim_hook: |
+    Actor robot (Echo), action acoustic_transfer(vol_nL). Errors: unit_slip_nL_as_uL p≈0.01 per import; survey_drift ±0 to 3 µL per well per day open; below_min_exception when balance < dead volume.
+  source: research
+
+- id: XFER-012
+  title: Cherry-picking a few wells into a new plate
+  story: |
+    Given three expression plates, E-31, E-32 and E-33.
+    When a robot picks 23 wells that passed Split GFP (for example E-31:C4, E-32:H11) into a new 96-well plate for a re-run.
+    Then the new plate holds 23 wells, each traced to its own source well and its own protein lot.
+  real_life_noise:
+    - the pick list was made from yesterday's Split GFP data and two of the wells have since been used up
+    - the scientist reorders the pick list by hand and the mapping gets shifted by one
+    - picks are recorded with the destination well only, no source
+  system_should: |
+    Keep lineage per well across many source plates. A destination plate can have wells from several sources and several customers. Refuse a transfer record that has no source well.
+  question_it_answers: For this re-run plate, which original wells and DNA does each well come from?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Re-runs are where mapping slips cost a second time
+  depth: core
+  sim_hook: |
+    Actor robot, action cherry_pick(n=5..60 from 2..5 plates). Errors: off_by_one_mapping p≈0.01 per pick list, stale_pick (source empty) p≈0.03 per pick.
+  source: brief
+
+- id: XFER-013
+  title: Pooling several wells into one
+  story: |
+    Given four wells of the same protein expressed in parallel, 40 µL each.
+    When a scientist pools them into one tube to get enough for a BLI repeat.
+    Then the tube holds 160 µL, and its material has four parents, which may be four different protein lots.
+  real_life_noise:
+    - pools wells from two different DNA designs by mistake
+    - records only the first well as the source
+    - concentration of the pool is entered as the average, but the wells had very different expression
+  system_should: |
+    Support a container whose content has several parent lots. Decide one rule: pooling the same design makes a new lot whose parents are the pooled lots. Flag pools that mix different designs.
+  question_it_answers: If one of the pooled wells was bad, which results did it touch?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Mixed lineage hides the root cause of bad data
+  depth: supported
+  sim_hook: |
+    Actor scientist, action pool(src_wells=2..8). Errors: mixed_design p≈0.02, record_single_parent p≈0.10.
+  source: inferred
+
+# ---------------------------------------------------------------------------
+# Reconstitution, dilution, mixing, normalising
+# ---------------------------------------------------------------------------
+
+- id: XFER-014
+  title: Reconstituting dried DNA turns a mass into a volume and a concentration
+  story: |
+    Given a Twist plate where each well holds about 1 µg of dried DNA (amount varies per well, stated on the plate map).
+    When a scientist adds 40 µL of water to every well.
+    Then each well holds 40 µL at about 25 ng/µL, same DNA lot, and the water lot is recorded as an ingredient.
+  real_life_noise:
+    - the plate map says 1000 ng but the real yield per well ranges from 600 to 1400 ng
+    - adds 20 µL to half the plate because the multichannel ran out
+    - records "water" without a lot, because nobody tracks water
+    - measures concentration later on a NanoDrop and gets numbers 20 percent off the calculation
+  system_should: |
+    Let a quantity change unit kind (mass to volume plus concentration) within the same lot. Keep the calculated concentration and later measured concentration as separate facts, the measured one winning. Make the solvent optional but allowed.
+  question_it_answers: What concentration is the DNA in this well, and is that calculated or measured?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Wrong concentration means the wrong amount goes into expression
+  depth: core
+  sim_hook: |
+    Actor scientist, action reconstitute(vol_uL). Errors: wrong_volume_half_plate p≈0.02, missing_solvent_lot p≈0.6, yield_variation ±40 percent per well.
+  source: workflow
+
+- id: XFER-015
+  title: Making a diluted copy of a DNA plate
+  story: |
+    Given a reconstituted DNA plate at about 25 ng/µL, 40 µL per well.
+    When a robot moves 4 µL from each well into 36 µL of water in a new plate (1:10).
+    Then the new plate has 40 µL per well at about 2.5 ng/µL, the source wells drop to 36 µL, and each new well keeps the DNA lot of its source.
+  real_life_noise:
+    - the water was pre-dispensed the day before and partly evaporated in the edge wells
+    - the dilution factor is typed as 1:9 because "4 into 36"
+    - the scientist dilutes only the columns that need it
+  system_should: |
+    Treat dilution as the same lot at a new concentration, plus a diluent as an ingredient. Store the factor or compute it from volumes, never both in a way that can disagree.
+  question_it_answers: What is in the diluted plate, and how does it relate to the original?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Concentration errors propagate into expression yield
+  depth: core
+  sim_hook: |
+    Actor robot, action dilute(factor=5..20). Errors: factor_ambiguity p≈0.05, partial_plate p≈0.2 (not an error, just common).
+  source: workflow
+
+- id: XFER-016
+  title: Mixing a buffer from components creates a new lot
+  story: |
+    Given 1 M HEPES (lot H-55), 5 M NaCl (lot N-12), Tween-20 (lot TW-3) and water.
+    When a scientist makes 500 mL of running buffer.
+    Then there is one new buffer lot with four parent lots, 500 mL in a bottle, expiring in 1 month, and each component's stock goes down.
+  real_life_noise:
+    - records the recipe amounts, not what was actually poured
+    - forgets the Tween lot, since it's "always the same bottle"
+    - makes 450 mL because the cylinder was wrong, labels it 500 mL
+    - one component was already expired
+  system_should: |
+    Create a new lot with all components as parents and set expiry from the buffer type's rule. Warn when a component is expired or not QC'd. Let the recipe prefill the form, but store what was actually used.
+  question_it_answers: Which buffer lots used NaCl lot N-12?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: A bad component must be traced to every buffer and experiment
+  depth: core
+  sim_hook: |
+    Actor scientist, action make_buffer(recipe). Errors: missing_component_lot p≈0.10, recipe_not_actual p≈0.4, expired_component p≈0.02.
+  source: brief
+
+- id: XFER-017
+  title: Loading buffer that lasts only a week
+  story: |
+    Given loading buffer made on Monday with a 1 week life.
+    When it is used to fill a BLI sample plate the following Tuesday.
+    Then the transfer is recorded but flagged as using expired material, and every well filled from it carries that flag.
+  real_life_noise:
+    - the bottle label says Tuesday because the scientist wrote the date she expected to make it
+    - two bottles of loading buffer exist and the old one gets used
+  system_should: |
+    Let the transfer happen (the bench already did it) but mark the destination wells. Expiry belongs to the lot, but the flag should show up on everything made from it.
+  question_it_answers: Did any experiment this week use expired loading buffer?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Bad buffer gives bad BLI curves that look like weak binders
+  depth: supported
+  sim_hook: |
+    Actor scientist, action fill_plate(buffer). Error use_older_bottle p≈0.05 when two bottles exist.
+  source: brief
+
+- id: XFER-018
+  title: Normalising sample concentrations well by well
+  story: |
+    Given an expression plate where Split GFP gives a different protein concentration per well (from 0.05 to 2 µM).
+    When a robot adds a different volume of buffer to each well so every BLI sample well lands at about 100 nM.
+    Then each well has its own transfer volume, its own new concentration, same protein lot, and wells too weak to reach 100 nM are recorded as "below target".
+  real_life_noise:
+    - the normalisation worklist is computed from a Split GFP file for a different plate
+    - wells with very high concentration need more buffer than the well can hold, the robot caps it
+    - the scientist reruns normalisation after adding a missing well, doubling buffer in some wells
+  system_should: |
+    Store per-well volume and concentration changes from one run. Link the worklist to the measurement it was computed from, so a mismatch in plate barcodes is caught. Keep "below target" as a state on the well, not just a note.
+  question_it_answers: What concentration did each sample go into BLI at, and what measurement was that based on?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Wrong concentrations give wrong binding constants
+  depth: supported
+  sim_hook: |
+    Actor robot, action normalise(per_well_vol from measurement). Errors: wrong_measurement_file p≈0.01, overflow_cap p≈0.02 per well, double_run p≈0.01.
+  source: workflow
+
+- id: XFER-019
+  title: Serial dilution of a target for a concentration series
+  story: |
+    Given a Target X tube at 1 µM.
+    When a scientist makes a 2-fold series over 6 wells (1000, 500, 250, 125, 62.5, 31.25 nM), 100 µL final each.
+    Then six wells exist, each with its own concentration, all lot T-0412, and the chain is well 1 to well 2 to well 3, not all from the tube.
+  real_life_noise:
+    - records all six as coming from the tube directly
+    - skips a step and the series goes 1000, 500, 125
+  system_should: |
+    Allow a well to be the source of another well on the same plate. Concentration should be traceable step by step.
+  question_it_answers: How much of the target tube did this series actually consume?
+  frequency: weekly
+  cost_if_wrong: low
+  cost_reason: Small volumes, but consumption of the stock tube must still be right
+  depth: supported
+  sim_hook: |
+    Actor scientist, action serial_dilute(steps=4..8, factor=2..3). Error record_flat_from_stock p≈0.3.
+  source: research
+
+# ---------------------------------------------------------------------------
+# New material being born
+# ---------------------------------------------------------------------------
+
+- id: XFER-020
+  title: Expression turns DNA into protein, so 96 new lots are born
+  story: |
+    Given an expression plate with 96 wells, each holding DNA of one design plus cell-free expression mix.
+    When the expression run finishes (several hours at about 30 to 37 °C).
+    Then each well now contains a new protein lot, one per design, whose parents are the DNA lot in that well and the expression mix lot.
+  real_life_noise:
+    - the run is recorded as finished but the incubator crashed after 1 hour
+    - the expression mix lot is the same for all 96 wells and nobody records it per well
+    - the protein lot gets the DNA's lot number by copy-paste
+  system_should: |
+    Create new lots at the moment of the transformation, linked to every input lot. One shared input (the mix) may be linked once at the run level and apply to every well. The protein lot must be a different lot from the DNA, even if the container is the same plate.
+  question_it_answers: Which DNA and which expression mix made this protein?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: This is where lineage from customer DNA to binding data is born
+  depth: core
+  sim_hook: |
+    Actor robot (incubator), action express(plate). Errors: run_fail_unrecorded p≈0.01, mix_lot_missing p≈0.15.
+  source: workflow
+
+- id: XFER-021
+  title: Same plate, new contents
+  story: |
+    Given an expression plate with barcode E-31 that held DNA plus mix this morning.
+    When expression finishes and the plate now holds protein.
+    Then the container is the same (same barcode, same freezer slot) but its content changed lot and material type, and the 2-week expiry clock starts.
+  real_life_noise:
+    - a query for "all DNA we have" still lists E-31
+    - someone asks what was in E-31 yesterday
+  system_should: |
+    Content of a well is a history, not a field. Asking what was in a well at a time must work.
+  question_it_answers: What was in this plate on a given day?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Double counting DNA, and wrong expiry on proteins
+  depth: core
+  sim_hook: |
+    Derived from XFER-020. Query checks after each express event.
+  source: workflow
+
+- id: XFER-022
+  title: Buying finished protein instead of expressing it
+  story: |
+    Given a customer who sends 24 purified proteins in a 96-well plate instead of DNA.
+    When the plate is received and goes straight to BLI Sample Plate Prep.
+    Then the samples have supplier lots, no DNA parent, and the rest of the chain works the same.
+  real_life_noise:
+    - the customer's plate map uses their own well naming
+    - concentrations are given in mg/mL, our plans use µM
+  system_should: |
+    Allow a sample lot with no parent lot. Convert mass concentration to molar only if molecular weight is known, otherwise keep both.
+  question_it_answers: Where did this sample come from, if not from our DNA?
+  frequency: monthly
+  cost_if_wrong: low
+  cost_reason: Rare path, but must not need a separate model
+  depth: supported
+  sim_hook: |
+    Actor receiver, action receive_plate(material=sample, has_parent=false) p≈0.05 of experiments.
+  source: brief
+
+# ---------------------------------------------------------------------------
+# Physical losses and formats
+# ---------------------------------------------------------------------------
+
+- id: XFER-023
+  title: Evaporation from an open plate
+  story: |
+    Given a 384-well plate with 20 µL per well left unsealed on the bench for 6 hours.
+    When it is measured before use.
+    Then wells hold 17 to 19 µL, edge wells less, and concentrations went up by the same factor.
+  real_life_noise:
+    - nobody measures; the system keeps showing 20 µL forever
+    - the seal is put on crooked and the corner wells dry out over a weekend
+  system_should: |
+    Accept a recount fact per well or a plate-wide adjustment with a reason (evaporation). Don't try to predict evaporation in the database; let the simulation produce it and the recount correct it.
+  question_it_answers: Why does the system show more than the plate holds?
+  frequency: daily
+  cost_if_wrong: low
+  cost_reason: Small drift, but it adds up on source plates used many times
+  depth: supported
+  sim_hook: |
+    Environment process: per open plate, lose 0.2 to 0.6 µL per well per hour, edge wells ×2. Scientist recount p≈0.1 per use.
+  source: research
+
+- id: XFER-024
+  title: 96-well and 384-well formats in the same run
+  story: |
+    Given four 96-well DNA plates.
+    When a robot compresses them into one 384-well plate (quadrant layout, plate 1 to A1, A3..., plate 2 to A2, A4...).
+    Then each 384 well maps to exactly one 96 well, and the mapping follows a known rule.
+  real_life_noise:
+    - the quadrant rule differs by robot software (interleaved vs block)
+    - one of the four 96-well plates is only half full
+  system_should: |
+    Container types know their format (rows by columns). Well names must be validated against the format, so "P24" is fine on 384 and rejected on 96.
+  question_it_answers: Which 96-well plate and well did 384-well B2 come from?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: A wrong quadrant rule scrambles four customers at once
+  depth: core
+  sim_hook: |
+    Actor robot, action compress_96_to_384(rule=interleaved|block). Error wrong_rule_assumed p≈0.005 per run.
+  source: research
+
+- id: XFER-025
+  title: Tip and consumable use during a run
+  story: |
+    Given a robot run of 96 transfers with fresh tips.
+    When the run finishes.
+    Then two boxes of 96 tips (one for aspirate steps, one spare for retries) and one destination plate are used up, counted as boxes, not tips.
+  real_life_noise:
+    - the robot reuses tips for buffer steps, so tip count isn't a fixed number
+    - partial tip boxes are put back on the shelf
+  system_should: |
+    Track consumables as counts per box or per plate, not per tip. Decrement on run completion. Don't link every tip to a transfer.
+  question_it_answers: How many 384-well plates and tip boxes do we have left?
+  frequency: many-per-day
+  cost_if_wrong: low
+  cost_reason: Running out stops the lab, but the fix is just ordering
+  depth: supported
+  sim_hook: |
+    Actor robot, action run_worklist consumes ceil(n_transfers/96) tip boxes; partial_box_return p≈0.4.
+  source: brief
+
+- id: XFER-026
+  title: Liquid stuck in tips and walls (transfer loss)
+  story: |
+    Given a protein sample of 50 µL pipetted into 5 wells of 10 µL.
+    When the transfers are done.
+    Then in practice the first four wells get 10 µL, the last gets about 7 µL, and 3 µL stays on tip walls and the tube. The source is empty.
+  real_life_noise:
+    - sticky protein or detergent buffers lose more
+    - nobody records the loss, so the totals never balance
+  system_should: |
+    Accept that sum of outputs can be less than inputs. Record the gap as a loss on the run instead of forcing the numbers to balance. Never accept outputs larger than inputs without a flag.
+  question_it_answers: Why don't our volumes add up?
+  frequency: many-per-day
+  cost_if_wrong: low
+  cost_reason: Small per transfer, but it hides real errors if not modelled
+  depth: supported
+  sim_hook: |
+    Physics: every transfer loses 1 to 5 percent; viscous material 5 to 15 percent.
+  source: inferred
+
+- id: XFER-027
+  title: Transfer between two plates of the same barcode (relabelled plate)
+  story: |
+    Given a plate whose barcode label fell off in the freezer and was replaced with a new label.
+    When the next run scans the new barcode.
+    Then the system doesn't know the plate and creates a fresh empty one, so the run looks like it took from nothing.
+  real_life_noise:
+    - the scientist reuses the old barcode by printing it again
+    - the old barcode is put on a different plate
+  system_should: |
+    Allow a barcode to be reassigned to an existing container with a recorded reason, and keep old barcodes as aliases. Refuse to auto-create a container from a scan inside a transfer.
+  question_it_answers: Is this the same plate as before?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Breaks lineage silently
+  depth: supported
+  sim_hook: |
+    Actor scientist, event label_lost p≈0.002 per plate-week in freezer; relabel_new_barcode p≈0.7, reprint_old p≈0.3.
+  source: inferred
+
+- id: XFER-028
+  title: Transfer with no destination container recorded
+  story: |
+    Given a scientist takes 20 µL from a target tube for a quick test and doesn't use a tracked container.
+    When she records "used 20 µL".
+    Then the tube goes down by 20 µL and the run says "consumed, no destination".
+  real_life_noise:
+    - it's never recorded and the tube is 20 µL short at the next recount
+  system_should: |
+    Support consumption without a destination (goes into an untracked tube, an instrument, the sink). Keep the same transfer shape with an empty destination and a reason.
+  question_it_answers: What happened to the missing 20 µL?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Unrecorded uses are why counts drift
+  depth: core
+  sim_hook: |
+    Actor scientist, action ad_hoc_use. Error unrecorded p≈0.25.
+  source: brief
+
+- id: XFER-029
+  title: A transfer recorded twice
+  story: |
+    Given a robot log uploaded by a script and then again by hand.
+    When both imports go through.
+    Then each well shows twice the consumption and the destination shows double the volume.
+  real_life_noise:
+    - the second import has a slightly different file name
+    - the robot exports the same run in two formats
+  system_should: |
+    Use the instrument's run id plus timestamp as a key so the same run cannot be imported twice. If it is, keep the second as a rejected duplicate, visible.
+  question_it_answers: Did this run happen once or twice?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Doubles consumption of a whole plate in one click
+  depth: core
+  sim_hook: |
+    Actor scientist, action import_log. Error duplicate_import p≈0.02 per run.
+  source: research
+
+- id: XFER-030
+  title: Undo a transfer that never happened
+  story: |
+    Given a run recorded at 10:00 but the scientist cancelled before the robot started.
+    When she marks the run as cancelled at 10:30.
+    Then all its transfers are reversed by new entries, and the history shows both.
+  real_life_noise:
+    - she deletes the run instead (the system must not allow that)
+  system_should: |
+    Cancellation is a new event that reverses the run, not a delete.
+  question_it_answers: What did the record say before the cancellation?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Deletes lose the audit trail
+  depth: core
+  sim_hook: |
+    Actor scientist, action cancel_run p≈0.02 per run; try_delete p≈0.1 of those.
+  source: brief
+
+- id: XFER-031
+  title: Partial plate use across several days
+  story: |
+    Given a reconstituted DNA plate of 96 designs.
+    When columns 1 to 4 are used on Monday, 5 to 8 on Wednesday, 9 to 12 next week.
+    Then the plate is one container with very different volumes per column, and freeze-thaw is counted for the whole plate each time it comes out.
+  real_life_noise:
+    - wells in column 1 get used again by mistake on Wednesday
+    - plate stays on the bench between uses
+  system_should: |
+    Track volume per well, and storage events per plate. A well's history must show every draw.
+  question_it_answers: Which wells of this DNA plate still have enough to run again?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Re-runs need DNA; a used-up well means reordering
+  depth: core
+  sim_hook: |
+    Actor scientist, action use_columns(subset). Error wrong_columns p≈0.01.
+  source: inferred
+
+- id: XFER-032
+  title: A tube that is both a source and a destination in one task
+  story: |
+    Given a target tube with 30 µL at 2 mg/mL.
+    When a scientist adds 30 µL buffer to it to dilute in place.
+    Then the tube has 60 µL at 1 mg/mL of the same target lot, plus the buffer lot as an ingredient.
+  real_life_noise:
+    - records it as a new tube
+    - doesn't update concentration, only volume
+  system_should: |
+    Allow in-place dilution: one container, volume up, concentration down, ingredient added.
+  question_it_answers: What concentration is this tube now?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Wrong concentration feeds into target plate prep
+  depth: supported
+  sim_hook: |
+    Actor scientist, action dilute_in_place. Error concentration_not_updated p≈0.15.
+  source: inferred
+
+# ---------------------------------------------------------------------------
+# The Binding workflow, end to end, one scenario per task box in the diagram
+# ---------------------------------------------------------------------------
+
+- id: XFER-BIND-01
+  title: DNA arrival
+  story: |
+    Given an order for 96 DNA designs from Twist.
+    When a 96-well plate arrives with dried DNA, a plate map file (well, design name, ng per well), and a supplier lot number.
+    Then one plate container exists, 96 wells each holding a mass of DNA (about 500 to 1000 ng), each well its own DNA lot linked to its design. Nothing is thrown away.
+  real_life_noise:
+    - two wells are marked "failed" in the plate map and hold no DNA
+    - the plate map has 96 rows but the plate is 384 format
+    - the plate is put in the freezer before being scanned
+    - assumption, Twist ships some orders as dried DNA in plates; we assume this format for Adaptyv
+  system_should: |
+    Import the plate map as initial contents. Failed wells are empty from the start. In: nothing. Out: one plate, up to 96 new DNA lots. Lots are new (supplier lot per design).
+  question_it_answers: Which DNA did we receive, and which designs failed at the supplier?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Every later step depends on this mapping
+  depth: core
+  sim_hook: |
+    Actor receiver, action receive_dna_plate(n=24..96). Errors: supplier_failed_well p≈0.01, plate_map_mismatch p≈0.01, late_scan p≈0.1.
+  source: workflow
+
+- id: XFER-BIND-02
+  title: DNA reconstitution
+  story: |
+    Given the Twist plate from BIND-01.
+    When water is added to every well (for example 40 µL).
+    Then same plate, same DNA lots, now with volume and calculated concentration. Water lot is an ingredient. Nothing is thrown away.
+  real_life_noise:
+    - all the noise in XFER-014
+    - reconstitutes the whole plate when only 24 designs are needed this week, so 72 wells sit wet in the freezer
+    - plate sits on the bench 3 hours before going back, and the system has no record it was out
+  system_should: |
+    In: DNA plate (mass) plus water. Out: same plate (volume plus concentration). Lots carry over.
+  question_it_answers: What concentration is each DNA well now?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Concentration errors propagate into expression
+  depth: core
+  sim_hook: |
+    Same as XFER-014.
+  source: workflow
+
+- id: XFER-BIND-03
+  title: DNA dilution (optional step)
+  story: |
+    Given the reconstituted plate.
+    When a diluted copy is made because the DNA is too concentrated for expression.
+    Then a new diluted DNA plate exists with the same lots per well, lower concentration. The reconstituted plate stays as the master and goes back to the freezer.
+  real_life_noise:
+    - the step is skipped for some plates and not others, so later steps take from either plate
+  system_should: |
+    In: reconstituted plate plus water. Out: new plate, lots carry over. The next step must be able to take from either plate.
+  question_it_answers: Which plate did the expression plate take its DNA from?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Wrong source plate breaks lineage
+  depth: core
+  sim_hook: |
+    Actor robot, action dilute p≈0.5 of experiments.
+  source: workflow
+
+- id: XFER-BIND-04
+  title: Expression plate prep
+  story: |
+    Given DNA (reconstituted or diluted plate) and a cell-free expression mix (assumption, Adaptyv uses cell-free expression).
+    When a robot puts mix and a small volume of DNA (for example 2 µL) into each well of a new expression plate.
+    Then a new plate exists with each well holding DNA lot plus mix lot. DNA plate wells go down. Tips and the empty plate are used up.
+  real_life_noise:
+    - mix thawed and left at room temperature too long
+    - plate map uses different well layout from the DNA plate (for example 96 to 384)
+  system_should: |
+    In: DNA plate, mix. Out: expression plate, still holding DNA (not protein yet). No new lots until expression runs.
+  question_it_answers: Which DNA went into each well of the expression plate?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Mapping errors here give wrong customer data
+  depth: core
+  sim_hook: |
+    Actor robot, action run_worklist(DNA to expression plate). Errors as XFER-007 to XFER-010.
+  source: workflow
+
+- id: XFER-BIND-05
+  title: Expression run
+  story: |
+    Given the expression plate from BIND-04.
+    When it incubates (assumption, several hours, about 30 °C).
+    Then each well contains a new protein lot, linked to its DNA lot and the mix lot. The plate gets a 2-week life from now.
+  real_life_noise:
+    - all the noise in XFER-020
+    - expression plate goes into the fridge after the run with nobody recording the end time, so the 2-week clock starts from the plan
+    - wells with no DNA (supplier failures) still get mix and are counted as "no expression"
+  system_should: |
+    In: expression plate with DNA. Out: same plate with protein. New lots per well.
+  question_it_answers: When was this protein made, and when does it expire?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Start of sample lineage
+  depth: core
+  sim_hook: |
+    Same as XFER-020.
+  source: workflow
+
+- id: XFER-BIND-06
+  title: Antigen arrival
+  story: |
+    Given an order for Target X from a supplier.
+    When a vial of lyophilised (freeze-dried) target arrives, for example 100 µg, with a certificate of analysis.
+    Then one vial exists with a new supplier lot, mass 100 µg, waiting for QC.
+  real_life_noise:
+    - two vials of the same lot arrive in one box and are registered as two lots
+    - the certificate says 100 µg, the vial label says 0.1 mg
+  system_should: |
+    In: nothing. Out: one vial, new lot, not usable until QC. See RCV area for receiving detail.
+  question_it_answers: What target lots do we have waiting for QC?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Target is expensive and shared
+  depth: core
+  sim_hook: |
+    Actor receiver, action receive_vial. Errors as RCV area.
+  source: workflow
+
+- id: XFER-BIND-07
+  title: Antigen reconstitution, buffer exchange and QC, ending in a target stock tube
+  story: |
+    Given the 100 µg vial of Target X.
+    When it is dissolved in 100 µL water (1 mg/mL), moved into running buffer by buffer exchange (a spin column, losing about 10 to 20 percent), measured, and QC'd.
+    Then there is a target stock tube with about 90 µL at about 0.9 mg/mL in the new buffer, same supplier lot, QC passed. The vial and the spin column are thrown away.
+  real_life_noise:
+    - the yield after buffer exchange is 70 percent, recorded as 100
+    - QC fails and the stock tube still gets aliquoted
+    - the stock tube format is "ABE / ART format" in the diagram; we don't know what that means (assumption, it's a named tube format or supplier label)
+  system_should: |
+    In: vial, water, buffer. Out: stock tube, same lot, new buffer as ingredient. Thrown away: vial, column. Losses recorded. QC result attached to the lot.
+  question_it_answers: How much usable Target X do we have after QC?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Shared target; wrong amount means wrong ordering decision
+  depth: core
+  sim_hook: |
+    Actor scientist, action reconstitute_exchange_qc. Errors: loss_unrecorded p≈0.4, qc_fail p≈0.05, use_before_qc p≈0.02.
+  source: workflow
+
+- id: XFER-BIND-08
+  title: BLI or SPR target plate prep
+  story: |
+    Given the target stock tube.
+    When a scientist dilutes target to, for example, 10 µg/mL in loading buffer and fills 8 wells of a 96-well black plate at 200 µL each (assumption, Octet uses about 200 µL per well in 96 format, 40 to 80 µL in 384 tilted plates).
+    Then a target plate exists, 8 wells of Target X lot, and the stock tube went down by about 16 µL.
+  real_life_noise:
+    - the target plate also has buffer-only wells for baseline, not recorded
+    - target is taken from the oldest open tube, not the one recorded
+  system_should: |
+    In: target stock, loading buffer. Out: target plate. Lots carry over. Target plate is thrown away after use.
+  question_it_answers: How much target did this experiment use?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Target consumption drives reordering
+  depth: core
+  sim_hook: |
+    Actor scientist, action prep_target_plate. Errors: wrong_tube p≈0.03, buffer_wells_unrecorded p≈0.3.
+  source: workflow
+
+- id: XFER-BIND-09
+  title: Split GFP plate prep
+  story: |
+    Given the expression plate with protein.
+    When a robot moves a small amount (for example 5 µL) from each well into a split-GFP plate that holds the GFP1-10 detector (assumption, samples carry a short GFP11 tag; when they meet, the GFP turns on and glows in proportion to protein amount).
+    Then a split-GFP plate exists, each well holding protein lot plus detector lot. The expression plate wells go down.
+  real_life_noise:
+    - GFP detector stock has passed its 6-month frozen life
+    - plate prepared in 384 from a 96 expression plate
+  system_should: |
+    In: expression plate, GFP stock buffer. Out: split-GFP plate. Lots carry over. Plate thrown away after measurement.
+  question_it_answers: Which protein is in each Split GFP well?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Bad mapping gives wrong concentrations downstream
+  depth: core
+  sim_hook: |
+    Actor robot, action run_worklist(expression to GFP plate).
+  source: workflow
+
+- id: XFER-BIND-10
+  title: Split GFP measurement
+  story: |
+    Given the split-GFP plate.
+    When a plate reader measures fluorescence.
+    Then each protein lot on the expression plate gets a measured concentration, and the split-GFP plate is thrown away with liquid still in it.
+  real_life_noise:
+    - reader file has its own well numbering
+    - plate thrown away before the data was checked
+  system_should: |
+    In: split-GFP plate. Out: measurements linked to the protein lots, not just to the plate. Thrown away: split-GFP plate with contents.
+  question_it_answers: What concentration is each expressed protein?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Feeds normalisation
+  depth: supported
+  sim_hook: |
+    Actor plate reader, action measure. Error wrong_plate_file p≈0.01.
+  source: workflow
+
+- id: XFER-BIND-11
+  title: Sample concentration normalisation
+  story: |
+    Given Split GFP concentrations for each protein lot.
+    When a worklist is computed and used during sample plate prep.
+    Then each sample well gets its own buffer volume to reach a target concentration.
+  real_life_noise:
+    - all the noise in XFER-018
+    - the diagram marks this step as "implementation in progress", so today it may be a scientist's spreadsheet, not a worklist the system sees
+    - the measurement used is from before a re-expression, so it describes different protein lots
+  system_should: |
+    In: measurement plus expression plate. Out: worklist. No material moves in this step itself.
+  question_it_answers: Which measurement did this normalisation use?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Wrong concentrations in BLI
+  depth: supported
+  sim_hook: |
+    Same as XFER-018.
+  source: workflow
+
+- id: XFER-BIND-12
+  title: BLI or SPR sample plate prep
+  story: |
+    Given the expression plate with protein and loading buffer.
+    When a robot moves protein into one or more sample plates, diluting each to target concentration.
+    Then sample plates exist, wells hold protein lots plus buffer lot. The expression plate goes back to the fridge for 2 weeks in case of re-runs.
+  real_life_noise:
+    - more than one sample plate per expression plate
+    - a re-run uses the expression plate after 2 weeks
+  system_should: |
+    In: expression plate, loading buffer. Out: sample plates. Lots carry over.
+  question_it_answers: Can we re-run from this expression plate?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Re-runs depend on expression plate life
+  depth: core
+  sim_hook: |
+    Actor robot, action run_worklist(expression to sample plates).
+  source: workflow
+
+- id: XFER-BIND-13
+  title: BLI or SPR run
+  story: |
+    Given a target plate and sample plates.
+    When the instrument runs.
+    Then data is produced for each sample well against the target wells, and both plates are thrown away with liquid still in them.
+  real_life_noise:
+    - run fails halfway and plates are thrown away anyway
+    - data file has no plate barcodes
+  system_should: |
+    In: target plate, sample plates. Out: data linked to wells and lots. Thrown away: both plates.
+  question_it_answers: Which target lot and which protein lot made this binding curve?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: This is the result the customer pays for
+  depth: core
+  sim_hook: |
+    Actor instrument, action bli_run. Error run_fail p≈0.03.
+  source: workflow
+
+- id: XFER-BIND-14
+  title: Data processing and review
+  story: |
+    Given the BLI data.
+    When it is processed and reviewed.
+    Then no material moves, but results that fail QC lead to a re-run request that needs to know what material is left.
+  real_life_noise:
+    - re-run asked after the expression plate has expired
+    - expression plate still exists but the wells needed have under 5 µL left
+    - target stock looks like 40 µL, but two aliquots were used without being recorded
+  system_should: |
+    No material moves. The inventory must answer "can we re-run this sample" from what's left and usable.
+  question_it_answers: Can we re-run these samples without new DNA or target?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Wrong answer means a delay or needless reorder
+  depth: core
+  sim_hook: |
+    Actor reviewer, action request_rerun p≈0.1 per sample.
+  source: workflow

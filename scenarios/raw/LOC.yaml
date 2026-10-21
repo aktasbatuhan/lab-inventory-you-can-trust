@@ -1,0 +1,831 @@
+# LOC: where things are, and how we know.
+# Draft from the LOC agent run, 2026-10-21. Not merged into catalog.yaml yet.
+# Anything about Adaptyv's own setup (freezer count, rack scanner brand, robots, other sites)
+# is our assumption and is marked "Assumption" in the story or noise.
+
+- id: LOC-001
+  title: Scientist moves a tube from one freezer box to another and scans both ends
+  story: |
+    Given tube T-1001 (Target X, lot L1) sits in freezer F1 (-80), rack R3, box B12, slot C4.
+    When a scientist takes it out, puts it in box B07 slot A1 in freezer F2 and scans the tube, then the new box and slot.
+    Then the system says T-1001 is in F2 / B07 / A1, slot C4 in B12 is free, and the history shows both places with who and when.
+  real_life_noise:
+    - scans the tube and the box but types the slot as "A01" instead of "A1"
+    - scans the box first and the tube second, so the order of events is backwards
+    - drops the tube in A1 but A1 is already taken in the system by a tube that was thrown away last month and never marked
+    - scans at the freezer with gloves on and the scan registers twice
+  system_should: |
+    Record the move as a new event, never overwrite the old place. Accept slot names in a few common spellings and store one form. If the target slot is shown as taken, do not silently put two tubes in one slot. Ask, or record both and raise a conflict.
+  question_it_answers: Where is T-1001 right now, and where was it before?
+  frequency: many-per-day
+  cost_if_wrong: medium
+  cost_reason: A wrong slot means ten minutes of searching with the freezer door open
+  depth: core
+  sim_hook: |
+    Actor scientist, action move_tube, error slot_typo p≈0.02, double_scan p≈0.01, target_slot_occupied_stale p≈0.01
+  source: brief
+
+- id: LOC-002
+  title: A whole box moves, and everything in it moves with it
+  story: |
+    Given box B12 holds 64 tubes in freezer F1, rack R3, shelf 2.
+    When a technician moves the box to freezer F2, rack R1, shelf 4 and scans only the box barcode.
+    Then all 64 tubes report freezer F2 as their place, without 64 separate move records being typed in, and their slots inside the box stay the same.
+  real_life_noise:
+    - two tubes were taken out of the box an hour earlier and are on the bench, but nobody scanned them out, so they "move" to F2 on paper
+    - the box label is on the lid, and the lid was swapped with another box's lid
+    - the box is put in the right freezer but on a different shelf than scanned
+  system_should: |
+    Store each tube's place as "inside box B12" and the box's place as "F2 / R1 / shelf 4", so one scan moves everything. Asking "where is tube X" walks up the nesting. Keep the box move as one event so the history is readable.
+  question_it_answers: Where is every tube that was in box B12?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: If tubes are stored with flat freezer locations, one box move leaves 64 stale records
+  depth: core
+  sim_hook: |
+    Actor technician, action move_box, error untracked_tube_removed_before_move p≈0.05 per box move, lid_swap p≈0.005
+  source: brief
+
+- id: LOC-003
+  title: A plate goes freezer, bench, instrument, back to freezer in one day
+  story: |
+    Given reconstituted DNA plate P-220 in freezer F3 (-20).
+    When at 09:10 it is taken to the bench to thaw, at 09:40 it goes onto the liquid handler deck, at 11:00 it comes off, and at 11:15 it goes back into F3 on a different shelf.
+    Then the system shows four moves in order, the plate's current place is F3 shelf 1, and the total time out of the freezer is about two hours.
+  real_life_noise:
+    - only the first and last moves get scanned; the bench and robot steps are missing
+    - the "back to freezer" scan happens at 16:00 when the scientist remembers, though the plate went back at 11:15
+    - the plate sits on the bench over lunch and nobody knows how long it was out
+  system_should: |
+    Accept moves with a "when it happened" time separate from "when it was recorded". Treat the robot run itself as evidence the plate was on the deck, even without a scan. Time out of the freezer is computed from moves, and is marked uncertain when steps are missing.
+  question_it_answers: Where is P-220, and how long has it spent outside the cold?
+  frequency: many-per-day
+  cost_if_wrong: medium
+  cost_reason: Wrong time-out-of-freezer hides thaw damage; wrong place costs search time
+  depth: core
+  sim_hook: |
+    Actor scientist, action plate_round_trip, error skip_intermediate_scan p≈0.4 per intermediate step, late_return_scan delay 0-6 h with p≈0.15
+  source: workflow
+
+- id: LOC-004
+  title: Whole 96-tube rack read at once by a rack scanner
+  story: |
+    Given a 96-position rack of 2D-barcoded tubes (Datamatrix code on the bottom of each tube) holding target aliquots.
+    When a scientist puts the rack on a flatbed rack scanner and it reads all 96 positions in one go.
+    Then the system gets 96 (tube barcode, position) pairs plus the rack barcode, and updates every tube's place in one event.
+  real_life_noise:
+    - 3 positions come back "no read" because of frost on the tube bottoms
+    - the rack is put on the scanner rotated 180 degrees, so A1 reads as H12
+    - one position reads "no tube" though there is a tube in it, because it sits too high
+    - the scanner software exports a CSV that is saved and uploaded twice
+  system_should: |
+    Take the rack scan as one batch. Store no-reads as "unknown in position X", not as empty. Notice when the pattern of barcodes matches the known layout rotated 180 degrees and offer to flip it. Ignore an identical re-upload of the same scan file.
+  question_it_answers: What is in this rack, slot by slot?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: A rotated rack swaps 96 tube places at once and nobody notices until the wrong target is used
+  depth: core
+  sim_hook: |
+    Actor scientist, action rack_scan, error no_read p≈0.03 per position on frozen racks (0.005 when thawed), rotated_rack p≈0.01 per scan, duplicate_upload p≈0.02
+  source: research
+
+- id: LOC-005
+  title: Frosted -80 tube will not scan
+  story: |
+    Given tube T-2044 has just come out of the -80 and its barcode label is covered in frost.
+    When a scientist tries the handheld scanner four times, gives up and types the barcode by hand from the printed digits.
+    Then the system accepts the typed barcode, records that it was typed and not scanned, and the rest of the task goes on.
+  real_life_noise:
+    - types one digit wrong and it matches a different, real tube
+    - wipes the label with a glove and the printed digits smear
+    - grabs the tube next to it, which scans fine, and uses that instead without recording it
+  system_should: |
+    Mark every record with how the barcode got in (scan, rack scan, typed, picked from list). Check typed barcodes with a check digit or against what is expected in that box. Typed entries that hit a tube in a different freezer should warn before going ahead.
+  question_it_answers: How sure are we that this event was about the right tube?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: A typo that matches a real tube silently moves or consumes the wrong material
+  depth: core
+  sim_hook: |
+    Actor scientist, action scan_frozen_tube, error scan_fail p≈0.15 for -80 tubes, then manual_entry with typo p≈0.02 per typed barcode
+  source: research
+
+- id: LOC-006
+  title: Two containers carry the same barcode
+  story: |
+    Given tube T-3100 already exists, holding Buffer A.
+    When a new tube of Target Y is registered and its pre-printed label also reads T-3100 (a reprint from the same label roll).
+    Then the system refuses the second registration, or registers it on hold with a clear duplicate flag, and asks for a new label.
+  real_life_noise:
+    - the duplicate is only noticed weeks later, when a scan of T-3100 "moves" the buffer tube to a box that holds targets
+    - label printer was reset and started counting from 3000 again
+    - supplier pre-barcoded tubes from two different suppliers happen to share a number
+  system_should: |
+    Barcodes are unique among containers that are still in the lab. When a scan hits a barcode whose recorded place, material or size does not fit the context, warn. Keep a way to give a container a new barcode while keeping its history.
+  question_it_answers: Which container does this barcode really mean?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Every later event lands on the wrong container and mixes two histories
+  depth: core
+  sim_hook: |
+    Actor label_printer, action print_label, error counter_reset_duplicate p≈0.001 per label; supplier_barcode_collision p≈0.0005 per received tube
+  source: inferred
+
+- id: LOC-007
+  title: Barcode from a thrown-away plate is used again
+  story: |
+    Given plate P-500 was thrown away last month with its barcode label still on it, and its record says disposed.
+    When a scientist pulls a sheet of old printed labels and sticks P-500 on a new plate.
+    Then the scan of P-500 should not bring the old plate back to life; the system should say "this barcode belonged to a disposed plate" and offer to retire the old link and start a new container.
+  real_life_noise:
+    - some labs reuse plate barcodes on purpose for washable or reusable racks and boxes
+    - the old plate was "disposed" in the system but is actually still in the back of a fridge
+  system_should: |
+    Keep container identity separate from the barcode string. A barcode can point to one live container at a time, and the history of which container held it when is kept. Reusable holders (racks, boxes) can be allowed to reuse barcodes; plates and tubes by default cannot.
+  question_it_answers: Is this plate new, or is it the old one we threw away?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: A disposed plate can look usable again, exactly the failure the brief names
+  depth: core
+  sim_hook: |
+    Actor scientist, action label_new_plate, error reuse_disposed_barcode p≈0.005 per new plate
+  source: brief
+
+- id: LOC-008
+  title: Hand-written label with no barcode
+  story: |
+    Given a scientist makes a quick dilution late in the evening and writes "TgtX 1:10 BA 21/10" on the tube with a marker.
+    When the next morning someone finds it on the bench.
+    Then the system either has a record without a barcode that can be matched by description and later given a printed label, or has nothing and the tube is registered as found.
+  real_life_noise:
+    - ethanol wipe has made the marker writing half unreadable
+    - the scientist meant to register it but forgot
+    - two hand-written tubes look identical
+  system_should: |
+    Allow a container to exist with no barcode for a while, with a short free-text label and owner. List "unlabelled containers older than 24 h" so they get labelled or thrown away. Never count them as usable stock while they have no barcode, unless someone confirms.
+  question_it_answers: What is this unlabelled tube and is it safe to use?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Unknown tubes either get thrown out (waste) or used blindly (bad data)
+  depth: supported
+  sim_hook: |
+    Actor scientist, action make_tube_without_label, p≈0.02 per manual dilution; forget_register p≈0.5 of those
+  source: inferred
+
+- id: LOC-009
+  title: Tube moved without anyone scanning it
+  story: |
+    Given the system says tube T-1500 is in freezer F1, box B3, slot D2.
+    When a colleague borrows it, uses it, and puts it back in F2 box B9 slot E5 without scanning.
+    Then the system still says F1 / B3 / D2. The next person to look for it finds the slot empty.
+  real_life_noise:
+    - the tube is put back into B3 but in slot D3, so it looks like it is in place at a glance
+    - it ends up in another person's box because the slot was free there
+  system_should: |
+    Not pretend to know. When someone records "slot empty" or a later scan finds the tube elsewhere, record the new place, mark the gap between the last known and found as unknown, and keep the fact that the record was wrong for a while. Report "last confirmed" next to "where".
+  question_it_answers: Where is T-1500 really, and when did we last know for sure?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Search time, and sometimes a needless reorder when the tube looks lost
+  depth: core
+  sim_hook: |
+    Actor scientist, action borrow_and_return, error no_scan_on_return p≈0.10, wrong_slot_on_return p≈0.05
+  source: brief
+
+- id: LOC-010
+  title: Item found in a slot the system says is empty
+  story: |
+    Given the system says box B4 slot F7 is empty.
+    When a scientist opens the box and finds a tube there and scans it.
+    Then the system shows where it thought that tube was, moves it to B4 / F7 with a "found" reason, and the old place is freed.
+  real_life_noise:
+    - the tube's barcode is not in the system at all (never registered)
+    - the tube's record says it was thrown away three weeks ago
+    - the tube is a duplicate barcode (see LOC-006)
+  system_should: |
+    Have three paths: known tube found elsewhere (correct place, flag), unknown barcode (register as found, on hold until someone says what is in it), disposed tube found (do not quietly undo the disposal; ask whether the disposal record was wrong, and if so, correct it with a new entry).
+  question_it_answers: How often is our "where" wrong, and for which places?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Lost material reappearing as disposed hides real stock and inflates orders
+  depth: core
+  sim_hook: |
+    Actor scientist, action open_box_scan_all, outcome found_unexpected p≈0.02 per slot checked; of those 60% misplaced known, 25% never registered, 15% marked disposed
+  source: brief
+
+- id: LOC-011
+  title: Freezer breaks down and everything is moved in a hurry
+  story: |
+    Given freezer F2 (-80) holds 40 boxes, about 2,500 tubes. The alarm goes off at 02:00 and the temperature is -45 and rising.
+    When the on-call person moves boxes into F1, F4 and a dry-ice cooler over the next hour, without scanning anything.
+    Then the next morning the system still says all 2,500 tubes are in F2, which is now off and empty.
+  real_life_noise:
+    - boxes are split across three places with no notes, or with notes on a paper towel
+    - some boxes are put shelf-by-shelf, others piled loosely
+    - the dry-ice cooler has no barcode and no location record at all
+    - it takes a week before all boxes are rescanned
+  system_should: |
+    Let someone mark F2 as "emptied in emergency, contents being rehoused". All contents go to a "location uncertain, last seen F2" state, not to "missing". As boxes are scanned into new places they leave that state. Show a count of what is still unaccounted for. Record the temperature excursion against everything that was in F2 at the time, since that also matters for shelf life.
+  question_it_answers: After the F2 failure, where is everything, and what got warm?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Thousands of records wrong at once; expensive targets may be lost or warmed without anyone knowing
+  depth: core
+  sim_hook: |
+    Actor on_call, action emergency_rehouse, event freezer_failure p≈0.5 per freezer per year; no_scan_during_rehouse p≈0.95 per box; rescan_delay 1-7 days
+  source: research
+
+- id: LOC-012
+  title: A new freezer is added
+  story: |
+    Given the lab buys a new -80, F5, with 5 shelves and 4 rack slots per shelf.
+    When an admin adds F5 and its inner layout, and prints barcodes for each shelf and rack.
+    Then F5 can be chosen as a place, its racks and boxes can be scanned into it, and nothing about older freezers changes.
+  real_life_noise:
+    - the freezer is used for two days before anyone adds it, so moves are recorded as "bench" or "other"
+    - the rack barcodes printed for F5 reuse numbers from F1 racks
+    - the inner layout entered (5 shelves) does not match reality (shelf 3 was removed for tall racks)
+  system_should: |
+    Adding a place is adding rows, not changing the schema. Places nest: room, freezer, shelf, rack, box, slot. Layout can be changed later without breaking past history.
+  question_it_answers: What storage do we have and how full is it?
+  frequency: rare
+  cost_if_wrong: low
+  cost_reason: Mostly a setup chore, but late setup leaves vague "bench" records
+  depth: supported
+  sim_hook: |
+    Actor admin, action add_freezer, error late_setup delay 0-3 days p≈0.3
+  source: brief
+
+- id: LOC-013
+  title: Room reorganisation renames and moves whole freezers
+  story: |
+    Given freezers F1 to F4 stand in room 1.02.
+    When the lab moves F3 and F4 to room 1.05 and renames shelves so labels match a new scheme.
+    Then one move of F3 moves everything inside it, the room change is recorded once, and old reports still show the old names for the old dates.
+  real_life_noise:
+    - the rename is done by editing the name in place, so history now shows the new name for last year
+    - the freezer is unplugged for 40 minutes during the move
+    - while moving, some loose tubes in door shelves fall into a different shelf
+  system_should: |
+    Keep places as stable things with a name that can change over time. Moving a freezer is a move of one place inside another. Unplugged time is recorded as a possible temperature event for its contents.
+  question_it_answers: What did "F3 shelf 2" mean on a given date?
+  frequency: rare
+  cost_if_wrong: low
+  cost_reason: Mostly confusion in old reports, unless the unplugged time matters for stability
+  depth: supported
+  sim_hook: |
+    Actor admin, action move_storage_unit, error rename_in_place p≈0.3 per rename, unplugged 20-60 min
+  source: brief
+
+- id: LOC-014
+  title: Last seen is not the same as where it is
+  story: |
+    Given tube T-4400 was last scanned 94 days ago into F1 / B2 / A6, and nothing has happened to it since.
+    When a scientist asks where it is.
+    Then the system answers "last seen F1 / B2 / A6 on 2026-07-19 by Ana", not just "F1 / B2 / A6", and older records look less trusted than recent ones.
+  real_life_noise:
+    - the box it is in was moved since (this is fine, it moves with the box)
+    - the box was "moved" via a box scan, but the tube had been taken out before
+  system_should: |
+    Every place answer comes with when it was last confirmed and how (direct tube scan, inferred via box, typed). A tube confirmed only by its box being moved is weaker than a tube scanned on its own.
+  question_it_answers: How much should I trust where the system says this is?
+  frequency: many-per-day
+  cost_if_wrong: medium
+  cost_reason: People stop trusting the system if they get burned by stale places with no warning
+  depth: core
+  sim_hook: |
+    Derived from move logs; no extra actor. Sim tracks ground truth and reports drift between true place and recorded place per container.
+  source: inferred
+
+- id: LOC-015
+  title: Plates stacked in a plate hotel next to the robot
+  story: |
+    Given a plate hotel (a vertical rack beside the liquid handler) with 20 numbered slots, used by the robot arm to fetch plates.
+    When 12 expression plates are loaded into slots 1 to 12 for an overnight run.
+    Then the system knows each plate's slot, and when the robot moves a plate to the deck and back, the slot changes are logged from the robot's own log.
+  real_life_noise:
+    - the scientist loads plates in a different order than the run file expects, so slot 3 holds what the run thinks is in slot 4
+    - one slot is skipped because its shelf is bent
+    - the robot log is imported hours later or the import fails silently
+  system_should: |
+    Treat the hotel as a place with numbered slots, same as a box. Accept moves from instrument logs as well as from people, and record which source said so. If a plate scanned at the hotel does not match what the run expects in that slot, stop and say so before the run, not after.
+  question_it_answers: Which plate is in which hotel slot right now?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Swapped plates in an automated run give wrong data for a whole plate of customer samples
+  depth: supported
+  sim_hook: |
+    Actor scientist, action load_plate_hotel, error slot_order_swap p≈0.02 per run, robot_log_import_fail p≈0.01
+  source: research
+
+- id: LOC-016
+  title: Plate is inside the instrument mid-run
+  story: |
+    Given BLI target plate TP-77 and sample plate SP-78 are loaded into the BLI instrument at 14:00 for a 6-hour run.
+    When someone searches for TP-77 at 16:00.
+    Then the system says it is in the BLI instrument, in run R-512, started at 14:00, and that it cannot be used or moved until the run ends.
+  real_life_noise:
+    - run is aborted after 1 hour and the plates are taken out, but the run record still says "running"
+    - a plate is kept in the instrument overnight after the run ended because nobody unloaded it
+    - two plates swapped between the two instrument plate positions
+  system_should: |
+    A run puts its plates in the instrument for the run's time. When the run ends, the plates stay in the instrument until someone moves them out. A "running" run older than its expected length is flagged.
+  question_it_answers: Where is TP-77 and can I use it right now?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: People may count in-use material as free, or waste time hunting for it
+  depth: core
+  sim_hook: |
+    Actor scientist, action load_instrument, error abort_not_recorded p≈0.03 per run, left_in_instrument_overnight p≈0.1
+  source: workflow
+
+- id: LOC-017
+  title: Plate leaves the lab to a customer or a partner site
+  story: |
+    Given an expression plate EP-14 with customer proteins.
+    When it is packed on dry ice and shipped by courier to the customer, with a tracking number.
+    Then it leaves the lab's stock (not usable here), its last place is "in transit, courier, tracking 1Z...", and later "delivered to customer Acme".
+  real_life_noise:
+    - the plate is scanned out but the shipment is delayed a day and it sits in the -20 by the door
+    - the courier returns it because of an address problem
+    - only a copy of the plate was shipped; the original stays, but someone scans the original out
+  system_should: |
+    Shipping is a move to a place outside the lab. The container keeps its identity and history. If it comes back, it is moved back in, not created again. Material that left the lab is not counted in usable stock.
+  question_it_answers: What left the lab, when, and to whom?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Shipped material counted as stock gives false numbers; scanning out the wrong plate loses track of the original
+  depth: supported
+  sim_hook: |
+    Actor scientist, action ship_out, error ship_scan_wrong_plate p≈0.01, returned_shipment p≈0.02
+  source: brief
+
+- id: LOC-018
+  title: Material moved to another Adaptyv site
+  story: |
+    Assumption: Adaptyv has, or will have, a second lab site, or a partner lab where some steps run.
+    Given 6 target tubes are sent from site A to site B on dry ice.
+    When site B receives them and scans them.
+    Then the tubes keep their barcodes and lot, show "in transit" for the days on the road, and then sit in site B's freezer.
+  real_life_noise:
+    - site B scans them in and the scan creates 6 new tubes, because their system did not find them
+    - one tube is missing from the box on arrival
+    - dry ice ran out on the way and the box arrived warm
+  system_should: |
+    Sites are just top-level places. A receive at site B matches existing containers by barcode first. Shortages on arrival are flagged. Transit time and temperature can be recorded against the tubes.
+  question_it_answers: How much Target X do we have at each site?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Duplicated containers at site B double count expensive target
+  depth: cut
+  sim_hook: |
+    Actor courier, action transfer_site, error missing_on_arrival p≈0.01 per tube, warm_on_arrival p≈0.02 per shipment
+  source: inferred
+
+- id: LOC-019
+  title: Wrong tube scanned, then corrected
+  story: |
+    Given a scientist moves T-6000 to box B5 slot A2, but scans the tube next to it, T-6001.
+    When ten minutes later they see the mistake and fix it.
+    Then the system has: the wrong move of T-6001, a correction that cancels it, and the right move of T-6000. T-6001's place goes back to where it was.
+  real_life_noise:
+    - the fix is made by editing the old record directly
+    - the mistake is only found two days later, after T-6001 was "moved" again
+    - the person fixing it is not the person who made the mistake
+  system_should: |
+    Corrections are new events that point to the event they cancel. The current place is computed from events that were not cancelled. The history keeps both, with who did each.
+  question_it_answers: Who changed this tube's place, and what did the record say before?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Edited-in-place history makes audits impossible
+  depth: core
+  sim_hook: |
+    Actor scientist, action move_tube, error wrong_adjacent_tube p≈0.01; correction delay 5 min to 3 days, p_corrected≈0.6
+  source: brief
+
+- id: LOC-020
+  title: Physical count of a freezer disagrees with the system
+  story: |
+    Given the system says freezer F1 holds 1,212 tubes across 22 boxes.
+    When the team does a stock-take and rack-scans every box.
+    Then the result is 1,190 tubes found where expected, 9 found in other slots or boxes, 13 not found, and 4 not in the system.
+  real_life_noise:
+    - the stock-take takes two days, and normal work continues in between
+    - one box was not scanned because it was in use on the bench
+    - the scanner had frost problems and 30 positions were no-reads
+  system_should: |
+    Treat a stock-take as one session that records what was seen, and compare it to what the records said at the time each box was scanned, not at the end. Produce a list of differences and turn accepted ones into corrections. Not-found tubes go to "missing", not "disposed".
+  question_it_answers: How accurate is our location data?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Without a reconcile step, location drift grows forever
+  depth: core
+  sim_hook: |
+    Actor technician, action stock_take, uses ground truth from sim to produce differences; no_read p≈0.03 per position, box_in_use_skipped p≈0.05 per box
+  source: inferred
+
+- id: LOC-021
+  title: Box with grid positions, slot naming differs by box size
+  story: |
+    Given the lab uses 9x9 boxes (81 slots, A1 to I9) for 2 mL tubes and 10x10 boxes (100 slots) for 1.5 mL tubes, plus 96-position racks (A1 to H12).
+    When a tube is placed in J10.
+    Then the system accepts J10 for a 10x10 box and rejects it for a 9x9 box.
+  real_life_noise:
+    - some boxes are numbered 1 to 81 instead of letter-number
+    - people count from the wrong corner
+    - box types get mixed: a 10x10 insert put into a 9x9 box
+  system_should: |
+    Each holder type knows its grid. Positions are stored as row and column, and shown in whatever style the box uses. Invalid positions are rejected at entry.
+  question_it_answers: Which exact slot is this tube in?
+  frequency: many-per-day
+  cost_if_wrong: low
+  cost_reason: Annoying but usually caught on the next look
+  depth: core
+  sim_hook: |
+    Actor scientist, action place_tube, error invalid_position p≈0.005, numbering_style_mismatch p≈0.01
+  source: research
+
+- id: LOC-022
+  title: Two tubes put in the same slot in the system
+  story: |
+    Given slot C4 in box B12 holds T-1001.
+    When T-1009 is scanned into B12 / C4 too.
+    Then the system does not let both sit in C4 silently. It either asks "move T-1001 out?" or records a conflict to be resolved.
+  real_life_noise:
+    - in real life T-1001 was taken out earlier without a scan, so the new scan is correct and the old record is the wrong one
+    - the scientist really put two small tubes in one slot because the box was full
+  system_should: |
+    One container per slot by default. On conflict, assume the newest direct scan is the truth for the new tube and mark the old one as "location uncertain, was displaced from C4". Never delete the old one's history.
+  question_it_answers: What is in C4 right now?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Quiet double booking leads to picking the wrong tube
+  depth: core
+  sim_hook: |
+    Arises naturally from LOC-009 no_scan removals; plus actor scientist, action double_up_slot p≈0.002
+  source: inferred
+
+- id: LOC-023
+  title: Rack scanned at the freezer finds a tube from another box
+  story: |
+    Given rack RK-3 is recorded as holding 96 aliquots of Target X.
+    When it is rack-scanned and position B7 holds a tube of Target Z, which the system places in rack RK-9.
+    Then the system moves that tube to RK-3 / B7, flags it as "found in unexpected place", and RK-9 / B7 (its old slot) becomes unknown, not empty.
+  real_life_noise:
+    - the Target Z tube is a near-identical looking aliquot and someone will grab it thinking it is Target X
+    - RK-9's B7 also holds a wrong tube, so the two were swapped
+  system_should: |
+    Detect swaps when two scans find each other's tubes. Show material-mismatch in a rack that is supposed to hold one material, because that is how the wrong target ends up in an experiment.
+  question_it_answers: Is every tube in this rack what we think it is?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: A Target Z tube used as Target X ruins a binding run and the data looks real
+  depth: core
+  sim_hook: |
+    Actor scientist, action return_tube_to_rack, error wrong_rack p≈0.005, swap_with_neighbour_rack p≈0.002
+  source: inferred
+
+- id: LOC-024
+  title: Tube kept in a pocket, cooler or ice bucket for the day
+  story: |
+    Given a scientist takes 5 tubes from the -80 into an ice bucket on their bench.
+    When they scan them out to "bench, Ana" and use them over the day.
+    Then the tubes show as on the bench with Ana, time out of freezer keeps adding up, and at 18:00 a list shows tubes still out since morning.
+  real_life_noise:
+    - ice bucket is not a scannable place, so they pick "bench" from a list
+    - one tube is left in the ice bucket overnight and the ice melted
+    - Ana goes home and Ben picks up the bucket and puts tubes back in a different freezer
+  system_should: |
+    Allow temporary places like a person's bench or bucket. Show "out of storage" containers with how long. Being out overnight is worth a flag for proteins.
+  question_it_answers: What is out of the freezer right now, and since when?
+  frequency: many-per-day
+  cost_if_wrong: medium
+  cost_reason: Warm overnight targets go back into the freezer looking fine
+  depth: supported
+  sim_hook: |
+    Actor scientist, action take_to_bench, error left_out_overnight p≈0.02 per tube, returned_by_other_person p≈0.1
+  source: inferred
+
+- id: LOC-025
+  title: Handheld scanner is offline and syncs late
+  story: |
+    Assumption: some scans are done on a battery handheld that stores scans and uploads when back in Wi-Fi range or docked.
+    Given a technician does 40 moves in the cold room where Wi-Fi is weak.
+    When the scanner uploads all 40 at 15:30, two hours after they happened.
+    Then the system records each move with its scan time, not the upload time, and orders them correctly against moves others made in between.
+  real_life_noise:
+    - meanwhile another scientist moved one of those tubes again at 14:00 from a desktop scan
+    - the scanner clock is 7 minutes off
+    - the scanner battery died and 10 scans were lost
+  system_should: |
+    Keep happened-at and recorded-at separate. When a late event lands before an already-recorded later event, compute the current place from event order by happened-at time and flag the overlap. Allow a device clock offset to be noted.
+  question_it_answers: In what order did things really happen?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Late syncs can move a tube "back" to an old place after it has moved on
+  depth: core
+  sim_hook: |
+    Actor technician, action batch_scan_offline, sync delay 0-4 h, device clock_skew ±10 min p≈0.1 per device, lost_batch p≈0.005
+  source: research
+
+- id: LOC-026
+  title: Shelf label scanned instead of the box
+  story: |
+    Given every shelf, rack and box carries a barcode.
+    When a scientist meaning to scan box B9 scans the shelf label beside it.
+    Then the system sees the tube is going "into a shelf", which is allowed for boxes but not for single tubes, and asks to scan a box.
+  real_life_noise:
+    - rules are too strict, people find a workaround (scanning any box) and it gets worse
+    - a scanned barcode belongs to a tube, so the system thinks the user wants to put a tube into a tube
+  system_should: |
+    Know what kind of thing each barcode is, and what can hold what (a tube can go in a box slot or a rack slot, a box can go on a shelf). Reject impossible nesting with a short message.
+  question_it_answers: (data quality) Are places valid?
+  frequency: daily
+  cost_if_wrong: low
+  cost_reason: Caught at once if the rules exist; silent mess if not
+  depth: core
+  sim_hook: |
+    Actor scientist, action scan_destination, error wrong_level_scanned p≈0.01
+  source: inferred
+
+- id: LOC-027
+  title: Supplier plate arrives with its own barcode
+  story: |
+    Given a DNA plate arrives from the supplier (Twist, per the workflow diagram) with the supplier's barcode on the side.
+    When it is received and the lab adds its own label too.
+    Then both barcodes point to the same plate, and either one finds it.
+  real_life_noise:
+    - the supplier barcode is on the side that faces the wall in the freezer
+    - the lab label is stuck over the supplier barcode
+    - later scans use the supplier barcode only, and the system does not know it
+  system_should: |
+    Let a container have more than one identifier, each with a source (ours, supplier), all unique among live containers.
+  question_it_answers: Which plate is this, whichever label I scan?
+  frequency: weekly
+  cost_if_wrong: low
+  cost_reason: Mostly friction, but unknown supplier barcodes create duplicate plates
+  depth: supported
+  sim_hook: |
+    Actor scientist, action receive_plate, error scan_supplier_code_later_unknown p≈0.05
+  source: workflow
+
+- id: LOC-028
+  title: Freezer slot map is full and items go to "overflow"
+  story: |
+    Given F1 is full.
+    When a scientist puts a new box on top of the racks in F1, not in any rack, and scans it into "F1, loose".
+    Then the box is found under F1 but without a shelf or rack, and the box counts as "not properly stored" until moved.
+  real_life_noise:
+    - loose boxes slide to the back and freeze to the wall
+    - people pick "F1" from a list without saying loose, and the box looks like it is in a rack
+  system_should: |
+    Allow a less exact place (just the freezer) and show how exact each place is. Report loose items per freezer.
+  question_it_answers: How full is each freezer, and what is stored loose?
+  frequency: weekly
+  cost_if_wrong: low
+  cost_reason: Search time and slow freezer clutter
+  depth: supported
+  sim_hook: |
+    Actor scientist, action store_box, error store_loose p≈0.1 when freezer occupancy > 90%
+  source: inferred
+
+- id: LOC-029
+  title: Two people move the same box at nearly the same time
+  story: |
+    Given box B20 is in F1.
+    When Ana scans it to the bench at 10:02:10 and Ben, who took it from Ana's bench, scans it to F3 at 10:02:40 on a different scanner.
+    Then the order is kept, and the current place is F3.
+  real_life_noise:
+    - Ben's scanner clock is a minute fast, so his scan looks earlier than Ana's
+    - Ana's scan is sent twice because the app retried after a timeout
+  system_should: |
+    Each scan carries a unique id so retries are ignored. Close events from different devices are ordered by happened-at, with recorded-at used to break ties and to spot clock skew.
+  question_it_answers: Where is B20 now?
+  frequency: weekly
+  cost_if_wrong: low
+  cost_reason: Rare, but shows whether event ordering is sound
+  depth: supported
+  sim_hook: |
+    Actor two scientists, action concurrent_move, p≈0.005 per box move; retry_duplicate p≈0.01 per scan
+  source: inferred
+
+- id: LOC-030
+  title: Plate taken off the robot deck but not scanned back to storage
+  story: |
+    Given a 384-well sample plate is created on the liquid handler deck by a transfer task.
+    When the task ends and the plate is carried to the fridge, without a scan.
+    Then the system says it is still on the robot deck, position 4. The next run that needs deck position 4 finds a plate "there" on paper.
+  real_life_noise:
+    - the next run's load scan puts a different plate in deck position 4, displacing the old one
+    - the plate is carried straight into the BLI instrument instead
+  system_should: |
+    Treat robot decks as places with positions. A new plate scanned into an occupied deck position pushes the old one to "location uncertain, last on deck 4". A daily report lists plates still "on the robot" after hours.
+  question_it_answers: What is really on the robot deck?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Lost plates of expressed protein have a two-week life; losing a day matters
+  depth: core
+  sim_hook: |
+    Actor scientist, action unload_robot, error no_scan_after_run p≈0.2
+  source: workflow
+
+- id: LOC-031
+  title: Location tells the storage temperature, and that changes the expiry
+  story: |
+    Given GFP stock buffer lasts 6 months frozen, but less in the fridge (from the brief).
+    When a tube of GFP stock moves from -20 freezer F3 to fridge K1.
+    Then its storage temperature comes from the place's set temperature, and the expiry rule switches from that moment.
+  real_life_noise:
+    - the fridge has no temperature set in the system
+    - the move is recorded a day late (LOC-003), so the clock switch is a day late
+    - the tube goes to a fridge shelf labelled "-20" because the shelf labels are old
+  system_should: |
+    Every storage place has a nominal temperature. Moves carry temperature changes into the expiry rules. Missing temperature on a place is shown, not assumed. (Details of the expiry rule belong to LIFE.)
+  question_it_answers: Is this still good, given where it has been?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Expired buffer used in a run looks fine on paper
+  depth: core
+  sim_hook: |
+    Actor scientist, action move_between_temperatures, error late_record delay 0-24 h p≈0.1
+  source: brief
+
+- id: LOC-032
+  title: Freezer drifts warm but nobody moves anything
+  story: |
+    Given F4 was at -60 instead of -80 for 18 hours over a weekend (logged by the freezer monitor, assumption: a monitoring system exists).
+    When on Monday the lab records the excursion.
+    Then every container in F4 during that window gets the excursion attached, without anyone touching them one by one.
+  real_life_noise:
+    - two boxes were added to F4 during the window, and only those hours count for them
+    - the monitor reading is noisy and the "real" excursion is disputed
+  system_should: |
+    Record the event on the place and work out which containers were there at the time from move history. Let a person decide whether it affects usability. (Usability rules are LIFE.)
+  question_it_answers: Which containers were in F4 when it was warm?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Damaged targets keep being used and cause failed experiments
+  depth: supported
+  sim_hook: |
+    Actor freezer_monitor, action excursion_event p≈0.1 per freezer per month, duration 1-24 h
+  source: research
+
+- id: LOC-033
+  title: Searching for a material, not a barcode
+  story: |
+    Given Target X exists in 14 tubes across 3 freezers, plus 2 on the bench and 1 in the BLI instrument.
+    When a scientist asks "where is Target X I can use?".
+    Then the system lists the 14 usable tubes with place and slot, sorted so the oldest usable lot or the one already opened comes first, and the 3 out-of-storage tubes shown separately.
+  real_life_noise:
+    - 2 of the 14 are "last seen" over 6 months ago
+    - one is in a box that is marked "in transit"
+  system_should: |
+    Answer "where" for a material by joining material, container and current place, and show the confidence for each (LOC-014).
+  question_it_answers: Where is the Target X I can actually use?
+  frequency: many-per-day
+  cost_if_wrong: high
+  cost_reason: If the list is wrong people reorder target they already own
+  depth: core
+  sim_hook: |
+    Query, not an event. Sim checks query result against ground truth.
+  source: brief
+
+- id: LOC-034
+  title: Box barcode label falls off
+  story: |
+    Given box B33's label was printed on paper and the glue failed in the -80.
+    When a scientist finds a box with no label.
+    Then they can identify it by rack-scanning or scanning a few tubes inside, and the system suggests "these tubes belong to B33", so a new label can be linked to B33.
+  real_life_noise:
+    - the tubes inside are from two different boxes
+    - a new label is printed and given a new barcode, creating box B34 with the same tubes
+  system_should: |
+    Allow relabelling an existing container. When a box's contents are scanned, suggest the box whose recorded contents match best.
+  question_it_answers: Which box is this?
+  frequency: monthly
+  cost_if_wrong: low
+  cost_reason: Friction plus a risk of a duplicate box record
+  depth: supported
+  sim_hook: |
+    Actor environment, action label_falls_off p≈0.002 per box per month; relabel_as_new p≈0.4
+  source: research
+
+- id: LOC-035
+  title: Plate stacker with plates in an unknown order
+  story: |
+    Given a plate stacker on a plate reader holds 10 plates.
+    When a scientist loads them without scanning, and the reader scans each plate barcode as it pulls it in.
+    Then the reader's barcode log tells the order and puts each plate "in the reader stacker" for that run.
+  real_life_noise:
+    - the reader cannot read a barcode because the label is on the wrong side, and logs "NOREAD"
+    - two plates go in upside down
+  system_should: |
+    Instrument barcode logs are another source of place events. A NOREAD is logged as an unknown plate at that stack position, to be matched by elimination.
+  question_it_answers: Which plates were on the reader in this run?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Wrong plate to data match ruins results for a whole plate
+  depth: supported
+  sim_hook: |
+    Actor instrument, action stacker_read, error noread p≈0.02 per plate
+  source: research
+
+- id: LOC-036
+  title: A container is disposed and its place must free up
+  story: |
+    Given plate P-640 is in fridge K2, shelf 3.
+    When it is thrown away and scanned as disposed.
+    Then K2 shelf 3 no longer lists it, its last real place stays in history, and a later scan of P-640 warns that it was disposed.
+  real_life_noise:
+    - the plate is marked disposed but it is still in the fridge a week later
+    - the plate is thrown away but nobody marks it, so the fridge "holds" it forever
+  system_should: |
+    Disposal is a move to "disposed", which is outside all storage. Scans of disposed containers raise a warning (see LOC-010 for the found-again case).
+  question_it_answers: Is this plate still in the lab?
+  frequency: many-per-day
+  cost_if_wrong: high
+  cost_reason: The brief's own example, thrown-away plates that still look usable
+  depth: core
+  sim_hook: |
+    Actor scientist, action dispose, error forget_dispose_scan p≈0.1, dispose_scan_but_kept p≈0.01
+  source: brief
+
+- id: LOC-037
+  title: Scientist keeps a private box nobody else knows about
+  story: |
+    Given Ana keeps a box of "her" target aliquots at the back of shelf 5, not registered.
+    When Ana leaves the company.
+    Then the system has no record of these tubes. A clean-up finds 30 unregistered tubes of an expensive target.
+  real_life_noise:
+    - some tubes were registered once, then moved to the private box without scans
+    - labels are hand-written initials only
+  system_should: |
+    Make found-material registration fast, with an "owner unknown" option. Reports of containers whose owner has left help find these early.
+  question_it_answers: What do we hold that the system does not know about?
+  frequency: rare
+  cost_if_wrong: medium
+  cost_reason: Unknown stock leads to needless reorders, and unknown-quality tubes used later
+  depth: supported
+  sim_hook: |
+    Actor scientist, action private_stash p≈0.01 per aliquot made, hidden from inventory until stock_take
+  source: inferred
+
+- id: LOC-038
+  title: Many tubes picked from one box for a task
+  story: |
+    Given a target plate prep needs 8 different targets from boxes B1, B4 and B6.
+    When the scientist pulls all 8 tubes, uses them, and puts them back.
+    Then the system has a pick list with places, records each tube as out, and expects 8 scans back.
+  real_life_noise:
+    - 7 scanned back, 1 put back without a scan
+    - two tubes put back in each other's slots
+  system_should: |
+    Offer a pick list sorted by freezer and box. After the task, show what is still out. Swaps in a box show up on the next rack scan.
+  question_it_answers: Did everything come back?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Lost or swapped target tubes are expensive
+  depth: supported
+  sim_hook: |
+    Actor scientist, action pick_and_return, error no_scan_return p≈0.05 per tube, swap_slots p≈0.01 per pair
+  source: workflow
+
+- id: LOC-039
+  title: Same physical tube, two records after a re-register
+  story: |
+    Given tube T-7001 could not be found and was marked missing last month.
+    When it turns up, cannot be scanned (smudged label), and is registered again as new tube T-9050.
+    Then the lab holds one tube but the system has two records, one missing, one live.
+  real_life_noise:
+    - the "new" tube is given a new lot because nobody knew the old one
+    - lineage from the original lot is lost
+  system_should: |
+    Allow two container records to be merged, with the merge as an event and the history kept on both. When registering found material, suggest matching missing containers (same material, volume, last place).
+  question_it_answers: Is this the same tube we lost?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Lineage breaks, so if the lot turns out bad this tube will not show up
+  depth: supported
+  sim_hook: |
+    Actor scientist, action register_found_unreadable, error re_register_as_new p≈0.5 of found-with-unreadable-label cases
+  source: inferred
+
+- id: LOC-040
+  title: Scan of a shelf to say "this is all there is"
+  story: |
+    Given fridge K1 shelf 2 is recorded as holding 6 plates.
+    When a scientist scans all plates on that shelf and taps "this shelf is complete".
+    Then the 4 plates found stay, 2 plates not found go to "location uncertain", and 1 plate that was recorded elsewhere is moved to K1 shelf 2.
+  real_life_noise:
+    - one plate was hidden behind another and not scanned, so it is wrongly marked uncertain
+    - the scientist taps "complete" by habit after scanning only some
+  system_should: |
+    Support "complete scan of a place" as a statement that nothing else is there. Missing ones become uncertain, not disposed. Keep the statement as evidence that can be wrong.
+  question_it_answers: What is on this shelf right now?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Fast cleanup of drift, but over-confident scans hide items
+  depth: core
+  sim_hook: |
+    Actor scientist, action complete_place_scan, error missed_item p≈0.03 per item, false_complete p≈0.05 per scan
+  source: inferred

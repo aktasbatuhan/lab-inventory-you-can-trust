@@ -1,0 +1,784 @@
+# ASK: the read side. Questions people and other systems ask the inventory,
+# and corrections to history that change the answers.
+# "Assumption" marks a guess about how Adaptyv works inside that we could not check.
+
+- id: ASK-001
+  title: How much Target X do we hold, and how much of it can we actually use?
+  story: |
+    Given Target X sits in 14 tubes across two lots. Lot L1 passed QC; lot L2 arrived yesterday and has not been QC'd. Two L1 tubes are past their expiry and one is marked discarded but still has volume on record.
+    When a scientist asks "how much Target X do we have?"
+    Then the answer comes in two numbers, held and usable, plus a breakdown of the gap: so many µL waiting for QC, so many µL expired, so many µL in discarded containers. The usable number counts only QC-passed, unexpired, not-discarded, not-quarantined material, minus dead volume that can't be pipetted out.
+  real_life_noise:
+    - one tube has a negative balance because a transfer was recorded twice
+    - a tube with 2 µL left is technically held but nobody can get it out
+    - L2's QC result was entered on paper and not yet typed in
+  system_should: |
+    Never show one number alone. Show held, usable, and the reason for each µL that isn't usable. A tube with a negative balance is shown as a problem, not added as a negative to the total.
+  question_it_answers: How much do we have, and how much of it is usable?
+  frequency: many-per-day
+  cost_if_wrong: high
+  cost_reason: Overcount means a run fails mid-plate; undercount means an expensive reorder
+  depth: core
+  sim_hook: |
+    The question is hard after a sim day with mixed lots, a pending QC, one expiry passing midnight and one double-recorded transfer (p≈0.01 per transfer).
+  source: brief
+
+- id: ASK-002
+  title: Why isn't this tube usable?
+  story: |
+    Given tube T-0412 of Target X shows 40 µL held and 0 µL usable.
+    When a scientist scans it at the bench and asks why.
+    Then the system lists every reason that applies, not just the first one: lot L2 is on QC hold, and the tube was moved to the fridge four days ago so its shorter fridge shelf life ran out yesterday.
+  real_life_noise:
+    - the QC hold was lifted for L2 but the fridge expiry still blocks it
+    - reasons conflict, e.g. lot released but this one tube quarantined after a spill
+  system_should: |
+    Return all blocking reasons with the date each started and who set it. If a reason is lifted, the remaining ones still show.
+  question_it_answers: Why can't I use this material?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: People either use bad material or throw away good material because they can't see why
+  depth: core
+  sim_hook: |
+    Generate tubes that hit two or three blocking rules at once (QC hold, storage-based expiry, quarantine).
+  source: brief
+
+- id: ASK-003
+  title: What's left of a shared target from earlier experiments before we order more?
+  story: |
+    Given Target X was bought for customer A's experiment in August and customer B's in September. After both, 9 aliquots remain in freezer F2 and a half-used stock tube sits in F4.
+    When the lab manager plans a new binding experiment that needs 600 µL of Target X.
+    Then the system shows 410 µL usable left from earlier experiments, split by lot and location, with each lot's QC status and freeze-thaw count, so the manager orders the 190 µL shortfall rather than a whole new lot.
+  real_life_noise:
+    - the half-used stock tube was thawed for experiment B and never logged back to the freezer
+    - one aliquot is labelled for customer A and people treat it as reserved even though nothing in the system says so
+    - two lots of Target X come from different suppliers and may not be interchangeable
+  system_should: |
+    Treat leftover target as shared stock, not as belonging to the experiment that used it last. Group by lot so the planner can decide whether mixing lots is acceptable. Flag tubes with an uncertain last location. Assumption: Adaptyv does not want to mix two target lots inside one experiment without a decision, so the answer is per lot, not one sum.
+  question_it_answers: What target is left from previous experiments?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Targets cost thousands per lot and take 5-10 days to arrive
+  depth: core
+  sim_hook: |
+    Run two simulated binding experiments on the same target lot, then ask the question with one tube's location stale.
+  source: brief
+
+- id: ASK-004
+  title: Experiment planning asks whether it can run next week's plates
+  story: |
+    Given the planning system (a separate program) needs, for next Tuesday, 600 µL of Target X, 2 L of loading buffer and 6 BLI plates.
+    When it asks the inventory, through an API, for usable amounts as they will be on Tuesday.
+    Then the inventory answers with usable amounts that already exclude anything that expires before Tuesday (loading buffer lasts one week, so today's batch counts and last Friday's batch does not), and says how fresh the data is.
+  real_life_noise:
+    - the planner asks twice in a minute and gets different numbers because a split was recorded in between
+    - loading buffer made today has not been entered yet
+  system_should: |
+    Answer "usable on date D", not just "usable now". Include the time of the latest recorded event so the planner knows what the number is based on. The inventory does not reserve anything; that stays in the planning system.
+  question_it_answers: Can the planned experiment run with what we have?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Planner books robot time and customer deadlines on these numbers
+  depth: core
+  sim_hook: |
+    A planning agent queries for future dates while the scientist agent is mid-way through recording a buffer batch.
+  source: brief
+
+- id: ASK-005
+  title: Numbers for a re-run after BLI data fails QC
+  story: |
+    Given BLI run R-88 measured 96 customer proteins against Target X. Data review fails 12 wells (noisy curves).
+    When the person planning the re-run asks what is still available for exactly those 12 samples and that target.
+    Then the system shows, for each of the 12 samples, the leftover volume on the expression plate (if it is still within its 2-week life) or the DNA it came from, and how much usable Target X is left from the same lot used in R-88.
+  real_life_noise:
+    - the expression plate is 13 days old, so it's usable today but not on Thursday when the re-run is scheduled
+    - the sample plate for R-88 was thrown away with protein in it, so the leftover there doesn't count
+    - the robot log reports 10 µL drawn per well but the plate was actually overdrawn on three wells
+  system_should: |
+    Work per well, not per plate. For each failed sample give the closest usable source and how far back you'd have to go (sample plate, expression plate, DNA). Say when a source will expire relative to the planned re-run date. Prefer the same target lot as the original run and say so if it's gone.
+  question_it_answers: What do we have for re-running the wells that failed QC?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: A re-run planned on a dead expression plate means re-expressing from DNA, which adds days
+  depth: core
+  sim_hook: |
+    Data-review agent fails a random subset of wells (p≈0.1); plates age through the sim clock so some sources expire between the question and the re-run.
+  source: brief
+
+- id: ASK-006
+  title: The same well fails QC twice
+  story: |
+    Given sample S-17 failed data QC in run R-88 and again in its re-run R-93.
+    When the re-run planner asks for a third attempt.
+    Then the system shows S-17's full material history (both runs, both sample plate wells, the same expression well, the same DNA) so someone can see whether the problem is the material, not the measurement.
+  real_life_noise:
+    - re-run used a different target lot without anyone noting it
+  system_should: |
+    Make repeated failures on the same source visible. Show which inputs both failed attempts had in common.
+  question_it_answers: Is a repeated failure caused by the same material?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Re-running bad material wastes target and robot time
+  depth: supported
+  sim_hook: |
+    Seed a "bad expression well" that fails every time it is measured.
+  source: inferred
+
+- id: ASK-007
+  title: What expires in the next 14 days?
+  story: |
+    Given loading buffer (1 week), other buffers (1 month), GFP stock (6 months frozen) and expression plates (2 weeks) are all in stock.
+    When the lab manager asks Monday morning what expires in the next 14 days.
+    Then the list is sorted by date, grouped by material, shows location and amount left, and leaves out containers that are already empty or discarded.
+  real_life_noise:
+    - a GFP stock was taken out of the freezer and left in the fridge, so its real expiry is much sooner than its label
+    - a buffer has no expiry recorded because the maker forgot to enter the make date
+  system_should: |
+    Calculate expiry from how it was actually stored, not from the label. List items with unknown expiry in a separate "we can't tell" section rather than hiding them.
+  question_it_answers: What expires soon?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Expired buffer used in a run ruins the data; good buffer thrown out early wastes time
+  depth: core
+  sim_hook: |
+    Storage-move agent leaves frozen items out (p≈0.02); buffer-maker agent skips the make date (p≈0.05).
+  source: brief
+
+- id: ASK-008
+  title: What has already expired but is still on the shelf?
+  story: |
+    Given 7 containers expired in the last month and nobody threw them out.
+    When a technician asks for a clean-up list.
+    Then the system lists them by location so one walk round the lab clears them, with amount left and whether the material was ever used in a run after it expired.
+  real_life_noise:
+    - one expired buffer was used in a run two days after expiry
+  system_should: |
+    Show expired-but-present separately from discarded. Flag any use after expiry and link to the run it went into.
+  question_it_answers: What expired material is still around, and was any of it used?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Expired material used silently undermines results sent to customers
+  depth: core
+  sim_hook: |
+    Scientist agent picks the nearest tube without checking expiry (p≈0.03).
+  source: brief
+
+- id: ASK-009
+  title: Where is this plate right now, and how sure are we?
+  story: |
+    Given expression plate EP-221 was scanned into fridge R1 at 09:10, onto the bench at 11:30, and the robot read its barcode at 11:45. No scan since.
+    When a scientist asks where EP-221 is at 15:00.
+    Then the system says "last seen in the liquid handler at 11:45, by robot scan", and that nothing has confirmed it since. It does not claim it is in fridge R1.
+  real_life_noise:
+    - the plate was put back in R1 without a scan
+    - a person scanned the shelf barcode but not the plate
+  system_should: |
+    Answer with the last known place, when, and how it was seen (person scan, robot read, or just assumed from the task). Note that "where is it" is always "where was it last seen".
+  question_it_answers: Where is it?
+  frequency: many-per-day
+  cost_if_wrong: medium
+  cost_reason: Time lost searching; a plate left at room temperature spoils
+  depth: core
+  sim_hook: |
+    Mover agent skips the return scan (p≈0.15); question asked several hours later.
+  source: brief
+
+- id: ASK-010
+  title: Find every tube of Target X across the lab, ordered by how easy it is to grab
+  story: |
+    Given Target X is in 3 freezers, one box, and one tube is listed as being on the bench.
+    When a scientist needs one aliquot now.
+    Then the system lists usable tubes with freezer, shelf, box and box position, oldest usable first (or fewest freeze-thaws first, depending on the lab's rule), and puts the bench tube last with a warning that it may be thawed.
+  real_life_noise:
+    - two tubes claim the same box position A3
+  system_should: |
+    Show the full nested location. When two containers claim one slot, show both and flag it. Assumption: Adaptyv picks aliquots oldest-first; the order should be a setting.
+  question_it_answers: Which tube should I take, and where exactly is it?
+  frequency: many-per-day
+  cost_if_wrong: low
+  cost_reason: Mostly lost minutes, sometimes an extra thaw
+  depth: supported
+  sim_hook: |
+    Box-filling agent puts two tubes in one slot (p≈0.01).
+  source: brief
+
+- id: ASK-011
+  title: What hasn't been seen in 30 days?
+  story: |
+    Given 23 containers have no scan, move or use for 30 days.
+    When the lab manager runs a monthly check.
+    Then the list shows them with last place, last action and who did it, so someone can go and check whether they still exist.
+  real_life_noise:
+    - long-term DNA freezer stock is untouched for months on purpose
+  system_should: |
+    Let material types set what "too long" means; untouched DNA in the freezer is normal, an untouched bench plate is not.
+  question_it_answers: What might be lost?
+  frequency: monthly
+  cost_if_wrong: low
+  cost_reason: Ghost stock slowly inflates every count
+  depth: supported
+  sim_hook: |
+    Sim runs 60 days; some containers drop out of the agents' attention.
+  source: inferred
+
+- id: ASK-012
+  title: Bad target lot, find every plate, run and experiment it touched
+  story: |
+    Given target lot L7 of Target X is found to be degraded three weeks after QC passed.
+    When QC asks what was made from L7.
+    Then the system walks forward: stock tube → 18 aliquots → 6 BLI target plates → 6 BLI runs → 4 experiments → 3 customers. It also lists which aliquots are still in the freezer so they can be quarantined.
+  real_life_noise:
+    - one aliquot was diluted into a working tube that was never registered, so the trail breaks there
+    - a BLI target plate was prepared from two lots mixed in one well
+    - a run was recorded against the wrong plate barcode and corrected the next day
+  system_should: |
+    Follow corrected records, not the original wrong ones, but mention the correction. Where the trail breaks, say so and name the last known point and who handled it, instead of reporting a clean list. Mixed-lot wells count as touched.
+  question_it_answers: If a batch of target is bad, what did it touch?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Wrong results go to customers, or good results get thrown out
+  depth: core
+  sim_hook: |
+    Hard when the sim includes unregistered intermediate tubes (p≈0.02 per dilution) and one wrong-barcode correction on a run.
+  source: brief
+
+- id: ASK-013
+  title: Which customers need to hear about the bad lot?
+  story: |
+    Given the forward trace from ASK-012 lists 4 experiments.
+    When the customer-facing person asks who to contact and what to say.
+    Then the system gives customer, experiment, delivery date of results and which of their samples were measured against L7, so the message can be specific ("samples 3-40 of your August batch").
+  real_life_noise:
+    - one experiment's results haven't been delivered yet, so it's a re-run, not a notice
+  system_should: |
+    Separate results already delivered from results still in review. Assumption: the inventory knows which experiment and customer a run belongs to, from the planning system's IDs.
+  question_it_answers: Which customers were affected by a bad material?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Customer trust; telling the wrong customer is as bad as not telling the right one
+  depth: supported
+  sim_hook: |
+    Same as ASK-012, with some experiments still mid-workflow when the lot is flagged.
+  source: inferred
+
+- id: ASK-014
+  title: Trace a result back to the exact material
+  story: |
+    Given a customer questions the binding result for their protein P-55.
+    When a scientist asks what exactly went into that measurement.
+    Then the system walks backward from the BLI run well: sample plate well → expression plate well → DNA plate well → DNA supplier lot and certificate; and on the other side, target plate well → aliquot → stock tube → target lot and its QC; plus the buffer lots used at each step.
+  real_life_noise:
+    - the robot transfer file had well B7 and C7 swapped and was corrected a day later
+    - the buffer used was made from two component lots
+  system_should: |
+    Give the full tree with each step's time, operator or robot, and amount. Show where a step was corrected and what it said before.
+  question_it_answers: Where did this result's material come from?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Without it a disputed result can't be defended or explained
+  depth: core
+  sim_hook: |
+    Robot agent swaps two wells in a transfer file (p≈0.005), corrected later by a scientist agent.
+  source: brief
+
+- id: ASK-015
+  title: Which customer's protein is in well B7?
+  story: |
+    Given a sample plate on the bench with a smudged label.
+    When a scientist scans it and asks what is in B7.
+    Then the system says the protein, its customer and experiment, how much was put there and when, and the DNA it came from.
+  real_life_noise:
+    - B7 was left empty on purpose (control) or holds buffer only
+    - plate was rotated 180° on the robot deck, so B7 really holds G6's protein
+  system_should: |
+    Answer per well, and say clearly when a well is empty, a control or a blank. If a rotation or swap was recorded, apply it. Assumption: plate orientation errors are caught by people, not by the robot, so they show up as later corrections.
+  question_it_answers: What is in this well?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Results attached to the wrong customer protein
+  depth: core
+  sim_hook: |
+    Robot agent places a plate rotated (p≈0.002); detected later by a review agent.
+  source: inferred
+
+- id: ASK-016
+  title: Who changed this tube's volume, and what did it say before?
+  story: |
+    Given tube T-0099 shows 120 µL today. It was 200 µL on Monday.
+    When the lab manager asks what happened.
+    Then the history lists each entry: -50 µL by robot run R-90 on Tuesday, -40 µL by Ana on Wednesday, +10 µL correction by Ana on Thursday ("recorded 40, was 30"), each with when it happened at the bench and when it was typed in.
+  real_life_noise:
+    - two people recorded the same pipetting step
+  system_should: |
+    Never overwrite; show the old value next to the new one for every change. Corrections point to the entry they fix.
+  question_it_answers: Who changed what, when, and what did it say before?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Without history, mistakes can't be found or fixed fairly
+  depth: core
+  sim_hook: |
+    Volume-entry agent mistypes (p≈0.02) and corrects a day later (p≈0.7 of mistakes).
+  source: brief
+
+- id: ASK-017
+  title: What did we believe last Tuesday?
+  story: |
+    Given on Tuesday at 17:00 the inventory said 300 µL usable Target X. On Thursday someone back-dated a Tuesday 14:00 split they had forgotten to enter, and on Friday a QC failure for one lot was entered.
+    When the lab manager asks "what did the system say on Tuesday at 17:00?" (to explain why an order wasn't placed).
+    Then the system can answer two different questions: what we believed at the time (300 µL), and what we now know was true at that time (180 µL). Both are kept.
+  real_life_noise:
+    - people say "as of Tuesday" meaning either one
+  system_should: |
+    Keep both the bench time and the typed-in time on every entry so both questions can be answered. Make the two answers clearly named so nobody confuses them.
+  question_it_answers: What did the record say on a past date?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Without it, blame and process fixes land in the wrong place
+  depth: core
+  sim_hook: |
+    Agents delay entry by hours to days (log-normal delay); one QC result arrives after the fact.
+  source: brief
+
+- id: ASK-018
+  title: Correction made five days later
+  story: |
+    Given on the 1st a scientist recorded taking 50 µL from tube T-07. On the 6th they realise it was 15 µL.
+    When they correct it.
+    Then a new entry adds 35 µL back with a reason and a link to the original. Usable today goes up by 35 µL. Every report since the 1st shows the corrected amount from now on, and the old reports can still be reproduced.
+  real_life_noise:
+    - in between, someone used the "missing" 35 µL figure to justify ordering a new lot
+    - the person deletes and re-enters instead of correcting
+  system_should: |
+    Corrections are new entries, never edits. Show which decisions or exports were made on the wrong number, where we can tell.
+  question_it_answers: What changed because of a late correction?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Silent rewrites make past decisions impossible to explain
+  depth: core
+  sim_hook: |
+    Correction delay drawn from 0-10 days; some agents try a delete-and-redo instead of a correction.
+  source: brief
+
+- id: ASK-019
+  title: Back-dated entry that would have made a balance negative
+  story: |
+    Given tube T-12 had 100 µL. On Monday 80 µL was taken and recorded. On Wednesday someone back-dates a Sunday use of 40 µL.
+    When the Sunday entry is added.
+    Then, replayed in bench-time order, the tube went to 60 µL on Sunday and to -20 µL on Monday. The system accepts the fact but flags the tube: one of the two entries must be wrong, or the starting volume was.
+  real_life_noise:
+    - the back-dated entry has the date wrong by one day, not the volume
+  system_should: |
+    Re-check balances whenever a back-dated entry arrives. Flag impossible histories instead of refusing the entry or quietly clamping to zero. Answer "how much is left" with a warning until resolved.
+  question_it_answers: Is this tube's history even possible?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Impossible histories hide real losses or double-counting
+  depth: core
+  sim_hook: |
+    Late-entry agent with date-picker error (p≈0.1 of late entries off by a day).
+  source: inferred
+
+- id: ASK-020
+  title: A record deleted by mistake
+  story: |
+    Given a technician "deleted" the receipt record for target lot L9, thinking it was a duplicate. It wasn't; the other one was.
+    When the lab manager notices L9's tubes have no source.
+    Then the deleted record can be found, with who deleted it, when and why, and restored; nothing that pointed to it was lost.
+  real_life_noise:
+    - the real duplicate is still active, so restoring L9 without voiding the duplicate double-counts
+  system_should: |
+    Deleting means marking void with a reason, never removing rows. Restoring is another entry. Show the pair (restored L9, still-active duplicate) so someone voids the right one.
+  question_it_answers: What was deleted, by whom, and can we get it back?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: A missing receipt breaks lineage for every tube of that lot
+  depth: core
+  sim_hook: |
+    Receiving agent registers duplicates (p≈0.02); clean-up agent voids the wrong one of the pair (p≈0.3).
+  source: brief
+
+- id: ASK-021
+  title: Physical count doesn't match the system
+  story: |
+    Given the system says freezer F2 holds 40 tubes of Target X totalling 960 µL.
+    When a technician counts and finds 37 tubes, and estimates volume by eye on five of them.
+    Then the count is recorded as its own event: 3 tubes not found, 5 volume estimates. The system shows the gap tube by tube and does not change any quantity until someone decides.
+  real_life_noise:
+    - two "missing" tubes are actually in F3
+    - eye estimates are rough (±5 µL) and shouldn't overwrite precise records
+  system_should: |
+    Keep counted values next to recorded values. Adjustments made after a count are their own entries, labelled as count adjustments, so loss from counts can be measured separately from loss in runs. Missing is a status, not a deletion.
+  question_it_answers: Where does our record disagree with the shelf?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Blindly trusting the count or the record both hide real problems
+  depth: core
+  sim_hook: |
+    A count agent with its own error rate walks one freezer; earlier sim noise (moves without scans) creates real gaps.
+  source: brief
+
+- id: ASK-022
+  title: How much did we lose in the last quarter, and on what?
+  story: |
+    Given finance asks for the cost of material wasted in Q3.
+    When the lab manager asks the system.
+    Then it reports, by material and by cause: expired before use, discarded with material inside, failed QC lots, count adjustments (unexplained loss), and dead volume. Each line uses the purchase price per µL of that lot, or the made-in-house cost where we have one.
+  real_life_noise:
+    - some lots have no price recorded
+    - in-house DNA and buffer cost is a rough estimate
+  system_should: |
+    Show amounts even where price is missing, and say how much of the total is unpriced. Keep cause categories distinct. Assumption: Adaptyv records purchase price per lot somewhere; if not, the inventory should at least hold a price field.
+  question_it_answers: What did waste cost us, and why?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Without causes, the lab can't decide what to fix
+  depth: supported
+  sim_hook: |
+    Run a 90-day sim with expiries, discards-with-volume and count losses; strip prices from 10% of lots.
+  source: inferred
+
+- id: ASK-023
+  title: Which operator or robot has the most discrepancies?
+  story: |
+    Given the last two months of corrections, count adjustments and flagged impossible balances.
+    When the lab manager asks where mistakes come from.
+    Then the system groups them by who or what recorded the original entry (each person, each robot, each manual step), normalised by how many entries each made.
+  real_life_noise:
+    - one person works all the night shifts and does far more entries
+    - a robot's errors are actually caused by a bad transfer file written by a person
+  system_should: |
+    Report rates, not raw counts. Attribute to the recorder and also to the task type, so a bad procedure isn't blamed on a person. This is for fixing process, not for blame; say that in the report.
+  question_it_answers: Where do our recording errors come from?
+  frequency: monthly
+  cost_if_wrong: low
+  cost_reason: Wrong conclusions about people hurt the team more than help
+  depth: supported
+  sim_hook: |
+    Give sim agents different error rates and see if the report finds the noisy one.
+  source: inferred
+
+- id: ASK-024
+  title: How many times has this target lot been frozen and thawed?
+  story: |
+    Given aliquot A-33 of Target X lot L1 was taken out three times for target plate prep.
+    When a scientist asks before using it a fourth time.
+    Then the system says 3 thaws for A-33, and also shows the stock tube's thaws before A-33 was split off (2), because those count too.
+  real_life_noise:
+    - a tube was taken out, not used, and put back without a scan
+    - a freezer door left open; nobody knows if anything thawed
+  system_should: |
+    Count thaws from moves out of and back into cold storage, carried from parent to child. When a move wasn't scanned, say the count is a minimum ("at least 3"). Assumption: Adaptyv has a maximum thaw count per target, set per material.
+  question_it_answers: How many freeze-thaw cycles has this material had?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Over-thawed targets give weak binding signal that looks like a sample problem
+  depth: core
+  sim_hook: |
+    Mover agent skips out/back scans (p≈0.1) so the count is uncertain.
+  source: workflow
+
+- id: ASK-025
+  title: Is this a reliable answer, or are there open problems underneath?
+  story: |
+    Given usable Target X is 410 µL, but two tubes in it are flagged (one impossible balance, one unscanned move).
+    When any question returns a number.
+    Then it comes with "based on N containers, M of them have open flags", and the flagged amount separately.
+  real_life_noise:
+    - flags pile up and nobody closes them
+  system_should: |
+    Make uncertainty part of every answer instead of a separate report. Count how old open flags are.
+  question_it_answers: How much can I trust this number?
+  frequency: many-per-day
+  cost_if_wrong: medium
+  cost_reason: Hidden doubt is worse than stated doubt
+  depth: core
+  sim_hook: |
+    Any long sim run; flags accumulate from every noise source.
+  source: inferred
+
+- id: ASK-026
+  title: Audit, show the full record of one lot from receipt to last use
+  story: |
+    Given an auditor (or a customer's quality team) picks target lot L4.
+    When they ask for its full story.
+    Then the system shows receipt (supplier, certificate, date, who received), QC (method, result, who), every split and transfer, every location, every correction with old and new values, and disposal, in time order with typed-in times next to bench times.
+  real_life_noise:
+    - certificate of analysis was attached a week after receipt
+    - one entry was made by a shared lab account
+  system_should: |
+    Produce this from the same entries as everything else, no separate audit table to keep in sync. Flag entries made by shared accounts as weaker.
+  question_it_answers: Can we prove what happened to this lot?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Failed audit or lost customer trust
+  depth: supported
+  sim_hook: |
+    Pick a random lot after a 60-day sim and render its history; add shared-account entries (p≈0.05).
+  source: brief
+
+- id: ASK-027
+  title: Which results depend on a record that was later corrected?
+  story: |
+    Given 9 corrections in the past month touched containers that later fed into runs.
+    When data review asks which delivered results are built on corrected records.
+    Then the system lists each run, the correction, and whether the correction changes what material went in (a swapped well) or only an amount.
+  real_life_noise:
+    - correction arrives after results were delivered
+  system_should: |
+    Distinguish corrections that change identity (which protein, which lot) from those that change only volume. Identity changes after delivery are urgent.
+  question_it_answers: Did a correction affect a result we already delivered?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: A swapped-well correction means a wrong result is out with a customer
+  depth: supported
+  sim_hook: |
+    Well-swap errors corrected after the data-review step finishes.
+  source: inferred
+
+- id: ASK-028
+  title: How much buffer do we need to make this week?
+  story: |
+    Given loading buffer lasts 1 week, and next week's planned runs need 3 L.
+    When the person making buffers asks how much usable loading buffer will still be good on each day of the week.
+    Then the system shows usable volume per day, falling as batches expire, and the component stock needed to make more (lot, amount, expiry of each component).
+  real_life_noise:
+    - one component lot expires before the buffer made from it would
+  system_should: |
+    A made buffer can't outlive its shortest-lived component; show the effective expiry. Assumption: buffer recipes are fixed per buffer type.
+  question_it_answers: Do we have enough fresh buffer and components?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Running out of loading buffer stops BLI runs that day
+  depth: supported
+  sim_hook: |
+    Component lots with mixed expiries; buffer maker sometimes uses the newest component lot instead of oldest.
+  source: workflow
+
+- id: ASK-029
+  title: Do we have enough consumables for next week?
+  story: |
+    Given BLI plates, tips and chips have no expiry and are counted in units.
+    When the lab manager asks how many BLI chips are left.
+    Then the system gives units on the shelf, minus any boxes opened and known to be partly used, and when it was last counted.
+  real_life_noise:
+    - people take a handful of tips and never record it
+  system_should: |
+    Track consumables by box, not by tip. Say when the count is only as good as the last physical count. Per-tip tracking is cut (see journal).
+  question_it_answers: How many consumables do we have?
+  frequency: weekly
+  cost_if_wrong: low
+  cost_reason: Running out of chips delays runs, but reordering is quick
+  depth: supported
+  sim_hook: |
+    Consumable use is only recorded at box level; boxes run out earlier than recorded (p≈0.2).
+  source: brief
+
+- id: ASK-030
+  title: Which expression plates must be used before they spoil?
+  story: |
+    Given expression plates last 2 weeks and 5 are in the fridge, each with leftover protein in some wells.
+    When the re-run planner asks which plates still hold protein that could be needed.
+    Then the system lists each plate with days left, how many wells still hold usable volume, and which of those wells belong to samples that failed data QC.
+  real_life_noise:
+    - an expression plate's start date is the end of the expression run, not the plate prep date, and people disagree which
+  system_should: |
+    Use one clear rule for when the 2-week clock starts and show it. Assumption: the clock starts when the expression run ends.
+  question_it_answers: What expiring material might we still need for re-runs?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Throwing away a plate a day too early forces re-expression from DNA
+  depth: supported
+  sim_hook: |
+    Data review runs late, so failed wells are only known a few days before the plate expires.
+  source: workflow
+
+- id: ASK-031
+  title: Can we re-express from DNA, and which DNA plate?
+  story: |
+    Given protein P-55 needs re-running and its expression plate is gone.
+    When the planner asks for the DNA.
+    Then the system points to the reconstituted Twist plate well (and any diluted copy), with volume left and location, and says whether the original supplier plate still exists.
+  real_life_noise:
+    - the diluted DNA plate is the only one with that well left, and it's at a different concentration
+  system_should: |
+    Show every container holding that DNA, with concentration, not just volume.
+  question_it_answers: Where can we restart this sample from?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Reordering DNA costs 5-10 days and money if we miss a usable copy
+  depth: supported
+  sim_hook: |
+    Dilution step is optional in the sim (p≈0.5), so sometimes only diluted copies remain.
+  source: workflow
+
+- id: ASK-032
+  title: Two tubes scanned with the same barcode
+  story: |
+    Given a reprinted label means two tubes in the lab carry barcode T-0555.
+    When someone scans T-0555 and asks what it is.
+    Then the system says this barcode currently points to more than one physical tube, shows both histories, and refuses to guess.
+  real_life_noise:
+    - the second tube was registered as "the same tube, moved"
+  system_should: |
+    Detect a container that is in two places at once, or moves faster than people walk, and flag it.
+  question_it_answers: Is this barcode trustworthy?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Two materials merged under one identity corrupts both lineages
+  depth: supported
+  sim_hook: |
+    Label printer agent reprints an existing barcode (p≈0.001); two agents scan it in different rooms within minutes.
+  source: inferred
+
+- id: ASK-033
+  title: What is sitting inside this instrument right now?
+  story: |
+    Given the BLI instrument holds a target plate and two sample plates for a run that stopped halfway.
+    When a scientist asks what's inside before opening it.
+    Then the system lists the plates loaded, the run they belong to, and how far the run got according to the last recorded step.
+  real_life_noise:
+    - a plate from yesterday's run was never unloaded in the record
+  system_should: |
+    Treat an instrument as a place. Show anything "in" it for longer than a run takes as suspicious.
+  question_it_answers: What's in the robot?
+  frequency: daily
+  cost_if_wrong: low
+  cost_reason: Mostly confusion and lost time
+  depth: supported
+  sim_hook: |
+    Runs that abort mid-way (p≈0.02) and unload steps that aren't recorded.
+  source: workflow
+
+- id: ASK-034
+  title: How much of this run's inputs came from material that was later flagged?
+  story: |
+    Given run R-101 used buffer lot B-12, which was later found contaminated, and target lot L1, which is fine.
+    When data review asks whether R-101 can be trusted.
+    Then the system lists every input lot of R-101 with its status now and its status at the time of the run.
+  real_life_noise:
+    - the buffer was flagged before the run but the flag was typed in after
+  system_should: |
+    Show both "status when used" and "status now", so a lot that was already bad at the time (but not yet recorded) is visible.
+  question_it_answers: Were any inputs to this run bad?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Results built on contaminated buffer go out to customers
+  depth: supported
+  sim_hook: |
+    Contamination event with delayed reporting.
+  source: inferred
+
+- id: ASK-035
+  title: Discarded container still counted as stock
+  story: |
+    Given a BLI plate was thrown in the bin after the run, but the discard scan never happened.
+    When planning asks for usable sample plates.
+    Then the system should not offer a single-use BLI plate that has already been run, even without the discard scan, because the material type says those plates are thrown away after use.
+  real_life_noise:
+    - sometimes a plate is reused for a quick re-read
+  system_should: |
+    Use material rules (single use after a run) to mark things probably gone, and say "probably discarded, not confirmed".
+  question_it_answers: Is this plate really still around?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Plates already thrown away looking usable is exactly what the brief warns about
+  depth: core
+  sim_hook: |
+    Discard scan skipped (p≈0.2) after BLI and GFP runs.
+  source: brief
+
+- id: ASK-036
+  title: How much did one experiment consume, and what did it cost?
+  story: |
+    Given customer B's experiment is finished.
+    When finance asks what material it used.
+    Then the system adds up every amount taken by runs tagged to that experiment, by lot and material, including its share of dead volume and failed re-runs, priced per lot.
+  real_life_noise:
+    - target aliquots used for two experiments on the same plate
+    - a re-run was not tagged to the experiment
+  system_should: |
+    Split shared plates by well. Show untagged consumption that probably belongs to this experiment separately.
+  question_it_answers: What did this experiment cost in material?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Wrong pricing to customers
+  depth: supported
+  sim_hook: |
+    Plates shared between two experiments; experiment tag missing on re-runs (p≈0.1).
+  source: inferred
+
+- id: ASK-037
+  title: Which supplier's target lots fail QC most often?
+  story: |
+    Given a year of target receipts from three suppliers.
+    When the lab manager reviews suppliers.
+    Then the system shows lots received, QC failures and lots later flagged bad, per supplier and per target.
+  real_life_noise:
+    - one supplier changed name after an acquisition
+  system_should: |
+    Keep QC outcomes on lots linked to supplier so this falls out for free.
+  question_it_answers: Which suppliers can we rely on?
+  frequency: rare
+  cost_if_wrong: low
+  cost_reason: Informs buying, not daily work
+  depth: supported
+  sim_hook: |
+    Suppliers with different QC failure rates.
+  source: inferred
+
+- id: ASK-038
+  title: The question we can't answer, and saying so
+  story: |
+    Given an aliquot's parent was never registered (it was split from an unknown tube in a rush).
+    When someone asks which lot it is from.
+    Then the system says "lot unknown", lists what we do know (material, date first seen, who registered it) and does not guess the most likely lot. Its usable status is "blocked, unknown lot" until someone decides.
+  real_life_noise:
+    - only one lot of that target was ever in the lab, so the guess would probably be right
+  system_should: |
+    Allow an explicit "unknown" instead of forcing a guess at entry. Let someone link it later with a reason, which is a correction like any other.
+  question_it_answers: What happens when the record simply doesn't know?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: A confident wrong lot is worse than an honest unknown during a bad-lot trace
+  depth: core
+  sim_hook: |
+    Rushed-split agent skips parent scan (p≈0.01).
+  source: inferred
+
+- id: ASK-039
+  title: Results for one plate when the robot log and the person disagree
+  story: |
+    Given the liquid handler log says it moved 10 µL into each of 96 wells; the scientist recorded a plate-level transfer of 1 mL total from a tube that had only 800 µL.
+    When someone asks how much protein is in each well.
+    Then the system keeps both records, prefers the robot log per well, and flags the 200 µL gap on the source tube.
+  real_life_noise:
+    - robot log is uploaded a day late
+  system_should: |
+    Say which source each number came from. Don't average them.
+  question_it_answers: Which record do we believe when two disagree?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Hidden disagreement turns into wrong usable numbers later
+  depth: supported
+  sim_hook: |
+    Robot log and manual entries generated independently with separate error rates.
+  source: inferred
+
+- id: ASK-040
+  title: Material that left the lab, where did it go?
+  story: |
+    Given some leftover customer protein was shipped back to the customer and a target aliquot was sent to a partner lab.
+    When someone asks for the history.
+    Then the record ends with "left the lab" with where to, date and who sent it, and those amounts no longer count as held.
+  real_life_noise:
+    - the shipment was recorded as a discard
+  system_should: |
+    Keep "left the lab" distinct from "discarded", so cost and lineage reports stay honest.
+  question_it_answers: Where did material go when it left us?
+  frequency: monthly
+  cost_if_wrong: low
+  cost_reason: Mostly a record-keeping issue, matters for customer questions
+  depth: supported
+  sim_hook: |
+    Shipping action, mis-recorded as discard (p≈0.1).
+  source: brief

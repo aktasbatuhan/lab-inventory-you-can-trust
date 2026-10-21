@@ -1,0 +1,823 @@
+# RCV: receiving material. Supplier lots, certificates, QC, deliveries.
+# Draft by the RCV agent, 2026-10-21. Anything about how Adaptyv works inside
+# that the brief doesn't say is marked "Assumption" in the story.
+
+- id: RCV-001
+  title: Target protein arrives as a powder and goes on hold until QC
+  story: |
+    Given an order of 2 vials of Target X (100 µg each, lyophilized, supplier lot A2210, catalog TX-H52H3).
+    When the box is opened at the bench, both vials are scanned or labeled, and the delivery is recorded with the CoA attached.
+    Then there are 2 containers of lot A2210, 200 µg in total, status "on hold, waiting for QC". They count as existing stock but not usable stock.
+  real_life_noise:
+    - the person receiving types 100 µL instead of 100 µg because every other field on the form is in µL
+    - the CoA PDF is in the box but nobody scans it, so it lives in an email inbox
+    - the vials are put in the -80 freezer before they are registered, and registration happens the next morning
+    - the lot number on the vial is printed in 4 pt and gets typed as A221O (letter O instead of zero)
+  system_should: |
+    Create one lot record per supplier lot and one container per vial. New lots start on hold and are excluded from "usable" until a QC result releases them. Keep both the time the box arrived and the time it was recorded. Refuse a mass-only material entered with a volume unit, or at least warn.
+  question_it_answers: How much Target X do we have, and how much can we use right now?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Using an unchecked lot can waste a whole binding run; hiding it makes people reorder
+  depth: core
+  sim_hook: |
+    Actor lab_tech, action receive_lot, error wrong_unit (µL for µg) p≈0.04, typo_lot_number p≈0.03, register_late (6 to 30 h after arrival) p≈0.25
+  source: brief
+
+- id: RCV-002
+  title: Antigen goes through reconstitution, buffer exchange and QC and becomes a stock tube
+  story: |
+    Given a vial of Target X, lot A2210, 100 µg powder, on hold.
+    When a scientist adds 200 µL of water as the CoA says (0.5 mg/mL), runs it through a 0.5 mL desalting spin column into the assay buffer, measures it at 0.41 mg/mL in 190 µL, and fills one stock tube.
+    Then the stock tube holds about 78 µg of lot A2210 in assay buffer. The 22 µg difference is recorded as process loss, not as missing material. The stock tube is linked to the vial it came from and to the buffer lot used.
+  real_life_noise:
+    - the scientist records the CoA concentration (0.5 mg/mL) instead of the measured one, so the tube shows 95 µg that don't exist
+    - the vial is reconstituted in PBS instead of water because the CoA for a different product said so
+    - buffer exchange is done but the buffer lot is not recorded
+    - the stock tube gets the vial's original label, so two barcodes point to related but different material
+    - the empty vial is thrown away but never marked as empty, so it still shows 100 µg of powder
+  system_should: |
+    Treat reconstitution plus buffer exchange as one task with an input (vial) and an output (stock tube). Keep the lot the same, record the measured concentration on the output, and store the gap between input and output as an explicit loss. Mark the input vial as used up. Link the buffer lot as a second input so a bad buffer can be traced later.
+  question_it_answers: How much target is really in that stock tube, and what buffer is it in?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Overstated target concentration goes straight into BLI plate prep and skews binding numbers
+  depth: core
+  sim_hook: |
+    Actor scientist, action reconstitute_and_exchange, loss drawn from 10 to 30 percent of mass, error record_coa_value_not_measured p≈0.15, forget_buffer_lot p≈0.10, forget_empty_parent p≈0.20
+  source: workflow
+
+- id: RCV-003
+  title: QC passes and the lot becomes usable, QC fails and it is blocked but kept
+  story: |
+    Given lot A2210 of Target X on hold, with one stock tube and one unopened vial.
+    When QC (concentration by A280 and a purity gel) passes, the lot is released. In a parallel case, lot B0918 of Target Y fails QC because the gel shows a second band at half the size.
+    Then every container of A2210 becomes usable at once, including the unopened vial. B0918 stays in the records with status "failed QC", its containers stay where they are until someone disposes of them, and it never counts as usable.
+  real_life_noise:
+    - QC is passed on the stock tube but the person forgets the unopened vial belongs to the same lot
+    - someone deletes the failed lot to keep the list clean, and the supplier later asks for evidence for a refund
+    - the failed vials are thrown out without recording it
+  system_should: |
+    Put QC status on the lot, not on each container, so one decision covers every vial and tube of that lot. Never delete a failed lot. Keep the QC result as a record with who, when, method and values.
+  question_it_answers: Which lots of Target Y can we use?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: A failed lot used in a run spoils a customer result
+  depth: core
+  sim_hook: |
+    Actor qc_scientist, action record_qc, outcome fail p≈0.08 per target lot, error delete_failed_lot p≈0.02, dispose_without_record p≈0.15
+  source: brief
+
+- id: RCV-004
+  title: QC retest after a borderline first result
+  story: |
+    Given lot C0412 of Target Z, measured at 0.31 mg/mL when the CoA says 0.50 mg/mL.
+    When the scientist suspects a blank error on the spectrophotometer, re-blanks, and measures again at 0.47 mg/mL, then passes the lot.
+    Then the lot has two QC results, the first marked as superseded by a retest, and the status is "passed" based on the second.
+  real_life_noise:
+    - the first result is edited in place to 0.47, so nobody can see there was ever a doubt
+    - the retest is done on a different tube than the first test
+    - three retests are run and only the best one is recorded
+  system_should: |
+    Keep every QC attempt as its own row. Let a later attempt explicitly supersede an earlier one, with a reason. The current status comes from the latest decision, but the history stays visible.
+  question_it_answers: Why was this lot released, and was there any doubt about it?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Hidden retests make it hard to explain an odd binding curve later
+  depth: supported
+  sim_hook: |
+    Actor qc_scientist, action record_qc, first_result_borderline p≈0.10, error overwrite_instead_of_retest p≈0.30, cherry_pick_retest p≈0.05
+  source: inferred
+
+- id: RCV-005
+  title: Measured concentration disagrees with the certificate
+  story: |
+    Given lot A2210 whose CoA says 0.50 mg/mL after reconstitution and >95 percent purity.
+    When our own A280 reads 0.38 mg/mL (24 percent lower) on two separate measurements.
+    Then the lot keeps both numbers: the supplier's claim and our measurement. Planning uses ours. The lot is flagged so someone decides whether 24 percent is inside tolerance (Assumption: the lab has a tolerance, we guess ±20 percent).
+  real_life_noise:
+    - the extinction coefficient used for A280 is the default 1.0 instead of the protein's real value, so our number is the one that is wrong
+    - the CoA reports concentration by BCA, we measure by A280, so the two methods differ by design
+    - the scientist overwrites the CoA value with ours and the supplier's claim is lost
+  system_should: |
+    Store supplier claims and our measurements as separate facts, each with the method used. Never overwrite one with the other. Compute usable mass from our measurement when we have one, and say which number was used.
+  question_it_answers: How much target do we really have, and does it match what we paid for?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Wrong concentration silently shifts every BLI result that used this target
+  depth: core
+  sim_hook: |
+    Actor qc_scientist, action measure_concentration, true_vs_coa ratio drawn from N(0.9, 0.12), error wrong_extinction_coefficient p≈0.05, overwrite_coa_value p≈0.20
+  source: research
+
+- id: RCV-006
+  title: Twist DNA plate arrives dried, with a plate map file
+  story: |
+    Given an order of 96 gene fragments from Twist for customer project P-031.
+    When a 96-well plate arrives at room temperature with DNA dried in each well (Twist says 100 ng to 1 µg per fragment) and the plate map CSV is downloaded from the Twist portal.
+    Then the plate is one container with 96 wells, each well holding its own DNA material linked to its design name and sequence from the map, with yield in ng. The plate is on hold until reconstituted.
+  real_life_noise:
+    - the CSV is uploaded but its plate barcode column doesn't match the physical plate's barcode because Twist sent two plates in the box
+    - Excel turns construct names like MARCH1 or SEPT9 into dates when someone opens and re-saves the map
+    - names in the map have trailing spaces, so they don't match the designs in our records
+    - the plate is put in the -20 freezer before anyone imports the map, and sits there "unknown" for a week
+  system_should: |
+    Import the plate map as data, matched to the plate barcode, and reject or flag rows whose barcode or well doesn't match. Create one lot per well (each well is a different DNA). Keep the original file attached. Treat a plate with no imported map as a known container with unknown contents, not as nothing.
+  question_it_answers: Which DNA is in well C7 of this plate, and where did it come from?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: A swapped map means every expressed protein is labeled with the wrong sequence
+  depth: core
+  sim_hook: |
+    Actor lab_tech, action import_plate_map, error wrong_map_for_plate p≈0.03, excel_date_mangling p≈0.02 per plate, delay_import (1 to 7 days) p≈0.15
+  source: research
+
+- id: RCV-007
+  title: 384-well Twist plate with some wells missing
+  story: |
+    Given an order of 380 fragments.
+    When a 384-well plate arrives and the map shows 372 wells filled, 4 wells empty by design and 8 constructs marked as failed synthesis, to follow later.
+    Then 372 wells hold DNA lots. The 8 failed constructs are still open on the order, not in stock. The 4 empty wells are empty, not "zero ng of something".
+  real_life_noise:
+    - someone creates 384 well records from a template, so 12 wells show DNA that isn't there
+    - the 8 late constructs arrive 3 weeks later in tubes, not in the plate, and get registered as a new plate
+    - a well with 40 ng (below what the expression step needs) is treated the same as one with 900 ng
+  system_should: |
+    Only create well contents for wells that the map says have DNA. Let an order line stay open after delivery. Record per-well yield so low-yield wells can be flagged before expression.
+  question_it_answers: Which constructs for project P-031 do we actually have?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Phantom wells get expressed and give empty results that look like non-binders
+  depth: supported
+  sim_hook: |
+    Actor lab_tech, action import_plate_map, synth_failure p≈0.02 per construct, error template_fill_all_wells p≈0.05, low_yield (<100 ng) p≈0.03 per well
+  source: research
+
+- id: RCV-008
+  title: Plate map applied rotated 180 degrees
+  story: |
+    Given a dried Twist plate registered with its map.
+    When the reconstitution robot loads the plate the other way round (A1 where H12 should be) and nobody notices until expression shows GFP signal in the wrong pattern.
+    Then the system cannot know the physical truth by itself, but the lab can record a correction that remaps every well, and everything made from the plate is updated through lineage.
+  real_life_noise:
+    - only some downstream plates get corrected
+    - the correction is done by editing well contents in place, so the earlier wrong record disappears
+  system_should: |
+    Allow a correction event on a plate that remaps wells, kept as a new entry, not an edit. Make it easy to find every plate made from the corrected one so they can be corrected or flagged too.
+  question_it_answers: What did the record say before the correction, and which results used the wrong map?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Every sample on the plate is attributed to the wrong sequence
+  depth: supported
+  sim_hook: |
+    Actor robot, action load_plate, error rotated_180 p≈0.002 per load, detected_downstream p≈0.7
+  source: inferred
+
+- id: RCV-009
+  title: Dried DNA plate is reconstituted by a liquid handler
+  story: |
+    Given a dried 96-well Twist plate with per-well yields from the map.
+    When the robot adds 20 µL of 10 mM Tris pH 8.0 to every well (Twist advises TE or Tris, not water).
+    Then each well now has 20 µL, with concentration computed from its yield (for example 500 ng in 20 µL is 25 ng/µL). The plate becomes the "reconstituted Twist plate" of the workflow and its storage rules change from dried to liquid.
+  real_life_noise:
+    - the robot run aborts after column 8, so columns 9 to 12 are still dry but the whole plate is logged as reconstituted
+    - the plate is not spun down first and some DNA pellet sits on the seal
+    - a scientist uses water because the TE bottle is empty
+    - the robot log says 20 µL but the tip for row H was clogged
+  system_should: |
+    Record reconstitution per well, ideally from the robot's own log file, not as one plate-level action. A well's state (dry or liquid) is part of what it is. Flag wells where the robot reported an error.
+  question_it_answers: Which wells on this plate are ready to use?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Dry wells give no expression and get re-ordered at Twist prices
+  depth: core
+  sim_hook: |
+    Actor robot, action reconstitute_plate, error partial_run_abort p≈0.01, clogged_channel p≈0.005 per channel per run, wrong_diluent p≈0.02
+  source: research
+
+- id: RCV-010
+  title: Partial delivery of a target order
+  story: |
+    Given an order of 5 vials of Target X.
+    When 3 vials of lot A2210 arrive this week and 2 vials of a different lot, A2301, arrive 12 days later.
+    Then the order shows 3 of 5 received, then 5 of 5. There are two lots, each needing its own QC.
+  real_life_noise:
+    - the receiver marks the order complete on the first box
+    - the second box is assumed to be the same lot and is added to A2210 without checking the label
+    - the packing slip for the second box lists all 5 vials, so it gets registered as 5
+  system_should: |
+    Track received quantity per order line, separate from the lot. Make a new lot whenever the lot number differs. Warn when received quantity would exceed ordered quantity.
+  question_it_answers: Is the target order complete, and which lots are waiting for QC?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: An unchecked second lot gets used under the first lot's QC pass
+  depth: supported
+  sim_hook: |
+    Actor lab_tech, action receive_lot, partial_shipment p≈0.10 per order, error merge_into_existing_lot p≈0.10, register_packing_slip_qty p≈0.05
+  source: inferred
+
+- id: RCV-011
+  title: Same delivery registered twice
+  story: |
+    Given a box with 4 vials of Target Y, lot B1102.
+    When one person registers it at the door from the packing slip, and a second person registers it again when unpacking at the freezer, scanning each vial.
+    Then the system should end up with 4 containers, not 8, and the double entry should be visible as a correction.
+  real_life_noise:
+    - the first registration has no vial barcodes, only "4 × 50 µg", so the duplicates don't collide on barcode
+    - the second person sees the first entry, thinks it is wrong, and edits it instead of cancelling
+    - nobody notices for 3 weeks, and by then someone has consumed from one of the ghost containers
+  system_should: |
+    Warn when a new receipt has the same supplier, catalog number, lot and order line as a recent one. Let a receipt be cancelled with a reason, which reverses its containers. If a ghost container has already been "used", keep that usage visible and move it onto the real container.
+  question_it_answers: How much Target Y do we really have?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Phantom stock delays a reorder until a run fails for lack of target
+  depth: core
+  sim_hook: |
+    Actor lab_tech, action receive_lot, error duplicate_receipt p≈0.03 per delivery, detected_within_1_day p≈0.6
+  source: brief
+
+- id: RCV-012
+  title: Wrong item shipped
+  story: |
+    Given an order of human Target X with a C-terminal His tag, biotinylated.
+    When the vial label says the right catalog number but the CoA says "mouse", or the vial is the non-biotinylated version.
+    Then the lot is registered as what actually arrived (if known) and put on hold with reason "wrong item", linked to the order line, which stays open.
+  real_life_noise:
+    - the receiver checks only the catalog number on the box, not the vial
+    - it is spotted only after reconstitution and two aliquots have been made
+    - the supplier ships the replacement and asks to keep the wrong vial, so it stays in the freezer as an orphan
+  system_should: |
+    Record what arrived, not what was ordered. Keep the order line separate from the lot. A hold reason should be specific. Holding a lot should hold everything made from it.
+  question_it_answers: Why is the Target X order still open when we have a Target X vial?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: A non-biotinylated target gives no signal on streptavidin sensors, and the run looks like all non-binders
+  depth: supported
+  sim_hook: |
+    Actor supplier, action ship, error wrong_variant p≈0.01 per order, detected_at_receipt p≈0.5, detected_after_aliquoting p≈0.4
+  source: research
+
+- id: RCV-013
+  title: Lot on hold because the certificate is missing
+  story: |
+    Given a delivery of HEPES powder, 500 g, lot SLCD1234.
+    When the box has no CoA and the supplier website hasn't posted it yet.
+    Then the lot is registered and on hold with reason "no CoA". When the PDF is attached 2 days later, the hold is lifted (Assumption: the lab requires a CoA for buffer components; it may not).
+  real_life_noise:
+    - the CoA attached is for lot SLCD1243
+    - someone lifts the hold without attaching anything because they need the buffer today
+  system_should: |
+    Let a lot carry documents, each with the lot number read from it. Warn when a document's lot doesn't match. Lifting a hold is an event with a person and a reason.
+  question_it_answers: Why can't I use this HEPES?
+  frequency: monthly
+  cost_if_wrong: low
+  cost_reason: Mostly paperwork, but matters when a recall comes
+  depth: supported
+  sim_hook: |
+    Actor lab_tech, action attach_coa, missing_at_arrival p≈0.15, error coa_for_other_lot p≈0.03, lift_hold_without_doc p≈0.10
+  source: inferred
+
+- id: RCV-014
+  title: Cold chain broken on arrival
+  story: |
+    Given an order of Target Y shipped as a frozen liquid on dry ice.
+    When the box arrives on a Monday after sitting at the courier since Friday, there is no dry ice left, and the data logger shows above -20 °C for about 30 hours.
+    Then the lot is registered, with the shipping condition recorded, and put on hold with reason "cold chain". The scientist decides: use after extra QC, or reject and claim a replacement.
+  real_life_noise:
+    - the vials are moved straight into the -80 so it "looks" fine, and nobody writes down that the ice was gone
+    - there is no logger, only "box felt cold"
+    - the lyophilized vials in the same box are fine but get rejected with the liquid ones
+  system_should: |
+    Record arrival condition per receipt (temperature, ice present, logger reading) as a fact. A hold for cold chain applies to the containers in that shipment, not to every container of the lot ever received.
+  question_it_answers: Can we trust the Target Y that arrived on Monday?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Thawed target can aggregate and give false binding
+  depth: core
+  sim_hook: |
+    Actor courier, action deliver, delay_over_weekend p≈0.05, ice_depleted given delay p≈0.5, error not_recorded p≈0.4
+  source: research
+
+- id: RCV-015
+  title: Supplier recalls a lot
+  story: |
+    Given lot P7781 of 10x PBS, used to make 6 batches of assay buffer over 2 months, which went into 14 BLI plates.
+    When the supplier emails that P7781 has an endotoxin or pH problem and asks customers to stop using it.
+    Then the lot goes on hold with reason "supplier recall", and the system lists every buffer batch, plate and run that used it, and every container that still holds some of it.
+  real_life_noise:
+    - two bottles of P7781 were registered under a typo, P7718, and are missed by the search
+    - one buffer batch was made without recording which PBS bottle was used
+    - the recall email arrives months later, after most containers are thrown away
+  system_should: |
+    Hold a lot with one action and pass the hold to everything made from it that still exists. Answer "where did it go" through the lineage, including disposed containers. Show buffer batches with an unknown component lot as a gap, not as clean.
+  question_it_answers: Which experiments touched the recalled PBS lot?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Customer results may need to be re-run or flagged
+  depth: core
+  sim_hook: |
+    Actor supplier, action recall_lot, p≈0.002 per lot per month, error component_lot_unrecorded p≈0.05 per buffer batch
+  source: brief
+
+- id: RCV-016
+  title: The same supplier lot number appears again years later
+  story: |
+    Given a lot "1234" of a buffer component received in 2023 and used up.
+    When in 2026 the same supplier sends the same catalog number with lot "1234" again (some suppliers reuse short lot codes or restart counters).
+    Then the system must not merge the 2026 delivery into the 2023 lot. They have different expiry dates and different CoAs.
+  real_life_noise:
+    - the receiver picks "1234" from a dropdown of existing lots and it attaches to the old, expired lot
+    - the old lot's QC pass is carried over silently
+  system_should: |
+    Do not use supplier, catalog and lot number as a unique key on its own. Every receipt makes or links to a lot by explicit choice, and a match to a lot with a very different expiry or a receipt date years apart triggers a warning.
+  question_it_answers: Is this lot 1234 the one that passed QC?
+  frequency: rare
+  cost_if_wrong: medium
+  cost_reason: Inherits the wrong expiry and QC status
+  depth: core
+  sim_hook: |
+    Actor supplier, action assign_lot_number, reuse_old_code p≈0.005 per lot, error pick_existing_lot_from_dropdown p≈0.5 given reuse
+  source: research
+
+- id: RCV-017
+  title: Two suppliers, same lot string
+  story: |
+    Given lot "220315" of NaCl from supplier A and lot "220315" of a target protein from supplier B (both date-style codes).
+    When someone searches for lot 220315.
+    Then both come up, clearly from different suppliers. A recall of one never touches the other.
+  real_life_noise:
+    - the receiver leaves the supplier field empty because the box came via a distributor
+    - the distributor's own lot number is typed instead of the manufacturer's
+  system_should: |
+    A lot belongs to a supplier and a catalog item. Record the manufacturer and the distributor separately when they differ. Lot number alone is just a label.
+  question_it_answers: Which lot 220315 is this?
+  frequency: rare
+  cost_if_wrong: medium
+  cost_reason: A recall or QC fail lands on the wrong material
+  depth: supported
+  sim_hook: |
+    Actor lab_tech, action receive_lot, error missing_supplier p≈0.03, distributor_lot_instead_of_manufacturer p≈0.05
+  source: inferred
+
+- id: RCV-018
+  title: Same material from two suppliers
+  story: |
+    Given Target X bought from supplier A (lot A2210) and the same human protein from supplier B (lot S-88), each with a different tag and buffer.
+    When a scientist asks how much Target X we have.
+    Then the answer can be given per supplier and in total, but the two are not silently treated as interchangeable. For PBS from two suppliers, they usually are.
+  real_life_noise:
+    - supplier B's product is registered as a new material "Target X (B)", so the total never shows up
+    - an experiment uses half lot A and half lot B in one plate and records only one
+  system_should: |
+    Keep one material ("human Target X") with lots from several suppliers, plus product-level facts (tag, construct, biotinylated or not). Let the material type decide whether lots can be mixed (buffers yes, targets only with a note). Record every lot a plate actually used.
+  question_it_answers: How much Target X do we have, from whom, and can we swap one for the other?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Hidden duplicates cause needless reorders; mixing hides a source of variance
+  depth: supported
+  sim_hook: |
+    Actor purchaser, action order_from_alternate_supplier p≈0.15 per target order, error new_material_instead_of_new_lot p≈0.3
+  source: brief
+
+- id: RCV-019
+  title: Supplier vial has no barcode we can use
+  story: |
+    Given 3 vials of Target Z with printed labels but no barcode, or a barcode format our scanners don't read.
+    When the receiver prints 3 lab barcode labels and sticks one on each vial.
+    Then each vial is a container with our barcode, and the supplier's label text (catalog, lot) is recorded as data on the lot.
+  real_life_noise:
+    - two identical vials are on the bench and labels A and B get swapped. Harmless here (same lot), harmful when two different lots sit together
+    - labels are printed but one falls off in the -80 and is found loose in the box
+    - the receiver prints 4 labels for 3 vials and the 4th is stuck on the box, which then gets registered as a container
+  system_should: |
+    Let containers get barcodes at registration time, and let a barcode be printed before it is assigned. A barcode that was printed but never assigned should show up as unused, not as a container.
+  question_it_answers: Which vial is this?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Swapped labels between lots break traceability
+  depth: core
+  sim_hook: |
+    Actor lab_tech, action label_container, error swap_labels_same_bench p≈0.01 per pair, label_falls_off_in_freezer p≈0.005 per month, extra_label_registered p≈0.02
+  source: brief
+
+- id: RCV-020
+  title: Relabeling a container whose barcode can't be read
+  story: |
+    Given a stock tube with barcode T-004112 whose label is frosted over and won't scan.
+    When a scientist sticks a new label T-009877 on it.
+    Then the container stays the same container, now known by T-009877. Scanning T-004112 (on an old printout) points to the same tube with a note that it was relabeled.
+  real_life_noise:
+    - the scientist registers the tube as a new container with the new barcode and the old record stays with full volume
+    - the new label is put on over the old one, so a scanner sometimes reads the old one through it
+  system_should: |
+    Treat barcodes as names a container has over time, not as the container itself. Relabeling is an event. Never create a new container by relabeling.
+  question_it_answers: Is T-009877 the same tube as T-004112?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Ghost duplicates double-count expensive target
+  depth: core
+  sim_hook: |
+    Actor scientist, action relabel_container, trigger label_unreadable p≈0.02 per container per year in -80, error register_as_new p≈0.3
+  source: brief
+
+- id: RCV-021
+  title: Twist plate barcode can't be read by the robot
+  story: |
+    Given a Twist plate with its own side barcode.
+    When the plate reader on the liquid handler misreads one digit, so the robot logs work against an unknown plate.
+    Then the robot's log should not create a new plate. The run is flagged as "unknown input plate" until someone matches it.
+  real_life_noise:
+    - the tech scans it by hand and types the barcode, adding a digit
+    - our own barcode label is stuck over the Twist barcode on the wrong side, so the robot reads the Twist one and the person reads ours
+  system_should: |
+    Allow one container to have several barcodes (supplier's and ours). Robot logs that reference an unknown barcode are parked, not turned into new containers.
+  question_it_answers: Which plate did the robot actually use?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Lineage breaks between DNA and the protein made from it
+  depth: supported
+  sim_hook: |
+    Actor robot, action scan_plate, error misread p≈0.003 per scan, two_barcodes_conflict p≈0.01
+  source: inferred
+
+- id: RCV-022
+  title: DNA made in-house instead of ordered
+  story: |
+    Given a construct that is also on order from Twist, but needed in 2 days instead of 5 to 10.
+    When the lab makes the DNA in-house (Assumption: by PCR or similar from a template, details not in the brief) into a 96-well plate.
+    Then the wells hold DNA lots whose source is "made", linked to the inputs (template, reagents), with the same design names as the Twist order. When the Twist plate arrives later, both exist and the system can tell them apart.
+  real_life_noise:
+    - in-house DNA is registered as if it were the Twist plate, so the Twist plate later arrives and has nowhere to go
+    - the Twist order is not cancelled, so we pay for both
+    - in-house wells have no measured concentration
+  system_should: |
+    The same material (a DNA design) can have lots from a supplier or from an in-house task. The lot's source is always clear. Show both sources when someone asks "do we have DNA for design D-118?".
+  question_it_answers: Do we already have this DNA, from anywhere?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Duplicate orders at Twist prices
+  depth: supported
+  sim_hook: |
+    Actor scientist, action make_dna_in_house p≈0.3 of urgent projects, error register_as_supplier_lot p≈0.05, forget_cancel_order p≈0.2
+  source: brief
+
+- id: RCV-023
+  title: Target expressed in-house instead of bought
+  story: |
+    Given a target that is hard to buy.
+    When the lab expresses and purifies it in-house, ending with 1.2 mL at 0.8 mg/mL.
+    Then a new target lot exists with source "made", linked to its DNA, and it goes through the same hold and QC as a bought lot.
+  real_life_noise:
+    - in-house lots skip QC because "we made it ourselves"
+    - the lot gets a name like "TgtX_prep2" that collides with a supplier lot naming style
+  system_should: |
+    Apply the same hold-until-QC rule to made targets. Give made lots our own IDs so they never collide with supplier lot numbers.
+  question_it_answers: Has this in-house target been checked?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Unchecked targets corrupt binding data
+  depth: supported
+  sim_hook: |
+    Actor scientist, action purify_target, error skip_qc p≈0.2
+  source: brief
+
+- id: RCV-024
+  title: Buffer component arrives
+  story: |
+    Given an order of 1 L of 10x PBS and 500 mL of Tween-20.
+    When the bottles arrive with expiry dates 2028-03 and 2027-11.
+    Then each bottle is a container of its lot. Usable amount is the full bottle. Expiry comes from the label (Assumption: some components get a shorter expiry once opened, which the lab sets per material).
+  real_life_noise:
+    - the receiver enters the expiry as 03/2028 and it is read as 3 February
+    - the bottle is opened and the open date is never recorded
+    - 4 identical bottles are registered as one container of 4 L
+  system_should: |
+    Store expiry as a date with the supplier's precision (month only is common). Allow an "opened" event that can start a shorter clock. Prefer one container per bottle so each can be tracked and thrown away.
+  question_it_answers: Do we have PBS that's in date?
+  frequency: weekly
+  cost_if_wrong: low
+  cost_reason: Cheap, but buffers made from expired components carry the problem forward
+  depth: supported
+  sim_hook: |
+    Actor lab_tech, action receive_lot, error date_format_swap p≈0.03, bulk_as_one_container p≈0.2, forget_open_date p≈0.5
+  source: brief
+
+- id: RCV-025
+  title: Consumables arrive in boxes and cases
+  story: |
+    Given an order of 1 case of 96-well plates (50 plates) and 10 racks of 200 µL tips.
+    When they arrive.
+    Then the system records counts (50 plates, 10 racks) at the level the lab cares about, not each tip. There is no QC hold and no expiry.
+  real_life_noise:
+    - half a case is taken to the robot room and nobody records the move
+    - the same plate model is ordered from 2 suppliers and registered as two items
+    - plates are counted as 1 (the case) instead of 50
+  system_should: |
+    Let a material type say whether it needs QC, has expiry, and how it is counted. Consumables are counted in units, not volume.
+  question_it_answers: Do we have enough 384-well plates for next week?
+  frequency: weekly
+  cost_if_wrong: low
+  cost_reason: Running out stops the robot for a day
+  depth: supported
+  sim_hook: |
+    Actor lab_tech, action receive_consumables, error count_case_as_one p≈0.1
+  source: brief
+
+- id: RCV-026
+  title: BLI biosensors arrive, a consumable that does expire
+  story: |
+    Given an order of streptavidin biosensors (for example a tray of 96 tips for an Octet-style instrument).
+    When they arrive with a lot number and an expiry date 11 months out.
+    Then they are registered with lot and expiry even though the brief lists consumables as "no expiry".
+  real_life_noise:
+    - sensors from an older lot are used first and a data review later finds a shift between lots
+    - expiry is not entered because consumables "don't expire"
+  system_should: |
+    Expiry and lot tracking are per material type, not per category. Some consumables need both, and it should be cheap to switch on.
+  question_it_answers: Which sensor lot did this BLI run use?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Expired or odd sensor lots give poor data that has to be re-run
+  depth: supported
+  sim_hook: |
+    Actor lab_tech, action receive_consumables, error skip_expiry_for_consumable p≈0.4
+  source: research
+
+- id: RCV-027
+  title: Customer sends their own material
+  story: |
+    Given a customer who ships their own target protein or their own DNA (Assumption: the brief says samples are sometimes bought as finished protein, and we assume customers can also send material).
+    When a tube arrives with a handwritten label and no CoA.
+    Then the lot's source is the customer, it is owned by that customer's project, and it is on hold until we QC it.
+  real_life_noise:
+    - concentration is only in the customer's email, not on the tube
+    - the tube is used for another project because it sits next to our own Target X
+  system_should: |
+    Let a lot have an owner or restriction (only for project P-031). Warn when restricted material is used elsewhere.
+  question_it_answers: Whose material is this, and may we use it?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Using a customer's material for someone else is a trust problem
+  depth: supported
+  sim_hook: |
+    Actor customer, action ship_material, error no_concentration p≈0.3, used_for_other_project p≈0.01
+  source: inferred
+
+- id: RCV-028
+  title: Finished sample proteins bought in a plate
+  story: |
+    Given a project where samples are bought as finished protein (the brief says this happens sometimes).
+    When a 96-well plate of 80 purified proteins arrives frozen with a spreadsheet of names and concentrations.
+    Then the plate is registered with 80 well-level sample lots, linked to the project, skipping the DNA and expression path.
+  real_life_noise:
+    - the spreadsheet has 82 rows, two of them duplicates
+    - the plate thaws on the bench for 2 hours waiting for the spreadsheet
+  system_should: |
+    Sample lots can start from a supplier, not only from expression. The same plate-map import as for DNA plates applies.
+  question_it_answers: Which samples on this plate came from where?
+  frequency: rare
+  cost_if_wrong: medium
+  cost_reason: Lost lineage on a customer's paid samples
+  depth: supported
+  sim_hook: |
+    Actor lab_tech, action import_plate_map, error duplicate_rows p≈0.05
+  source: brief
+
+- id: RCV-029
+  title: Packing slip, label and CoA disagree on amount
+  story: |
+    Given a vial whose packing slip says 100 µg, whose label says 50 µg and whose CoA says 50 µg.
+    When the receiver registers it.
+    Then the amount comes from the vial or the CoA, not from the packing slip, and the mismatch is noted for the purchaser.
+  real_life_noise:
+    - the receiver uses the slip because it's on top
+    - a "2 × 50 µg" pack is entered as one vial of 100 µg
+  system_should: |
+    Record the source of every quantity. A pack of several vials is several containers.
+  question_it_answers: How much did we actually get?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Overstated stock means a run runs short
+  depth: supported
+  sim_hook: |
+    Actor lab_tech, action receive_lot, slip_mismatch p≈0.03, error pack_as_single_container p≈0.1
+  source: research
+
+- id: RCV-030
+  title: Lot arrives close to or past its expiry
+  story: |
+    Given an order of Target Y.
+    When the lot arrives with an expiry 3 weeks away, or a powder whose "use by" passed last month.
+    Then the lot is registered with its real expiry and the short or past date is flagged on arrival, not on the day it's needed.
+  real_life_noise:
+    - expiry left blank because the vial label only has a manufacturing date
+    - after reconstitution the expiry of the liquid is shorter than the powder's, but the powder's is kept
+  system_should: |
+    Warn at receipt when expiry is less than some lab-set margin away. When the material changes form (powder to liquid), its expiry is recomputed from the new form's rule.
+  question_it_answers: What expires soon?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Short-dated targets get used up or wasted without notice
+  depth: supported
+  sim_hook: |
+    Actor supplier, action ship, short_dated p≈0.03, error keep_powder_expiry_after_reconstitution p≈0.3
+  source: inferred
+
+- id: RCV-031
+  title: Supplier extends a lot's expiry with a new certificate
+  story: |
+    Given lot A2210 with expiry 2026-12-31.
+    When the supplier sends an updated CoA after stability testing, with expiry 2027-12-31.
+    Then the lot gets a new expiry, recorded as a change with the document as the reason, and the old expiry remains in history.
+  real_life_noise:
+    - only the containers in one freezer get updated
+    - the new CoA is for a different product lot
+  system_should: |
+    Expiry from the supplier is a lot fact that can change over time with a source. Container expiry is computed from the lot plus storage rules, not typed per tube.
+  question_it_answers: Why did this tube's expiry change?
+  frequency: rare
+  cost_if_wrong: low
+  cost_reason: Good material thrown out, or a change with no paper trail
+  depth: supported
+  sim_hook: |
+    Actor supplier, action reissue_coa, p≈0.01 per lot per year
+  source: research
+
+- id: RCV-032
+  title: Material used before QC
+  story: |
+    Given lot A2301 of Target X on hold, and a run due tomorrow.
+    When a scientist makes a BLI target plate from it anyway, then QC fails two days later.
+    Then the plate and the run are recorded as they happened, and the run is flagged "used material that later failed QC".
+  real_life_noise:
+    - the scientist records the plate as made from the released lot A2210 to avoid a warning
+    - QC passes later and the warning is never cleared
+  system_should: |
+    Never block recording what physically happened. Warn at the time, and keep a link so a later QC result can flag or clear the affected runs.
+  question_it_answers: Which runs used a target lot before it was checked?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Bad data reaches a customer
+  depth: core
+  sim_hook: |
+    Actor scientist, action make_target_plate, use_on_hold_lot p≈0.05 under time pressure, error record_wrong_lot_to_avoid_warning p≈0.2 given use
+  source: brief
+
+- id: RCV-033
+  title: Failed lot replaced by the supplier
+  story: |
+    Given lot B0918 that failed QC.
+    When the supplier sends replacement lot B1002 free of charge and asks that B0918 be destroyed.
+    Then B1002 is a new receipt on the same order line marked "replacement", and B0918 containers are disposed of with reason "destroyed per supplier".
+  real_life_noise:
+    - the replacement is registered as a new order, so spend numbers double
+    - B0918 vials stay in the freezer because nobody wants to throw out expensive protein
+  system_should: |
+    A receipt can be a replacement for a failed lot. Disposal is an event that keeps the record.
+  question_it_answers: Did we get a replacement for the failed target?
+  frequency: rare
+  cost_if_wrong: medium
+  cost_reason: Failed vials come back into use by mistake
+  depth: supported
+  sim_hook: |
+    Actor supplier, action ship_replacement p≈0.7 given qc_fail, error keep_failed_vials p≈0.3
+  source: inferred
+
+- id: RCV-034
+  title: More vials of an already-checked lot arrive months later
+  story: |
+    Given lot A2210, QC passed in March.
+    When in September 2 more vials of A2210 arrive.
+    Then the vials join the existing lot and inherit its QC status, but they get their own shipment record with its own arrival condition. (Assumption: the lab accepts a past QC for the same supplier lot. A stricter lab would re-check.)
+  real_life_noise:
+    - the new vials arrived warm but are released because the lot passed QC
+    - the receiver creates a new lot A2210 because the old one is "used up"
+  system_should: |
+    Separate lot (made by the supplier, QC'd once) from receipt (shipped to us, checked for transit damage). A receipt hold can block containers from one receipt while the lot stays released.
+  question_it_answers: Can I use the new A2210 vials?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Damaged vials pass under an old QC result
+  depth: core
+  sim_hook: |
+    Actor lab_tech, action receive_lot, same_lot_repeat p≈0.15 per target order, error duplicate_lot_record p≈0.2
+  source: inferred
+
+- id: RCV-035
+  title: Twist plate arrives with a lifted seal
+  story: |
+    Given a dried 96-well Twist plate.
+    When the foil seal is partly lifted over wells A1 to A4.
+    Then the plate is registered and those four wells are put on hold for possible cross-contamination, while the other 92 wells are fine.
+  real_life_noise:
+    - the whole plate is rejected and re-ordered
+    - the note "seal lifted" goes in a chat message, not on the plate
+  system_should: |
+    Allow holds per well, not only per container or per lot.
+  question_it_answers: Which wells on this plate can I trust?
+  frequency: rare
+  cost_if_wrong: medium
+  cost_reason: Cross-contaminated DNA gives a mixed protein
+  depth: supported
+  sim_hook: |
+    Actor courier, action deliver, seal_damage p≈0.01 per plate
+  source: inferred
+
+- id: RCV-036
+  title: Registered late, used before registered
+  story: |
+    Given a box of Target Z that arrived Tuesday and was put in the freezer unregistered.
+    When on Wednesday a scientist splits one vial into 5 aliquots, and on Thursday the receiver registers the box.
+    Then the system ends up with the correct state. The split happened Wednesday, the arrival Tuesday, and the records were entered Thursday. Late entries are allowed with their real times.
+  real_life_noise:
+    - the Wednesday split is entered against a placeholder container "unknown target"
+    - the arrival is entered with Thursday's date, so the split appears to happen before the material arrived
+  system_should: |
+    Every event has a time it happened and a time it was recorded. Allow back-dated events and check that the order still makes sense.
+  question_it_answers: When did this arrive, and when did we know?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Audit history looks impossible and erodes trust
+  depth: core
+  sim_hook: |
+    Actor lab_tech, action receive_lot, register_late p≈0.25, consumed_before_registered p≈0.05
+  source: brief
+
+- id: RCV-037
+  title: Antigen aliquoted after QC into single-use tubes
+  story: |
+    Given a released stock tube of Target X, 190 µL at 0.41 mg/mL.
+    When it is split into 9 tubes of 20 µL for -80 storage (the supplier advises single-use aliquots and warns against aliquots below the minimum size on the CoA).
+    Then 9 tubes of lot A2210, each 8.2 µg, all released, and 10 µL left or lost.
+  real_life_noise:
+    - aliquots of 5 µL are made, below the CoA minimum, and lose activity
+    - two tubes are not scanned
+  system_should: |
+    Children inherit lot and QC status. Let a material carry a minimum aliquot size and warn when it is broken.
+  question_it_answers: How many usable aliquots of Target X are left?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Too-small aliquots waste expensive target
+  depth: supported
+  sim_hook: |
+    Actor scientist, action split_tube, error below_min_aliquot p≈0.05, forget_scan p≈0.03 per child
+  source: research
+
+- id: RCV-038
+  title: The supplier's lot is ours after all
+  story: |
+    Given a lot from a supplier who is also the in-house team (a buffer made by the lab next door, or a colleague's target).
+    When it is handed over with a hand-written label.
+    Then the lot is registered with source "internal", which is neither "bought" nor "made by us here".
+  real_life_noise:
+    - no lot number at all, so the receiver invents "TgtX_from_Anna"
+  system_should: |
+    Keep the source a reference to who supplied it. Allow lots without a supplier lot number but give them our own ID.
+  question_it_answers: Where did this tube come from?
+  frequency: monthly
+  cost_if_wrong: low
+  cost_reason: Hard to trace later
+  depth: cut
+  sim_hook: |
+    Actor scientist, action hand_over_material p≈0.02 per week
+  source: inferred
+
+- id: RCV-039
+  title: Receiving form filled in from memory at the end of the day
+  story: |
+    Given 6 deliveries in one day.
+    When the receiver registers all of them at 18:00 from memory and packing slips.
+    Then quantities and lots may be right, but storage locations are guesses. The system records what was entered with the time, and later scans in freezers correct the locations.
+  real_life_noise:
+    - two boxes' freezer locations are swapped
+    - one delivery is missed and only found weeks later in a freezer scan
+  system_should: |
+    Treat location as something that later scans can correct, with the correction kept in history. A container found in a freezer with an unknown barcode should be a finding, not an error.
+  question_it_answers: Where is the Target Y that arrived this morning?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: Lost tubes get reordered
+  depth: supported
+  sim_hook: |
+    Actor lab_tech, action batch_register, p≈0.3 of days, error swap_locations p≈0.05, miss_delivery p≈0.02
+  source: inferred
+
+- id: RCV-040
+  title: Supplier changes the product without changing the catalog number
+  story: |
+    Given Target X bought for two years from the same catalog number.
+    When the new lot's CoA shows a different formulation (buffer with trehalose instead of without, or a different tag position).
+    Then the lot records the formulation and product facts from its own CoA, and a comparison with earlier lots shows the change.
+  real_life_noise:
+    - nobody reads the new CoA because "it's the same product"
+  system_should: |
+    Keep product facts that can vary per lot on the lot, not only on the catalog item.
+  question_it_answers: Did anything change between lots of Target X?
+  frequency: rare
+  cost_if_wrong: medium
+  cost_reason: Explains a shift in binding data across months
+  depth: cut
+  sim_hook: |
+    Actor supplier, action change_formulation p≈0.01 per lot
+  source: research
