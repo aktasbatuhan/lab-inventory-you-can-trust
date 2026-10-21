@@ -9,7 +9,7 @@ Every agent is a headless command-line session:
 - **People in the lab** run on Claude Code: `claude -p`, using Batuhan's Claude subscription. Each person keeps one session for the whole week (`--session-id` on day one, `--resume` after that), so they remember yesterday and form habits, good and bad.
 - **The referee** runs on Codex: `codex exec`, using his ChatGPT subscription. A different model judging the lab means the referee doesn't share the players' blind spots.
 
-Agents get no shell, no file access and no raw SQL. Each session starts with `--strict-mcp-config` and `--allowedTools` limited to the lab's own tools (below), in an empty working directory. Codex runs with a read-only sandbox and sees only the files it's handed.
+Agents get no shell, no file access and no raw SQL. Each session starts with `--strict-mcp-config` and `--allowedTools` limited to the lab's own tools (below), in an empty working directory. Codex runs with a read-only sandbox and sees only the files it's handed. It needs no tools: headless Codex won't call MCP tools without someone approving each call, which is fine because the referee only reads.
 
 A small run is roughly 4 people × 2 shifts × 5 days = 40 sessions of 20 to 40 tool calls each. That fits comfortably within subscription limits over an afternoon. The orchestrator waits and retries when a limit is hit, rather than failing.
 
@@ -77,3 +77,8 @@ New scenarios that hold up get merged into `scenarios/catalog.yaml` with `source
 - **Time pressure on**, because realistic mistakes come from being busy, not from being told to fail.
 - **Small first.** One simulated week with four people. Longer runs are a flag on `run.py`, not a redesign.
 - **Claude for the people, Codex for the referee**, both on subscriptions.
+
+## Checked so far
+
+- 2026-10-21: a headless `claude -p` session (Haiku, `--strict-mcp-config`, built-in tools off) found a tool on our dependency-free MCP server (`mcp_stdio.py`), called it and answered from the result in 2 turns.
+- 2026-10-21: headless `codex exec` refuses MCP tool calls without approval, so the referee works from files only.
