@@ -421,7 +421,9 @@ returns table (lot_id bigint, depth int) language sql stable as $$
     select lp.lot_id, d.depth + 1
     from d join lot_parent lp on lp.parent_lot_id = d.lot_id
     join lot l on l.id = lp.lot_id
-    join events_at('infinity', k) e on e.id = l.created_event_id
+    where exists (select 1 from events_at('infinity', k) e where e.id = l.created_event_id)
+       or exists (select 1 from events_at('infinity', k) e join quantity_entry q on q.event_id = e.id
+                  where q.lot_id = l.id)
   )
   select lot_id, min(depth) from d group by 1
 $$;
@@ -441,6 +443,7 @@ $$;
 create function flags(t timestamptz default now(), k timestamptz default now())
 returns table (flag text, container_id bigint, lot_id bigint, detail text)
 language sql stable as $$
+  select f.* from (
   select 'negative balance', container_id, lot_id,
          'records say ' || amount || ' ' || dimension || ', more was taken than was there'
   from balances(t, k) where amount < 0
@@ -448,10 +451,20 @@ language sql stable as $$
   select 'barcode clash', container_id, null, 'barcode ' || barcode || ' is on more than one live container'
   from barcode_clashes(t, k)
   union all
-  select 'seen after it left', s.container_id, null,
-         'scanned at ' || e.occurred_at || ' but recorded as ' || x.kind || ' at ' || x.exited_at
-  from events_at(t, k) e join sighting s on s.event_id = e.id
-  join exits(t, k) x on x.container_id = s.container_id and e.occurred_at > x.exited_at
+  select distinct on (seen.container_id) 'seen after it left', seen.container_id, null::bigint,
+         seen.how || ' at ' || seen.at || ' but recorded as ' || x.kind || ' at ' || x.exited_at
+  from (
+    select s.container_id, e.occurred_at as at, 'scanned' as how
+    from events_at(t, k) e join sighting s on s.event_id = e.id
+    union all
+    select p.container_id, e.occurred_at, 'moved with a scan'
+    from events_at(t, k) e join placement p on p.event_id = e.id where e.source in ('scan', 'robot_log')
+    union all
+    select coalesce(c.plate_id, c.id), e.occurred_at, 'liquid recorded in or out'
+    from events_at(t, k) e join quantity_entry q on q.event_id = e.id join container c on c.id = q.container_id
+    where e.source <> 'rule'
+  ) seen
+  join exits(t, k) x on x.container_id = seen.container_id and seen.at > x.exited_at
   union all
   select 'possible duplicate delivery', null, l2.id,
          'lot ' || l2.id || ' looks like lot ' || l1.id || ' (same product, supplier lot and amount, received within 3 days)'
@@ -482,4 +495,10 @@ language sql stable as $$
          'thawed ' || th.thaws || ' times, limit is ' || lim.max_thaws
   from lot_thaws(t, k) th join thaw_limits(t, k) lim on lim.lot_id = th.lot_id
   where lim.max_thaws is not null and th.thaws > lim.max_thaws
+  ) f (flag, container_id, lot_id, detail)
+  where not exists (
+    select 1 from events_at(t, k) e join flag_review r on r.event_id = e.id
+    where r.flag = f.flag
+      and (r.container_id is null or r.container_id = f.container_id)
+      and (r.lot_id is null or r.lot_id = f.lot_id))
 $$;

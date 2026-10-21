@@ -61,3 +61,8 @@ When a liquid handler finishes a run, its log should have a line for every step 
 
 So we apply principle 3. If the run finished normally, a step without a log line is recorded as done, marked as coming from a rule, and flagged "robot step assumed". If the real log line turns up later, it replaces the assumption on its own. If the run was aborted (a tip jam, an emergency stop), nothing is assumed: the missing steps are flagged at both ends, the source wells that may still be full and the destination wells that may be empty, until a person says what happened.
 Scenarios: XFER-007, XFER-008, EDGE-022. Found by the demo lab, see `journal/agent-runs/schema-gaps-queries.md` item 1.
+
+## D11. Some flags ask for judgement, and a person can close them
+
+"Possible duplicate delivery" can't tell two real orders of the same supplier lot from one delivery registered twice; only someone with the delivery notes can. The same goes for "seen after it left", "robot step assumed" and "over thaw limit". For these, a person records a review ("two separate orders, DN-601 and DN-644"), and the flag closes from then on. The review is a fact like any other, so asking about the moment before it still shows the flag open. Flags backed by numbers, like a negative balance or a barcode clash, can't be closed this way: they go away when the facts behind them are fixed.
+Found by the dice simulation, `journal/agent-runs/schema-gaps-sim.md` item 4.

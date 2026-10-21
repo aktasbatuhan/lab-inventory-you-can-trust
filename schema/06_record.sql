@@ -99,16 +99,23 @@ create function receive(p_product text, p_container bigint, p_amount numeric, p_
                         p_at timestamptz, p_by text, p_supplier_lot text default null,
                         p_ref text default null, p_expiry date default null, p_coa jsonb default null,
                         p_price numeric default null, p_source text default 'manual',
-                        p_recorded timestamptz default null, p_event bigint default null)
+                        p_recorded timestamptz default null, p_event bigint default null,
+                        p_lot bigint default null, p_material text default null)
 returns bigint language plpgsql as $$
+-- p_lot adds this container to a lot already received (six tubes of one kit
+-- are one lot), or re-attaches a corrected amount to the lot it belongs to.
+-- p_material is for made-to-order products: one "custom gene" product, a
+-- different material (design) on every delivery.
 declare
   ev bigint := coalesce(p_event, new_event('receive', p_at, p_by, p_source, p_ref => p_ref, p_recorded => p_recorded));
-  l bigint;
+  l bigint := p_lot;
 begin
-  insert into lot (material_id, origin, created_event_id, product_id, supplier_lot_code, supplier_expiry, coa, unit_price, currency)
-  values ((select material_id from product where id = p_product), 'received', ev, p_product, p_supplier_lot,
-          p_expiry, p_coa, p_price, case when p_price is not null then 'CHF' end)
-  returning id into l;
+  if l is null then
+    insert into lot (material_id, origin, created_event_id, product_id, supplier_lot_code, supplier_expiry, coa, unit_price, currency)
+    values (coalesce(p_material, (select material_id from product where id = p_product)), 'received', ev, p_product, p_supplier_lot,
+            p_expiry, p_coa, p_price, case when p_price is not null then 'CHF' end)
+    returning id into l;
+  end if;
   insert into quantity_entry (event_id, container_id, lot_id, dimension, amount, reason)
   values (ev, p_container, l, p_dimension, p_amount, 'receive');
   return l;
@@ -176,14 +183,21 @@ end $$;
 create function make(p_material text, p_inputs jsonb, p_out_container bigint, p_out_amount numeric,
                      p_out_dimension text, p_at timestamptz, p_by text, p_source text default 'manual',
                      p_run bigint default null, p_step int default null,
-                     p_event bigint default null, p_recorded timestamptz default null)
+                     p_event bigint default null, p_recorded timestamptz default null,
+                     p_lot bigint default null)
 returns bigint language plpgsql as $$
+-- p_lot is for corrections: the right inputs are re-attached to the lot that
+-- was made, so everything recorded against it since stays connected. Parents
+-- are only ever added, so lineage after a correction errs on the side of
+-- including too much, which is the safe side for a recall.
 declare
   ev bigint := coalesce(p_event, new_event('make', p_at, p_by, p_source, p_run => p_run, p_step => p_step, p_recorded => p_recorded));
-  l bigint;
+  l bigint := p_lot;
   i jsonb;
 begin
-  insert into lot (material_id, origin, created_event_id) values (p_material, 'made', ev) returning id into l;
+  if l is null then
+    insert into lot (material_id, origin, created_event_id) values (p_material, 'made', ev) returning id into l;
+  end if;
   for i in select * from jsonb_array_elements(p_inputs) loop
     insert into lot_parent (lot_id, parent_lot_id) values (l, (i->>'lot')::bigint) on conflict do nothing;
     insert into quantity_entry (event_id, container_id, lot_id, dimension, amount, reason)
@@ -411,5 +425,17 @@ declare ev bigint := new_event('measure', p_at, p_by, p_source, p_recorded => p_
 begin
   insert into measurement (event_id, container_id, lot_id, property, value, unit)
   values (ev, p_container, p_lot, p_property, p_value, p_unit);
+  return ev;
+end $$;
+
+-- A person looked at a flag and decided it needs nothing more ("checked, not a
+-- duplicate"). The flag disappears from flags() from then on; nothing is deleted.
+create function review_flag(p_flag text, p_at timestamptz, p_by text, p_note text,
+                            p_container bigint default null, p_lot bigint default null,
+                            p_recorded timestamptz default null)
+returns bigint language plpgsql as $$
+declare ev bigint := new_event('flag reviewed', p_at, p_by, 'manual', p_note, p_recorded => p_recorded);
+begin
+  insert into flag_review (event_id, flag, container_id, lot_id) values (ev, p_flag, p_container, p_lot);
   return ev;
 end $$;

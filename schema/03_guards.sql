@@ -12,7 +12,7 @@ begin
   foreach t in array array[
     'event', 'container', 'run', 'planned_transfer', 'lot', 'lot_parent', 'quantity_entry',
     'placement', 'sighting', 'label', 'qc_result', 'hold_placed', 'hold_released',
-    'container_exit', 'count_line', 'measurement', 'shelf_life_rule', 'thaw_limit_rule'
+    'container_exit', 'count_line', 'measurement', 'flag_review', 'shelf_life_rule', 'thaw_limit_rule'
   ] loop
     execute format('create trigger %I before update or delete on %I for each row execute function forbid_change()', t || '_append_only', t);
     execute format('create trigger %I before truncate on %I execute function forbid_change()', t || '_no_truncate', t);

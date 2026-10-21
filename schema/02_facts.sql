@@ -189,3 +189,14 @@ create index on container_exit (container_id);
 create index on event (run_id);
 create index on event (occurred_at);
 create index on event (recorded_at);
+
+-- A person reviewed a flag and closed it. Only flags that ask for judgement can
+-- be closed this way; the ones backed by numbers go away when the numbers are fixed.
+create table flag_review (
+  event_id     bigint primary key references event,
+  flag         text not null check (flag in ('possible duplicate delivery', 'seen after it left',
+                                             'robot step assumed', 'over thaw limit')),
+  container_id bigint references container,
+  lot_id       bigint references lot,
+  check (num_nonnulls(container_id, lot_id) >= 1)
+);
