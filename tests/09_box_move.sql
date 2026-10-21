@@ -28,7 +28,7 @@ begin
   perform expect((select count(*) from location('2026-09-14 09:00', 'infinity')
                   where container_id = any(kids) and path like 'Fridge R1 > %'), 10::bigint, 'all ten in the fridge');
   perform expect((select path from location('2026-09-14 09:00', 'infinity') where container_id = kids[4]),
-                 'Fridge R1 > box_9x9 #' || box || ' @slot 4', 'aliquot 4 keeps its slot');
+                 'Fridge R1 > BOX-0012 @slot 4', 'aliquot 4 keeps its slot');
 
   -- Their storage condition changed with the box.
   perform expect((select count(*) from condition_stretches('infinity')

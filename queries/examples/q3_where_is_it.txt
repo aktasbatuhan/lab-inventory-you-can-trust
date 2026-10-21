@@ -5,7 +5,7 @@ Barcodes EGFR-L4471-009,BOX-0012,BLI-S-0457, as of 2026-10-21 17:00, as recorded
 ----------------+---------------------------+-----------------------+---------------------------------------------------------------------+------------------------+-----------------------------------------+------------------+------------------
  BLI-S-0457     | BLI sample plate EXP-0457 | discarded             | -                                                                   | 2026-10-20 08:30:00+02 | moved with a scan                       | 1 day 08:00:00   | f
  BOX-0012       | Box PD-L1 P-2231          | placed, not confirmed | Freezer F3 (-80) @shelf 2                                           | 2026-09-17 09:20:00+02 | moved with a scan (something inside it) | 34 days 07:00:00 | t
- EGFR-L4471-009 | tube_matrix #29           | uncertain             | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 9 | 2026-09-04 09:30:00+02 | moved with a scan                       | 47 days 07:00:00 | t
+ EGFR-L4471-009 | EGFR-L4471-009            | uncertain             | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 9 | 2026-09-04 09:30:00+02 | moved with a scan                       | 47 days 07:00:00 | t
 (3 rows)
 
 

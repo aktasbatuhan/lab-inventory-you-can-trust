@@ -5,6 +5,7 @@ create function container_label(c bigint) returns text language sql stable as $$
   select coalesce(
     case when x.plate_id is not null then container_label(x.plate_id) || ' ' || x.position end,
     x.name,
+    (select l.barcode from label l where l.container_id = x.id and l.action = 'attach' order by l.event_id desc limit 1),
     x.type_id || ' #' || x.id)
   from container x where x.id = c
 $$;

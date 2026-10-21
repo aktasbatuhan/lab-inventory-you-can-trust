@@ -36,6 +36,6 @@ begin
 
   -- Each aliquot can be found: box, slot, freezer.
   perform expect((select path from location('2026-09-03 10:00') where container_id = kids[7]),
-                 'Freezer F1 > box_9x9 #' || box || ' @slot 7', 'location of aliquot 7');
+                 'Freezer F1 > BOX-0007 @slot 7', 'location of aliquot 7');
 end $$;
 rollback;
