@@ -1,0 +1,835 @@
+- id: EDGE-001
+  title: A late lineage edit makes a batch its own ancestor
+  story: |
+    Given DNA lot D1 was used to make protein lot P1, which was used to make labelled lot P2.
+    When someone corrects D1's source to P2 after all three runs have been saved.
+    Then the proposed origin forms a circle, even though each individual link looks valid.
+  real_life_noise:
+    - The source picker shows short names and both lots are called stock.
+    - The correction is dated before the first run to make the timeline look tidy.
+    - A second person adds another source link while the first person saves.
+    - Ordinary aliquot transfers within D1 already exist and must stay valid.
+  system_should: |
+    Reject a circle in ancestry between distinct lots, including one introduced by a correction or concurrent writes. Keep the rejected proposal available for review without making it active. Transfers that keep the same lot are movements, not new ancestry edges.
+  question_it_answers: Can a result trace back to a real starting material without looping forever?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: A circular history makes source tracing unreliable
+  depth: core
+  sim_hook: |
+    Create D1 -> P1 -> P2, then propose P2 -> D1 with an earlier bench time. Repeat with two simultaneous edits whose combined links form a circle. Assert no accepted ancestry cycle and no rejection of same-lot aliquoting.
+  source: inferred
+
+- id: EDGE-002
+  title: A purchased batch is topped up with material made in-house
+  story: |
+    Given a tube holds 200 µL of bought target lot B1 with a supplier certificate.
+    When a scientist adds 100 µL of the same target made in-house as lot H1 and calls it B1.
+    Then the 300 µL stock has two sources and cannot inherit B1's certificate as proof of the whole stock.
+  real_life_noise:
+    - The scientist sees the same protein name and thinks the lots are interchangeable.
+    - The label still carries only the supplier's lot number.
+    - H1 has not passed QC yet, while B1 has.
+    - The top-up is entered as a second receipt to avoid creating a process run.
+  system_should: |
+    Keep each source lot's origin. Record the blend as a new derived lot with both contributions and pending review, or block mixing if the model does not support it. Do not let a bought-or-made flag erase one source or extend its certificate to the blend.
+  question_it_answers: Which part of this stock was bought and which part was made here?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Mixed stock can borrow QC and source claims it has not earned
+  depth: core
+  sim_hook: |
+    Receive B1, make H1, then attempt a top-up under B1's identity. Assert both source contributions remain traceable and the blend is not released by B1's QC alone.
+  source: inferred
+
+- id: EDGE-003
+  title: A tube moves inside a box inside a rack
+  story: |
+    Given tube T1 sits in slot C4 of box B1, which sits in rack R1 in freezer F1.
+    When R1 moves to a trolley and then freezer F2 without individual tube scans.
+    Then T1's current location follows the rack while its slot and box stay the same.
+  real_life_noise:
+    - Someone removes T1 to the bench halfway through the rack move.
+    - The rack destination scan reaches the server before the departure scan.
+    - A cached tube screen still shows F1 and offers to save that location.
+    - The trolley sits at room temperature for 40 minutes before anyone notices.
+  system_should: |
+    Derive location through containment at the requested time. Apply the rack move only to contents actually inside it then. Preserve the trolley interval for storage history and refuse a stale screen's silent location overwrite.
+  question_it_answers: Where is T1 now and how long was it outside the freezer?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Nested moves can hide both missing stock and warm exposure
+  depth: core
+  sim_hook: |
+    Nest T1 in B1 in R1, remove T1 during the move, and deliver rack scans backwards. Assert location and exposure for T1 differ from those of tubes that stayed in R1.
+  source: brief
+
+- id: EDGE-004
+  title: One well contains two lots of the same target
+  story: |
+    Given well A1 receives 20 µL from target lot L1 and 30 µL from target lot L2.
+    When 10 µL of the mixed well is used in a binding run and L2 later fails QC.
+    Then that run is exposed to L2 even though L1 supplied part of the well.
+  real_life_noise:
+    - Both source lots share a material name and look identical in a dropdown.
+    - The second addition is uploaded as an edit of A1's lot field.
+    - The robot reports only the total withdrawal, not the amount from each source.
+    - The well was not mixed properly, so equal composition cannot be assumed without a stated rule.
+  system_should: |
+    Preserve both inputs through a blend lot or explicit contents model. Trace the withdrawal to both sources. State any mixing assumption before estimating proportions; retain exposure links even when exact fractions are unknown. Do not force a single source lot onto the well.
+  question_it_answers: Which runs may contain material from L2?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: A single lot field can hide a contaminated contribution
+  depth: core
+  sim_hook: |
+    Add L1 and L2 to A1, withdraw 10 µL, then fail L2. Assert the destination run appears in the exposure query with both sources retained.
+  source: inferred
+
+- id: EDGE-005
+  title: QC fails three wells of a plate
+  story: |
+    Given a 96-well plate contains separately tracked samples and all wells await QC.
+    When QC passes 93 wells and fails B3, C7 and H12.
+    Then the failed wells remain present but unusable while the other 93 can be released.
+  real_life_noise:
+    - The QC file names wells as B03 while the plate screen uses B3.
+    - An empty row for D4 means no result, not a pass.
+    - The operator also clicks a plate-wide pass button.
+    - B3 was copied to another plate before the result arrived.
+  system_should: |
+    Attach results to the tested contents and wells, normalize well addresses, and distinguish missing results from passes. Detect the conflicting plate-wide release. Trace B3's descendants and show reasons for each blocked well without blocking unrelated wells by accident.
+  question_it_answers: Which wells can run and which copied samples need review?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Plate-wide status can release failed samples or waste good ones
+  depth: core
+  sim_hook: |
+    Load 96 wells, copy B3, import 92 passes, three failures and one blank, then submit a plate-wide pass. Assert per-well states and a review flag on B3's copy.
+  source: inferred
+
+- id: EDGE-006
+  title: Powder becomes solution and concentration is measured later
+  story: |
+    Given 2 mg of a target powder is received and reconstituted to a final volume of 1 mL.
+    When QC later measures 1.7 mg/mL and 100 µL has already been consumed.
+    Then the system must separate the measured concentration from the recorded volume and original powder mass.
+  real_life_noise:
+    - The scientist enters 1 mL of added solvent, not final solution volume.
+    - A dilution factor of ten is applied twice in the instrument export.
+    - The concentration result arrives after the withdrawal and has an uncertainty range.
+    - Another screen tries to add the powder's mg to the solution's µL.
+  system_should: |
+    Record reconstitution as a process with mass input and solution output. Keep concentration as a scoped measurement with units, method and time. Convert only with valid supporting measurements and expose assumptions. Do not rewrite past volume withdrawals or add incompatible dimensions.
+  question_it_answers: How much solution remains and what mass estimate can we support?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Unsupported conversions can overstate available target
+  depth: core
+  sim_hook: |
+    Reconstitute powder, withdraw 100 µL, then import a late concentration result and a duplicate dilution factor. Assert volume remains 900 µL and invalid or ambiguous conversions are flagged.
+  source: inferred
+
+- id: EDGE-007
+  title: A correction is corrected and the first correction is retried
+  story: |
+    Given a withdrawal was recorded as 50 µL but should have been 5 µL.
+    When a correction changes it to 5, a second correction changes it to 8, and the first correction is resent.
+    Then the effective withdrawal is 8 µL, with all three accepted versions visible in history.
+  real_life_noise:
+    - A scientist types a replacement amount while an import job sends a signed adjustment.
+    - The second correction points to the first correction, not the original event.
+    - The first screen retries after a timeout with the same request identifier.
+    - Someone attempts another correction from the now stale 5 µL version.
+  system_should: |
+    Define whether corrections replace a fact or add a delta and validate that meaning. Link the correction chain, apply each request once, and detect edits based on superseded versions. Keep both current balance and what was believed after each accepted correction queryable.
+  question_it_answers: What is the true withdrawal and how did our account of it change?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Reversing a correction twice creates stock that never existed
+  depth: core
+  sim_hook: |
+    Save 50, replace with 5, replace with 8, retry the 5 request, then submit a stale edit. Assert one effective 8 µL withdrawal and distinct historical answers at each recording time.
+  source: inferred
+
+- id: EDGE-008
+  title: Yesterday's source transfer arrives after today's withdrawal
+  story: |
+    Given tube T1 appears empty in the server's record this morning.
+    When a 20 µL withdrawal is reported before yesterday's offline 100 µL fill arrives.
+    Then the current account can settle at 80 µL without pretending the server knew about the fill earlier.
+  real_life_noise:
+    - Both events carry the same second because the scanner has low clock precision.
+    - The fill references a source that has not synced yet either.
+    - A back-dated second withdrawal would make yesterday's balance negative.
+    - The dashboard already alerted someone that T1 was empty.
+  system_should: |
+    Hold unresolved dependencies for reconciliation. Keep bench time and recording time distinct, with explicit ordering or ambiguity when times tie. Recheck affected historical balances when late events arrive; do not silently publish an impossible history or erase the earlier dashboard state.
+  question_it_answers: What was available yesterday and what did we know this morning?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Late events can repair today's total while breaking past balances
+  depth: core
+  sim_hook: |
+    Deliver withdrawal, fill and source receipt in reverse order, then add a conflicting back-dated debit. Assert dependency resolution, historical balance checks and recording-time queries.
+  source: inferred
+
+- id: EDGE-009
+  title: Two people withdraw from the last 50 microlitres
+  story: |
+    Given T1 has 50 µL and two scientists each read that balance.
+    When each records a 30 µL withdrawal at the same time.
+    Then both writes cannot be accepted as ordinary valid withdrawals against that balance.
+  real_life_noise:
+    - Both people have already pipetted before pressing save.
+    - One request times out and is retried.
+    - A volume correction lands between the two writes.
+    - Each person blames the other and enters the old balance again.
+  system_should: |
+    Check the balance and save the debit as one protected operation. Reject or hold the conflicting write for reconciliation without losing the report of what physically happened. Never turn a stale balance edit into a stock credit. Keep both people and request identities in the audit trail.
+  question_it_answers: Can two accepted writes spend the same material twice?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Concurrent writes can show usable stock after it is exhausted
+  depth: core
+  sim_hook: |
+    Start two 30 µL debits against one 50 µL version behind a barrier. Retry one request. Assert no duplicate debit, no unflagged negative balance and a retained conflict report.
+  source: inferred
+
+- id: EDGE-010
+  title: An offline scanner brings back an old location
+  story: |
+    Given a scanner goes offline with T1 listed in freezer F1.
+    When it records T1 on the bench at 10:00, an online user records T1 in F2 at 11:00, and the scanner syncs at 16:00.
+    Then the late sync adds the bench interval without moving T1 back from F2.
+  real_life_noise:
+    - The scanner clock is 12 minutes slow.
+    - The user presses upload twice after the progress bar freezes.
+    - Another offline move has no destination scan.
+    - A barcode was scanned from a printed worksheet rather than the physical tube.
+  system_should: |
+    Keep device event identities, device time and server receipt time. Apply known causal order rather than last upload wins. Flag uncertain clock order or incomplete moves and retain the last supported location with its uncertainty. Do not count retries as extra movements.
+  question_it_answers: Where is T1 and how certain is that location after offline work?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: A late upload can hide a tube or erase a warm interval
+  depth: core
+  sim_hook: |
+    Queue a 10:00 offline move, save an 11:00 online move, then upload the queue twice with clock skew. Assert deduplication and either F2 or an explicit ordering conflict, never a silent return to the bench.
+  source: inferred
+
+- id: EDGE-011
+  title: Two physical tubes carry the same barcode
+  story: |
+    Given an old printer reuses barcode 004271 for a new tube while the original tube still exists.
+    When a scientist scans that code to consume 10 µL.
+    Then the system cannot safely choose a tube from the barcode alone.
+  real_life_noise:
+    - The tubes hold different targets and are stored in different buildings.
+    - One import strips leading zeroes and another keeps them.
+    - A supplier label happens to match the lab's internal code.
+    - The old tube was marked missing, not destroyed.
+  system_should: |
+    Give containers stable internal identities separate from labels. Define barcode namespaces and normalization rules. Flag collisions and require disambiguation or relabelling before accepting a scan-driven change; do not merge histories or assume missing means the old code is free.
+  question_it_answers: Which physical object did this scan identify?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Barcode collisions attach consumption and QC to the wrong material
+  depth: core
+  sim_hook: |
+    Register colliding internal and supplier labels plus a leading-zero variant. Scan the ambiguous label and assert no quantity change occurs until a specific container is resolved.
+  source: brief
+
+- id: EDGE-012
+  title: A split creates more liquid than the parent held
+  story: |
+    Given a parent tube holds 500 µL.
+    When a split claims twenty children of 26 µL and 10 µL left in the parent, with no diluent input.
+    Then the proposed 530 µL account is impossible as a simple split.
+  real_life_noise:
+    - The robot log reports commanded volume rather than delivered volume.
+    - The first ten children were already saved before the second upload failed.
+    - Someone marks the parent empty to hide the mismatch.
+    - Another operator records 20 µL of dead-volume loss against the same run.
+  system_should: |
+    Check the whole run, including all children, leftover and losses, in compatible units. Keep partial evidence but do not publish unsupported output as usable. Distinguish a split from a dilution with real additional inputs and use explicit measurement tolerances rather than an arbitrary allowance.
+  question_it_answers: Did this run create unsupported stock?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Per-transfer checks alone can miss an overdrawn parent
+  depth: core
+  sim_hook: |
+    Submit the split in two batches with leftover and loss entries. Assert the completed run cannot release 520 µL of children from a 500 µL input without a valid additional source.
+  source: brief
+
+- id: EDGE-013
+  title: A customer returns a previously shipped tube
+  story: |
+    Given 100 µL left the lab for a customer and was removed from available stock.
+    When the customer returns 60 µL in the same tube after a week.
+    Then the lab holds returned material whose custody and storage are uncertain.
+  real_life_noise:
+    - The customer says it stayed frozen but supplies no temperature record.
+    - The original barcode is covered by the customer's label.
+    - The returned tube looks unopened despite the lower reported volume.
+    - Receiving enters it as a new purchase with the old supplier certificate.
+  system_should: |
+    Record the return as a new custody event linked to the shipment and original contents when supported. Reconcile the amount independently and place the return on hold pending the stated release checks. Do not undo the shipment, double-count the old stock or inherit usable status automatically.
+  question_it_answers: What came back and is any of it safe to offer for use?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Returned material can carry unknown exposure or contamination
+  depth: core
+  sim_hook: |
+    Ship 100 µL, return 60 µL under a changed label, then retry receiving. Assert one held return linked to the outbound history and no automatic QC pass.
+  source: inferred
+
+- id: EDGE-014
+  title: A failed lot passes a later QC test
+  story: |
+    Given target lot L1 failed QC and its remaining tubes were put on hold.
+    When a second test passes after the first test is found to have used a faulty control.
+    Then release needs an explicit decision about which result is invalid and which contents the new test covers.
+  real_life_noise:
+    - The new test uses a different assay and acceptance threshold.
+    - Only one of five tubes is sampled after a thaw.
+    - The first failure already triggered a review of downstream experiments.
+    - A person enters the pass with a bench time earlier than the failure.
+  system_should: |
+    Keep both results and a reasoned release decision with scope and authority. Do not make latest recorded pass win by default. Re-evaluate remaining stock separately from old experiment reviews; releasing stock must not erase the failure or silently close those reviews.
+  question_it_answers: Why is L1 usable now despite its earlier failure?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: A new pass can conceal a real failure or clear unrelated tubes
+  depth: core
+  sim_hook: |
+    Fail L1, open downstream reviews, then import a scoped pass with an earlier bench time. Assert release requires a recorded decision and old reviews remain visible.
+  source: inferred
+
+- id: EDGE-015
+  title: A freezer excursion shortens expiry after aliquots have moved
+  story: |
+    Given lot L1 normally lasts years frozen and some tubes spend six hours in a warming freezer.
+    When the excursion is discovered two days later and a rule gives affected stock only 24 hours after exposure.
+    Then affected remaining stock is already expired and withdrawals since that deadline need review.
+  real_life_noise:
+    - One box left the freezer before the warming began.
+    - Two aliquots were made during the excursion and moved to another freezer.
+    - The sensor has a missing hour and reports in a different time zone.
+    - A later return to cold storage is mistaken for a fresh shelf-life start.
+  system_should: |
+    Determine exposure from historical containment and location, carry relevant exposure into aliquots, and retain uncertainty where readings are missing. Shorten expiry without resetting age on cooling. Keep when the lab learned this separate from when the revised deadline applies and flag affected past uses.
+  question_it_answers: Which tubes expired early and which runs used them after that point?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: A freezer incident can invalidate stock that already moved elsewhere
+  depth: core
+  sim_hook: |
+    Generate a nested freezer stay, an early departure and a mid-excursion split. Report the excursion two days late. Assert scoped expiry and review links for later uses.
+  source: inferred
+
+- id: EDGE-016
+  title: A disposed tube is found alive in the wrong bin
+  story: |
+    Given T1 was recorded as discarded with 40 µL still inside.
+    When it is found sealed in a reusable-tube bin the next morning.
+    Then the disposal record was wrong, but the tube's contents and storage still need checking.
+  real_life_noise:
+    - The disposal entry was made by scanning a whole box.
+    - Someone already reordered the target because T1 disappeared from usable stock.
+    - A scientist adds a new receipt to bring the 40 µL back.
+    - The bin sat on a warm bench overnight and the label is partly torn.
+  system_should: |
+    Correct the specific disposal without manufacturing a second receipt or deleting its audit history. Restore physical presence only after identifying the tube, reconcile quantity, and hold it for storage and contamination review. Undoing disposal alone must not restore usable status.
+  question_it_answers: Is the found tube the same stock and what prevents its reuse?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: A disposal reversal can double-count stock or release damaged material
+  depth: core
+  sim_hook: |
+    Dispose T1, submit both a found-tube correction and a fresh receipt, then add overnight warm exposure. Assert one physical holding with a linked correction and explicit hold reasons.
+  source: inferred
+
+- id: EDGE-017
+  title: A new enzyme is sold in activity units
+  story: |
+    Given a new enzyme type arrives as 5,000 activity units and a small molecule arrives labelled only as 10 mM.
+    When a user asks to consume 2 µL of each.
+    Then neither request can be converted to the recorded stock quantity without more information.
+  real_life_noise:
+    - The enzyme's activity depends on the assay conditions printed in its certificate.
+    - A vendor uses U while another uses mU.
+    - The small molecule has a concentration but no recorded solution volume.
+    - The type editor offers volume as a default and silently fills in 1 mL.
+  system_should: |
+    Allow new type rules and units with explicit dimensions. Store activity with its assay definition and concentration separately from amount. Require missing conversion evidence or keep quantity unknown and blocked for that request. Never treat molarity as total stock or infer activity from volume alone.
+  question_it_answers: Can we support this requested amount in a unit we actually know?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: A flexible type table still fails if every amount assumes volume
+  depth: core
+  sim_hook: |
+    Add activity-based and concentration-only types without changing schema. Attempt µL debits before and after supplying valid conversion measurements. Assert unsupported conversions are refused and missing amount stays unknown.
+  source: inferred
+
+- id: EDGE-018
+  title: The clock shows the same local time twice
+  story: |
+    Given a London scanner records a tube leaving at 01:50 BST on 25 October 2026.
+    When it records the return at 01:10 GMT after the clocks go back.
+    Then the tube spent 20 minutes outside, although the local return time looks earlier.
+  real_life_noise:
+    - The scanner export omits the UTC offset from both rows.
+    - A server in another time zone supplies the receipt timestamp.
+    - An imported spring event uses 01:30 on a London date when that local time did not exist.
+    - A user fixes the apparent negative interval by swapping the events.
+  system_should: |
+    Store unambiguous instants and retain the supplied zone or offset. Flag ambiguous or nonexistent local times for resolution instead of guessing. Use elapsed instants for exposure calculations and recording instants for audit order; do not repair times by sorting their display strings.
+  question_it_answers: How long was the tube warm across a daylight-saving change?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Time ambiguity can turn a real exposure into zero or a negative interval
+  depth: core
+  sim_hook: |
+    Submit the two offset-bearing events and assert a 20-minute interval. Repeat with bare local times and a nonexistent spring time; assert explicit time-resolution errors.
+  source: inferred
+
+- id: EDGE-019
+  title: The instrument consumes target but sends no result
+  story: |
+    Given an instrument starts a run with a 200 µL target tube.
+    When its computer crashes after pipetting and no completion file is produced.
+    Then the absence of a result does not prove that no target was used.
+  real_life_noise:
+    - The operator restarts the same run with the same tube.
+    - Pump priming consumed liquid before the first recorded transfer.
+    - A late log contains commanded moves but no delivery confirmation.
+    - The tube cannot be weighed accurately enough to settle the exact loss.
+  system_should: |
+    Track run progress and confirmed versus uncertain consumption. Put affected quantity on hold or show a conservative supported bound until reconciliation; do not advertise the full starting amount as usable. A retry is a separate physical attempt even when it shares the experiment name.
+  question_it_answers: What can we safely claim remains after an unreported run?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Missing files can make consumed target appear available again
+  depth: core
+  sim_hook: |
+    Start a run, confirm some withdrawals, crash before completion and launch a second attempt. Assert missing reports never refund confirmed consumption and unresolved loss appears in availability reasons.
+  source: inferred
+
+- id: EDGE-020
+  title: A user account is deleted after making corrections
+  story: |
+    Given a scientist received lots, corrected volumes and approved QC over several months.
+    When their login account is deleted after they leave.
+    Then inventory facts and their attribution must remain interpretable.
+  real_life_noise:
+    - The identity provider removes the profile rather than merely disabling login.
+    - A new scientist later receives the same email address.
+    - One change was made by a robot acting on the departing scientist's request.
+    - An old import used a display name with no account identifier.
+  system_should: |
+    Separate the audit actor from the live login account and keep a stable historical reference. Preserve human and service attribution where known, mark unresolved legacy actors honestly, and never cascade-delete inventory events. Email reuse must not transfer authorship to the new person.
+  question_it_answers: Who made this change after their login no longer exists?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Account cleanup can erase or misattribute the audit trail
+  depth: core
+  sim_hook: |
+    Save changes under a stable actor, delete the linked login and create another login with the same email. Assert event counts and original actor references survive unchanged.
+  source: inferred
+
+- id: EDGE-021
+  title: Two valid-looking moves make boxes contain each other
+  story: |
+    Given boxes B1 and B2 are separate and can each hold smaller containers.
+    When one user puts B1 inside B2 while another puts B2 inside B1.
+    Then the combined containment history has no physical meaning.
+  real_life_noise:
+    - Each user checked the old location before either move was saved.
+    - A spreadsheet import also tries to put a box inside itself.
+    - A late move creates a circle only for an interval last Tuesday.
+    - Two tubes are assigned to the same exclusive slot in B1 during the repair.
+  system_should: |
+    Enforce one parent per container at any instant, no containment circles, and exclusive slot occupancy where slots hold one object. Check concurrent moves together and recheck intervals touched by late edits. Location queries must stop with a clear data error if legacy data contains a loop.
+  question_it_answers: Does every container have a physically possible location at this time?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Broken containment corrupts every location and exposure query below it
+  depth: core
+  sim_hook: |
+    Race the two inverse moves, attempt self-containment, then insert an overlapping historical move and slot collision. Assert no accepted containment cycle or double occupancy.
+  source: inferred
+
+- id: EDGE-022
+  title: A robot stops halfway through a plate transfer
+  story: |
+    Given a robot plans 96 transfers of 10 µL into a new plate.
+    When it stops after 40 completed transfers, with the forty-first delivery uncertain.
+    Then the source and destination records must reflect partial physical work.
+  real_life_noise:
+    - The application saved all 96 planned outputs before starting.
+    - The robot picked up the forty-first volume but may have dropped it into waste.
+    - The operator resumes from well 40 instead of well 42.
+    - The final file says failed without listing which movements completed.
+  system_should: |
+    Separate planned movements from executed facts and track completion per transfer. Keep confirmed debits and credits even when the run fails. Hold uncertain source and destination amounts for reconciliation, and identify each resume attempt so overlapping transfers cannot silently duplicate outputs.
+  question_it_answers: Which wells actually contain material after a failed run?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: All-or-nothing run status can invent wells or refund real consumption
+  depth: core
+  sim_hook: |
+    Plan 96 transfers, confirm 40, leave one pickup unresolved and resume with an overlapping well. Assert only confirmed contents are released and the overlap requires reconciliation.
+  source: workflow
+
+- id: EDGE-023
+  title: An import retry looks like another physical transfer
+  story: |
+    Given a robot's transfer file has already debited 10 µL from T1 and credited well A1.
+    When the same file is uploaded again after a network timeout.
+    Then it must not move another 10 µL in the inventory.
+  real_life_noise:
+    - The second upload has a different filename and upload identifier.
+    - The robot restarts its local event counter at one each day.
+    - A real repeat run uses the same plate layout and transfer amounts.
+    - A revised file reuses the original movement identifier but changes 10 to 12 µL.
+  system_should: |
+    Identify physical actions using a stable source, run attempt and action identifier. Deduplicate identical retries, flag conflicting payloads under one identity, and retain import history. Do not deduplicate genuine repeat work merely because its values match; changed amounts need an explicit correction.
+  question_it_answers: Was this material moved twice or was the same report received twice?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Retry handling can double consumption or erase a real repeat run
+  depth: core
+  sim_hook: |
+    Upload identical actions under renamed files, repeat them under a new physical attempt, then reuse one identity with changed volume. Assert one posting per action and a conflict for the changed payload.
+  source: inferred
+
+- id: EDGE-024
+  title: A source lot is corrected after its children have been used
+  story: |
+    Given a run says child C1 came from lot L1 and C1 has already fed two experiments.
+    When a bench photo proves the source was actually L2.
+    Then current ancestry and affected-experiment queries must change without erasing the old account.
+  real_life_noise:
+    - L1 and L2 have the same material name and different QC states.
+    - Correcting the source would overdraw L2's recorded balance.
+    - A scientist already exported a recall list based on L1.
+    - Someone proposes moving the child balance instead of correcting the original transfer.
+  system_should: |
+    Correct source attribution and its quantity effects together, checking the newly affected source. Recompute descendant exposure and usability, retain the earlier recording-time answer, and flag changed review lists. If quantities cannot reconcile, keep the physical-source evidence and an explicit unresolved balance rather than silently accepting or losing it.
+  question_it_answers: Which experiments are affected after we discover the wrong source was recorded?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Correcting a label alone can leave balances and recall paths wrong
+  depth: core
+  sim_hook: |
+    Use C1 downstream, replace its L1 source with insufficient-balance L2, and query before and after the correction's recording time. Assert updated exposure, retained history and a visible balance conflict.
+  source: inferred
+
+- id: EDGE-025
+  title: Different suppliers reuse the same lot number
+  story: |
+    Given two suppliers both send a target labelled lot 2026-10.
+    When receiving imports their certificates and later receives another shipment of the first supplier's lot.
+    Then equal printed lot numbers must not merge the suppliers or create stock twice.
+  real_life_noise:
+    - The suppliers sell the same target under different catalogue numbers.
+    - The second shipment is a real additional quantity, not a duplicate delivery.
+    - One supplier's certificate is revised without changing its lot number.
+    - A distributor's lot number differs from the original manufacturer's number.
+  system_should: |
+    Separate internal lot identity, external lot references, delivery identity and certificate versions. Use enough supplier and product context to resolve an external reference, and preserve manufacturer and distributor links when known. Additional receipts can add quantity to an existing lot; retrying one receipt cannot.
+  question_it_answers: Which supplier batch and certificate apply to this exact stock?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Lot-name collisions can spread the wrong QC or certificate across stock
+  depth: core
+  sim_hook: |
+    Receive equal lot strings from two suppliers, add a second delivery from one and retry the first delivery. Assert two lot identities, three physical receipts and retained certificate versions.
+  source: brief
+
+- id: EDGE-026
+  title: A material type rule changes after stock has been used
+  story: |
+    Given loading buffer has a seven-day shelf life and a batch made ten days ago was used on day six.
+    When a new rule shortens shelf life to three days.
+    Then the model must say whether the rule applies only to new batches or also to old stock.
+  real_life_noise:
+    - The editor changes a single row that all batches reference.
+    - The new rule is entered today but applies from last Monday.
+    - A label printed under the old rule still says seven days.
+    - The change is later narrowed to one formulation of loading buffer.
+  system_should: |
+    Version rules and record their scope, effective time and recording time. Require an explicit choice about existing stock, then recompute affected availability and past-use reviews accordingly. Keep the original rule and old query results explainable; a type-row edit must not silently rewrite history.
+  question_it_answers: Under which shelf-life rule was this batch released and used?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Mutable rules make historical usability impossible to reproduce
+  depth: core
+  sim_hook: |
+    Create and consume a buffer under rule v1, add prospective and retrospective v2 changes, then narrow their scope. Assert the two application choices produce distinct, reproducible availability histories.
+  source: inferred
+
+- id: EDGE-027
+  title: A QC pass and contamination hold arrive together
+  story: |
+    Given lot L1 is awaiting release after a purity test.
+    When one person approves purity while another reports suspected contamination in tube T3.
+    Then the purity pass must not clear the independent contamination hold.
+  real_life_noise:
+    - Both screens offer a single status dropdown with passed as an option.
+    - The contamination report applies only to T3, not every tube of L1.
+    - The pass reaches the server last despite happening first.
+    - A supervisor resolves the purity review but has not seen the contamination report.
+  system_should: |
+    Keep independent checks and holds with their own scope and resolution. Derive usability from all applicable reasons. Detect concurrent attempts to resolve the same hold, and never let a general pass or later upload clear an unrelated unresolved restriction.
+  question_it_answers: Which exact reason still blocks T3 after the purity pass?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: One status field can lose an independent safety restriction
+  depth: core
+  sim_hook: |
+    Race a lot purity pass against a tube contamination hold, then resolve only purity. Assert T3 stays blocked for contamination while unaffected released tubes remain usable.
+  source: inferred
+
+- id: EDGE-028
+  title: A found tube has unknown quantity rather than zero quantity
+  story: |
+    Given a labelled tube is found in a freezer with visible liquid but no amount in the old spreadsheet.
+    When it is imported and someone asks for the total target available.
+    Then its unknown quantity must not be presented as either zero stock or a usable estimated amount.
+  real_life_noise:
+    - The spreadsheet has a blank, a dash and the text enough in different quantity cells.
+    - Tube capacity is 1.5 mL and is mistaken for fill volume.
+    - An operator guesses 100 µL without measuring it.
+    - A later weighing provides a range rather than an exact volume.
+  system_should: |
+    Track physical presence separately from quantified contents. Distinguish unknown, estimated, measured and zero amounts. Show the known usable total with a separate count of unquantified holdings and their reasons; do not let an empty numeric cell become zero or capacity become stock.
+  question_it_answers: How much do we know we have and what stock still needs measuring?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: False precision leads to needless orders or unsupported experiments
+  depth: core
+  sim_hook: |
+    Import blank and text quantities for found tubes, then add an estimate and a measured range. Assert presence survives and exact totals never silently include capacity or guessed quantities.
+  source: inferred
+
+- id: EDGE-029
+  title: Evaporation changes volume without removing the same fraction of protein
+  story: |
+    Given a well contains 100 µL of target solution at 1 mg/mL.
+    When it sits uncovered and a later check finds 80 µL with the target retained.
+    Then a 20 µL loss does not necessarily mean a 20 percent loss of target mass.
+  real_life_noise:
+    - The scientist chooses a generic consumption action for the missing liquid.
+    - The well is also near the pipette's minimum recoverable volume.
+    - A concentration reading suggests evaporation but adsorption to plastic remains possible.
+    - The cover-off interval is reported only after the plate has been diluted again.
+  system_should: |
+    Distinguish evaporation, consumption and unexplained measurement differences. Track relevant measurements and uncertainty by dimension. Do not scale mass or concentration automatically from a volume adjustment without a supported assumption, and carry uncertainty into later dilution calculations and usability reasons.
+  question_it_answers: What amount and concentration can we support after liquid loss?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: A correct liquid balance can still give a wrong assay concentration
+  depth: supported
+  sim_hook: |
+    Record an uncovered interval and an 80 µL measurement, then dilute the well. Compare known-solvent-loss and unexplained-loss cases; assert no unsupported proportional mass debit or exact concentration claim.
+  source: inferred
+
+- id: EDGE-030
+  title: A single-use chip returns with unused capacity
+  story: |
+    Given a pack of ten chips is counted as consumable stock.
+    When one chip is opened, used for one sample and put back with unused channels.
+    Then the nine sealed chips are usable but the used chip is not a fresh tenth chip.
+  real_life_noise:
+    - The instrument reports one used channel rather than one used chip.
+    - An operator credits the chip back because the run failed QC.
+    - The barcode identifies the pack, not the individual chip.
+    - The pack's material type has no expiry, so the screen assumes everything is usable.
+  system_should: |
+    Separate count-based consumption from reusable capacity and enforce the chip's single-use rule. A failed experiment does not undo opening or use. Keep the used item present if it is still in the lab, but exclude it from sealed stock; avoid claiming per-chip identity where none was recorded.
+  question_it_answers: How many fresh chips remain after a failed run?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Unused channels and no expiry can make a spent consumable look fresh
+  depth: supported
+  sim_hook: |
+    Open one of ten chips, consume one channel, fail the run and attempt a return credit. Assert nine fresh chips and a spent item or count with no automatic refund.
+  source: brief
+
+- id: EDGE-031
+  title: Passing one assay does not qualify material for every use
+  story: |
+    Given target L1 passes identity QC and is suitable for one binding method.
+    When another method requires an activity test that L1 has never passed.
+    Then the same physical stock has different supported uses.
+  real_life_noise:
+    - The certificate says passed without naming the method in its summary.
+    - A lot-wide usable flag is copied onto every child tube.
+    - The activity threshold changes with the requested assay.
+    - A caller asks only for usable quantity without supplying a purpose.
+  system_should: |
+    Retain what each QC test established and which release rule it satisfies. State the default meaning of usable and expose missing qualifications separately. Allow inventory callers to inspect supported use conditions without taking on experiment planning; a general pass must not imply untested capabilities.
+  question_it_answers: For which uses is this quantity actually qualified?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: One usable flag can promise material for an unsupported assay
+  depth: supported
+  sim_hook: |
+    Pass identity and method-A checks but leave method-B activity untested. Query release evidence for both methods and without a purpose. Assert the missing qualification remains explicit.
+  source: inferred
+
+- id: EDGE-032
+  title: A whole box is discarded after one tube was removed
+  story: |
+    Given box B1 originally contains ten tubes, and T1 leaves for the bench at 09:00.
+    When B1 is discarded at 10:00 and T1's move is synced at noon.
+    Then the disposal applies to nine tubes rather than the stale list of ten.
+  real_life_noise:
+    - The disposal screen saved a snapshot of yesterday's contents.
+    - Someone tries to return the disposed empty box to a freezer slot.
+    - A tenth tube was added at 09:30 without appearing in that snapshot.
+    - The disposal correction arrives before the late movement it depends on.
+  system_should: |
+    Resolve disposal scope against the best supported containment at the disposal time. Keep the originally recorded scope and explicit revisions, including unresolved conflicts. Re-evaluate late departures and arrivals without silently restoring discarded descendants or making a disposed parent usable through a location move.
+  question_it_answers: Exactly which contents were destroyed with the box?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Stale containment can erase surviving tubes and retain discarded ones
+  depth: core
+  sim_hook: |
+    Queue T1's departure, add another tube, discard B1 from a stale snapshot and deliver the queued events out of order. Assert corrected disposal membership and an auditable original scope.
+  source: brief
+
+- id: EDGE-033
+  title: A bad batch reaches a result through a shared buffer
+  story: |
+    Given suspect component lot C1 is used in buffer B1, which is used in diluting DNA, expressing protein and preparing target wells.
+    When C1 is recalled after several results are delivered.
+    Then the affected-results query must follow every relevant input path, not only the main protein lineage.
+  real_life_noise:
+    - The buffer appears in robot logs as a reagent rather than a sample source.
+    - The same buffer touches several branches that meet again in one experiment.
+    - One plate is washed, but there is no validated claim that this removes the risk.
+    - Some stock and results have already left the lab.
+  system_should: |
+    Link material inputs and physical contacts at the level the model supports, distinguishing ancestry from exposure where useful. Traverse all recorded paths, deduplicate affected outputs and retain external endpoints. Do not drop an input because it contributed little mass or assume washing clears an untested risk.
+  question_it_answers: Which stock and delivered results may have been exposed to C1?
+  frequency: rare
+  cost_if_wrong: high
+  cost_reason: Main-source-only lineage misses shared reagent failures
+  depth: core
+  sim_hook: |
+    Fan C1 through buffer into three workflow branches that reconverge, then recall it. Assert every recorded descendant or exposed result appears once, including shipped outputs.
+  source: workflow
+
+- id: EDGE-034
+  title: An empty tube is refilled with a different lot
+  story: |
+    Given barcoded tube T1 once held lot L1 and was recorded empty.
+    When a scientist refills it with L2 and a late L1 QC result arrives.
+    Then the old result must not attach to the new contents merely because the barcode matches.
+  real_life_noise:
+    - The tube was never washed and a small residue may remain.
+    - The old label still names L1.
+    - A delayed instrument file identifies only T1, not the contents at sampling time.
+    - The tube was empty on paper but still had an unknown dead volume.
+  system_should: |
+    Either forbid reuse for this container type or track separate periods of contents with preparation and contamination checks. Bind measurements and transfers to the contents sampled at the relevant time. Treat leftover residue as a mixing or uncertainty problem; a new fill must not inherit old QC by container identity.
+  question_it_answers: Which contents did this late result actually test?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: A stable barcode can wrongly carry QC across unrelated contents
+  depth: core
+  sim_hook: |
+    Empty T1, attempt an L2 refill, then import an L1 result with the old sampling time. Assert reuse policy and contents history prevent L2 from receiving L1's pass.
+  source: inferred
+
+- id: EDGE-035
+  title: Two different proteins share a name and stock unit
+  story: |
+    Given two target variants are both displayed as Target X and held in µL.
+    When a dashboard totals stock by name.
+    Then it must not offer the combined quantity as interchangeable material.
+  real_life_noise:
+    - One variant has a sequence mutation and the other has a different purification tag.
+    - An import drops the suffix that distinguished the variants.
+    - Their concentrations differ by a factor of ten.
+    - A scientist renames one material to correct a spelling error after months of use.
+  system_should: |
+    Use stable material identities and define which properties distinguish variants. Keep aliases and display-name changes separate from identity changes. Aggregate only quantities with compatible meaning and show concentration or variant differences that prevent substitution; correcting a name must not merge materials.
+  question_it_answers: How much of the exact requested target do we have?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: Name-based totals can send the wrong protein into a run
+  depth: core
+  sim_hook: |
+    Create same-name variants with different concentrations, import a truncated name and rename one identity. Assert separate stock totals and no automatic material merge.
+  source: inferred
+
+- id: EDGE-036
+  title: Repeated tiny transfers gain or lose stock through rounding
+  story: |
+    Given a source contains 100 µL and a robot makes one thousand transfers of 0.1 µL.
+    When reports alternate between 0.1 µL and 100 nL.
+    Then the supported total is 100 µL, without rounding each transfer to zero or inventing a small leftover.
+  real_life_noise:
+    - A spreadsheet rounds displayed values to whole microlitres.
+    - An import reads 0,1 using a different decimal convention.
+    - A separate loss entry adds 0.01 µL after the source is exhausted.
+    - The robot's delivery precision is worse than the number of decimal places in the file.
+  system_should: |
+    Normalize compatible units with defined numeric precision and validate decimal input. Keep display rounding separate from accounting. Record measurement limits explicitly; numerical tolerance must not authorize unsupported repeated overdraw or make a more precise physical claim than the instrument supports.
+  question_it_answers: Is this leftover real or just a rounding artifact?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Small errors compound across high-throughput transfers
+  depth: core
+  sim_hook: |
+    Alternate 1,000 equivalent nL and µL debits, then attempt an extra loss and a decimal-comma import. Assert an exact normalized total, no unflagged overdraw and no silent decimal reinterpretation.
+  source: inferred
+
+- id: EDGE-037
+  title: Stock expires while nobody writes a new event
+  story: |
+    Given a released tube expires at 12:00 UTC and a dashboard last refreshed at 11:59.
+    When a caller asks for available stock at exactly 12:00 without any intervening writes.
+    Then the tube is expired under the stated deadline rule.
+  real_life_noise:
+    - An availability cache refreshes only when the ledger changes.
+    - A supplier date has no time and could mean the start or end of that day.
+    - A run starts before the deadline but withdraws the material after it.
+    - The caller supplies a historical date while the view uses the server's current time.
+  system_should: |
+    Define deadline boundaries and how date-only expiry is interpreted. Evaluate usability at an explicit requested instant and expire cached answers at time boundaries. Assess a withdrawal at its actual use time. Historical queries must use the requested time and declared rule version, not a hidden current-time function.
+  question_it_answers: Is this quantity usable at the moment we intend to use it?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: A ledger-driven cache can keep expired stock available indefinitely
+  depth: core
+  sim_hook: |
+    Query at 11:59:59, 12:00:00 and 12:00:01 without ledger writes, including through a cache. Assert the declared boundary and repeat the same historical query after the real clock advances.
+  source: inferred
+
+- id: EDGE-038
+  title: A location correction changes yesterday's storage exposure
+  story: |
+    Given the record says T1 stayed in a freezer overnight and it was released this morning.
+    When a scientist reports that T1 was actually on the bench from 18:00 until 08:00.
+    Then correcting location also changes the evidence behind its expiry and this morning's use.
+  real_life_noise:
+    - The original scans were of the box while T1 was outside it.
+    - A second correction narrows the warm interval to 20:00 through 07:00.
+    - T1 was split at 09:00 and one child has already been used.
+    - The current freezer location is correct and must not be replaced by the historical bench location.
+  system_should: |
+    Correct the historical interval while preserving the current supported location. Recompute affected storage exposure, expiry, descendant restrictions and past-use reviews, keeping earlier recording-time answers available. Make these dependent updates consistent so a location fix cannot leave stale usable quantities behind.
+  question_it_answers: What else changes when we correct where a tube used to be?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Independent views can disagree after one corrected historical fact
+  depth: core
+  sim_hook: |
+    Release and split T1 under the frozen history, insert the warm interval and correct it again. Assert consistent revised expiry and child review flags, unchanged current freezer location and reproducible earlier answers.
+  source: inferred
