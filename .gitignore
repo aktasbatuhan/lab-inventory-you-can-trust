@@ -1,0 +1,10 @@
+.DS_Store
+.claude/settings.local.json
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+.env
+*.db
+*.sqlite
+sim/out/
