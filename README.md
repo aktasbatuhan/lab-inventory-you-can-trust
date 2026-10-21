@@ -29,12 +29,17 @@ Filled in as they're finished.
 
 | Deliverable | Where |
 |---|---|
-| Scenario catalog | [`scenarios/`](scenarios/) (drafts in `scenarios/raw/`) |
+| Principles the design follows | [`docs/principles.md`](docs/principles.md) |
+| Data model, explained | [`docs/data-model.md`](docs/data-model.md) |
+| SQL schema | [`schema/`](schema/), run in order |
+| Decisions and why | [`docs/decisions.md`](docs/decisions.md) |
+| Queries for the lab's questions, with real answers | [`queries/`](queries/) and [`queries/examples/`](queries/examples/) |
+| Scenario catalog (244 stories, 29 themes) | [`scenarios/`](scenarios/) |
+| Scenario tests (20, all passing) | [`tests/`](tests/), run with `./run.sh` |
+| Demo lab walking the Binding workflow | [`seed/02_demo_lab.sql`](seed/02_demo_lab.sql), open with `./run.sh demo` |
+| Simulation | [`sim/`](sim/) (in progress) |
+| What we cut and why | [`scenarios/shortlist.md`](scenarios/shortlist.md) for now |
 | Assumptions | not yet |
-| Data model and SQL schema | not yet |
-| Queries for the lab's questions | not yet |
-| Simulation and test results | not yet |
-| What we cut and why | not yet |
 
 ## How this was made
 
