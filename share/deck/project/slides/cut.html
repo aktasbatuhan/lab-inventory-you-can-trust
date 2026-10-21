@@ -1,0 +1,13 @@
+<section id="cut" data-transition="fade" style="background:#f3f5f2;color:#17221e;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
+<h2 style="font-family:'Bricolage Grotesque', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px">What I cut, and why</h2>
+<table style="font-size:26px;color:#17221e;font-family:'Public Sans', Arial, sans-serif">
+<tr><th style="width:34%;text-align:left">Cut</th><th style="width:66%;text-align:left">Why</th></tr>
+<tr><td>Reservations and ordering</td><td>Planning is a separate system. The inventory gives it numbers it can trust, including for a future date.</td></tr>
+<tr><td>Speed</td><td>Every answer is worked out from scratch. Next step: cached summaries, checked against the from-scratch versions in tests.</td></tr>
+<tr><td>Converting µg to µL on request</td><td>Concentration is recorded as a measurement; converting needs it, and guessing would break the first principle.</td></tr>
+<tr><td>Locking the last 50 µL</td><td>Two people drawing at once are both recorded and flagged. Recording what happened beats stopping it.</td></tr>
+<tr><td>Tracking single tips</td><td>Consumables are counted by the box.</td></tr>
+<tr><td>Freezer temperature alarms</td><td>A “location uncertain” state exists; the alarm feed depends on monitors I don’t know about.</td></tr>
+</table>
+<aside>The brief asked for depth over breadth and to say what was cut. These are cut on purpose, each with a reason. The full list with scenario ids is in scenarios/shortlist.md. Speed is the one I'd do first in a real rollout: the design doesn't change, only where the answers are kept.</aside>
+</section>

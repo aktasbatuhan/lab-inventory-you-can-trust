@@ -1,0 +1,28 @@
+<section id="correction" data-transition="fade" style="background:#f3f5f2;color:#17221e;font-family:'Public Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
+<h2 style="font-family:'Bricolage Grotesque', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px">A mistake, found three days later</h2>
+<div style="display:flex;gap:40px">
+<table style="flex:1.4;font-size:26px;color:#17221e;font-family:'Public Sans', Arial, sans-serif">
+<tr><th style="width:22%;text-align:left">When</th><th style="width:78%;text-align:left">What happened at the bench, and what was recorded</th></tr>
+<tr><td>Mon 10:00</td><td>Marco takes 80 µL from a 100 µL tube and types 30</td></tr>
+<tr style="background:#f6ecd6"><td>Tue 10:00</td><td>Lena records taking 75 µL; the records say 70 is there. Saved and flagged, nothing blocked</td></tr>
+<tr><td>Thu 16:00</td><td>Marco checks his notebook and corrects 30 to 80</td></tr>
+<tr><td>Fri 09:00</td><td>Lena corrects her 75 to the 15 she really took</td></tr>
+</table>
+<div style="flex:1;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;flex-direction:column;gap:4px;background:#fbfcfa;border:1px solid #d9e0dc;border-radius:16px;padding:28px">
+<p style="font-size:24px;color:#4a5a53">What the system said on Tuesday evening</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:44px;color:#b3402a">−5 µL</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:4px;background:#fbfcfa;border:1px solid #d9e0dc;border-radius:16px;padding:28px">
+<p style="font-size:24px;color:#4a5a53">What we now know about Tuesday</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:44px;color:#b3402a">−55 µL</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:4px;background:#e2efe8;border-radius:16px;padding:28px">
+<p style="font-size:24px;color:#4a5a53">Friday, after both corrections</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:44px;color:#2f7d5b">5 µL, no flags</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6a7a73">tests/03_overdraw_and_correction.sql. The wrong entries are still there, marked as corrected, with who and why. A correction can be corrected too.</p>
+<aside>This is the test I'd show first. On Tuesday nobody was stopped: the liquid was already in the pipette, so refusing to record it would only make the records wrong in a new way. The tube went negative and was flagged, and nothing in it counted as usable. After the corrections the system tells the truth, but it can still say exactly what it showed on Tuesday evening. That's the brief's "what did the record say before the change", answered by two timestamps rather than by an audit table bolted on.</aside>
+</section>

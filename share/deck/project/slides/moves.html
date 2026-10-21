@@ -1,0 +1,12 @@
+<section id="moves" data-transition="fade" style="background:#f3f5f2;color:#17221e;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+<h2 style="font-family:'Bricolage Grotesque', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px">Every lab task is a run of ledger lines</h2>
+<table style="font-size:28px;color:#17221e;font-family:'Public Sans', Arial, sans-serif">
+<tr><th style="width:18%;text-align:left">Kind</th><th style="width:38%;text-align:left">What it writes</th><th style="width:44%;text-align:left">Example</th></tr>
+<tr><td><b>Transfer</b></td><td>minus here, plus there, same lot</td><td>split 500 µL into 20 × 24 µL: one event, 21 lines, 20 µL left</td></tr>
+<tr><td><b>Make</b></td><td>inputs out, a new lot in, linked to every parent</td><td>loading buffer from components; protein from DNA, per well</td></tr>
+<tr><td><b>Consume</b></td><td>used up in a run</td><td>a BLI run uses its target and sample wells</td></tr>
+<tr><td><b>Loss</b></td><td>gone without being used, with a reason</td><td>evaporation, a spill, liquid left in tips</td></tr>
+</table>
+<p style="font-size:30px;line-height:1.4;color:#4a5a53;width:1550px">Lineage falls out of this. A bad target lot leads to every lot made from it, every container that held any of them, and every run and experiment that used them, in one query.</p>
+<aside>Consumption and movement are the same mechanism. A transfer keeps the lot, so aliquots carry their parent's QC and its thaw history. A make creates a new lot with links to its parents, so a buffer remembers its components and every expressed protein remembers its DNA well and its expression mix. Forward and backward tracing are just walks over those links.</aside>
+</section>

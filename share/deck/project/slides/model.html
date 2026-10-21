@@ -1,0 +1,32 @@
+<section id="model" data-transition="fade" style="background:#f3f5f2;color:#17221e;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+<h2 style="font-family:'Bricolage Grotesque', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px">Facts and rules in, answers out</h2>
+<div style="display:flex;align-items:center;gap:20px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#fbfcfa;border:1px solid #d9e0dc;border-radius:16px;padding:32px">
+<h3 style="font-family:'Bricolage Grotesque', Arial, sans-serif;font-size:36px;font-weight:700">Rules</h3>
+<p style="font-size:24px;line-height:1.4;color:#4a5a53">Versioned, never edited</p>
+<ul style="font-size:26px;line-height:1.5;color:#17221e">
+<li>shelf life per kind, material or product</li>
+<li>freeze-thaw limits per protein and supplier</li>
+<li>dead volume per container type</li>
+</ul>
+</div>
+<x-shape kind="arrow-right" style="width:64px;height:32px;background:#93a39b"></x-shape>
+<div style="flex:1.2;display:flex;flex-direction:column;gap:12px;background:#fbfcfa;border:1px solid #d9e0dc;border-radius:16px;padding:32px">
+<h3 style="font-family:'Bricolage Grotesque', Arial, sans-serif;font-size:36px;font-weight:700">Facts</h3>
+<p style="font-size:24px;line-height:1.4;color:#4a5a53">An event: when it happened, when it was written, who, from where (scan, robot log, by hand, by rule), what it corrects</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.5;color:#2f7d5b">amounts, moves, scans, labels, QC, holds, disposals, counts</p>
+</div>
+<x-shape kind="arrow-right" style="width:64px;height:32px;background:#93a39b"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#16211c;border-radius:16px;padding:32px">
+<h3 style="font-family:'Bricolage Grotesque', Arial, sans-serif;font-size:36px;font-weight:700;color:#e8efea">Worked out</h3>
+<p style="font-size:24px;line-height:1.4;color:#93a39b">At any two times you ask</p>
+<ul style="font-size:26px;line-height:1.5;color:#e8efea">
+<li>how much, and how much is usable</li>
+<li>where, and how sure we are</li>
+<li>expiry, thaws, flags, lineage</li>
+</ul>
+</div>
+</div>
+<p style="font-size:28px;line-height:1.4;color:#4a5a53;width:1550px">23 tables, about 1,250 lines of SQL. The database refuses only a handful of things: editing a fact, counting the same delivery or robot step twice, a barcode on two live containers, a box inside itself.</p>
+<aside>This is the whole schema at a glance. On the left, rules. In the middle, the facts tables, all hanging off one event with two timestamps. On the right, the functions people actually query. Everything else is recorded and flagged rather than refused, because the lab doesn't stop when the inventory disagrees with it.</aside>
+</section>
