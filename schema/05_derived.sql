@@ -260,8 +260,27 @@ language sql stable as $$
     from lot l join event e on e.id = l.created_event_id
   ),
   rules as (select * from rules_for_lots(t, k)),
-  here as (select * from condition_stretches(k) where from_at <= t and t < to_at),
-  arrived as (select container_id, lot_id, arrived_at from first_source(t, k))
+  arrived as (select container_id, lot_id, arrived_at from first_source(t, k)),
+  -- Decision D9: a storage rule is a budget of total time in that condition.
+  -- Time used is never given back; leaving the condition pauses the clock.
+  stretches as (
+    select h.container_id, h.lot_id, s.condition,
+           greatest(s.from_at, coalesce(a.arrived_at, '-infinity')) as from_at, s.to_at
+    from held h
+    join condition_stretches(k) s on s.container_id = h.container_id
+    left join arrived a on a.container_id = h.container_id and a.lot_id = h.lot_id
+    where s.from_at <= t and s.to_at > coalesce(a.arrived_at, '-infinity')
+  ),
+  budget as (
+    select st.container_id, st.lot_id, st.from_at, st.to_at, r.rule_id, r.conditions, r.duration,
+           coalesce(sum(least(st.to_at, t) - st.from_at) over (
+             partition by st.container_id, st.lot_id, r.rule_id order by st.from_at
+             rows between unbounded preceding and 1 preceding), interval '0') as used_before,
+           min(st.from_at) over (partition by st.container_id, st.lot_id, r.rule_id) as first_from
+    from stretches st
+    join rules r on r.lot_id = st.lot_id and r.clock = 'in_condition'
+                and st.condition = any(r.conditions) and r.duration is not null
+  )
   select h.container_id, h.lot_id, 'supplier expiry date', null::bigint, null::timestamptz, lo.supplier_expiry::timestamptz
   from held h join lots lo on lo.id = h.lot_id
   where lo.supplier_expiry is not null
@@ -273,12 +292,14 @@ language sql stable as $$
   join lot l on l.id = h.lot_id
   join rules r on r.lot_id = h.lot_id and r.clock = 'since_origin' and r.duration is not null
   union all
-  select h.container_id, h.lot_id, 'kept in ' || s.condition,
-         r.rule_id, greatest(s.from_at, a.arrived_at), greatest(s.from_at, a.arrived_at) + r.duration
-  from held h
-  join here s on s.container_id = h.container_id
-  join rules r on r.lot_id = h.lot_id and r.clock = 'in_condition' and s.condition = any(r.conditions) and r.duration is not null
-  left join arrived a on a.container_id = h.container_id and a.lot_id = h.lot_id
+  -- A budget gives a date while it's running (now in that condition), or if it
+  -- already ran out during an earlier stretch. While paused it gives none.
+  select container_id, lot_id, 'kept in ' || array_to_string(conditions, ' or '),
+         rule_id, first_from, min(from_at + (duration - used_before))
+  from budget
+  where (from_at <= t and t < to_at)
+     or from_at + (duration - used_before) <= to_at
+  group by container_id, lot_id, conditions, rule_id, first_from
 $$;
 
 create function expiry(t timestamptz default now(), k timestamptz default now())

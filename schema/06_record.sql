@@ -330,3 +330,34 @@ begin
   end if;
   return ev;
 end $$;
+
+-- Dissolve dry material: the same lot goes from a mass to a volume. The solvent
+-- is used up and the concentration is recorded as a measurement, so the amount
+-- in µg stays recoverable without guessing.
+create function reconstitute(p_container bigint, p_lot bigint, p_mass_ug numeric, p_volume_ul numeric,
+                             p_solvent_container bigint, p_solvent_lot bigint,
+                             p_at timestamptz, p_by text, p_source text default 'manual',
+                             p_run bigint default null, p_step int default null,
+                             p_recorded timestamptz default null)
+returns bigint language plpgsql as $$
+declare ev bigint := new_event('reconstitute', p_at, p_by, p_source, p_run => p_run, p_step => p_step, p_recorded => p_recorded);
+begin
+  insert into quantity_entry (event_id, container_id, lot_id, dimension, amount, reason) values
+    (ev, p_container, p_lot, 'mass', -p_mass_ug, 'make'),
+    (ev, p_container, p_lot, 'volume', p_volume_ul, 'make'),
+    (ev, p_solvent_container, p_solvent_lot, 'volume', -p_volume_ul, 'consume');
+  insert into measurement (event_id, container_id, lot_id, property, value, unit)
+  values (ev, p_container, p_lot, 'concentration', p_mass_ug / p_volume_ul, 'ug/ul');
+  return ev;
+end $$;
+
+create function measure(p_container bigint, p_lot bigint, p_property text, p_value numeric, p_unit text,
+                        p_at timestamptz, p_by text, p_source text default 'manual',
+                        p_recorded timestamptz default null)
+returns bigint language plpgsql as $$
+declare ev bigint := new_event('measure', p_at, p_by, p_source, p_recorded => p_recorded);
+begin
+  insert into measurement (event_id, container_id, lot_id, property, value, unit)
+  values (ev, p_container, p_lot, p_property, p_value, p_unit);
+  return ev;
+end $$;

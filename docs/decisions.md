@@ -47,3 +47,10 @@ Scenarios: LIFE-008, ASK-024. Research: `journal/agent-runs/research.md`.
 ## D8. The simulation starts from researched error rates
 
 The scenario agents guessed that people forget to record a step 3 to 40% of the time. Published human-reliability figures say 0.3 to 1% per step. The simulation starts from the researched numbers in `sim/noise-model.yaml` and uses the agents' higher numbers as a "bad week" setting, so we can show how the system behaves in both.
+
+## D9. Storage rules are time budgets: used time never comes back, and going cold again pauses the clock
+
+"GFP stock lasts a month in the fridge" means a month of fridge time in total, not a month from the first time it went in. Nine days in the fridge, back to the freezer, then out again leaves one month minus nine days. While the tube is back in the freezer its fridge clock is paused and the other clocks decide.
+
+We considered the simpler rule "the clock starts the first time it enters the fridge and never stops". It breaks targets: the 8-hour room-temperature allowance would start the moment someone thaws a tube for 20 minutes to take an aliquot, and the tube would expire that evening even though it's back at -80. A total-time budget is closer to how people in the lab think about it ("this tube has been out for most of a day already") and handles both cases with one rule.
+Scenarios: LIFE-002, LIFE-008. Found by test `11_expiry_clocks.sql`; the discussion is in `journal/agent-runs/schema-gaps.md`.

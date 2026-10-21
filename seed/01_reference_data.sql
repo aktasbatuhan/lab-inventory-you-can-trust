@@ -67,19 +67,22 @@ insert into container_type (id, category, description, capacity_ul, dead_volume_
   ('instrument',    'instrument', 'Instrument',                 null, 0, null, null, null, false);
 
 -- Shelf life. Effective from long ago so they apply to everything in the tests.
-insert into shelf_life_rule (material_kind_id, material_id, product_id, clock, conditions, duration, effective_from, recorded_by, note) values
-  ('target',  null, null, 'since_origin', null, '3 years',  '2020-01-01', 'p:sara', 'Brief: many years in the freezer. 3 years is our assumption.'),
-  ('target',  null, null, 'in_condition', '{fridge}', '7 days', '2020-01-01', 'p:sara', 'Assumption: thawed target is good for a week at 4 °C.'),
-  ('target',  null, null, 'in_condition', '{room}',   '8 hours','2020-01-01', 'p:sara', 'Assumption: a working day on the bench.'),
-  ('dna',     null, null, 'since_origin', null, '5 years',  '2020-01-01', 'p:sara', 'Brief: many years in the freezer.'),
-  ('sample_protein', null, null, 'since_origin', null, '14 days', '2020-01-01', 'p:sara', 'Brief: expression plates last 2 weeks.'),
-  ('buffer',  null, null, 'since_origin', null, '1 month',  '2020-01-01', 'p:sara', 'Brief: buffers other than GFP stock and loading buffer last 1 month.'),
-  (null, 'buffer:loading',   null, 'since_origin', null, '7 days',   '2020-01-01', 'p:sara', 'Brief: loading buffer lasts 1 week.'),
-  (null, 'buffer:gfp-stock', null, 'since_origin', null, '6 months', '2020-01-01', 'p:sara', 'Brief: GFP stock lasts 6 months frozen. Outer limit.'),
-  (null, 'buffer:gfp-stock', null, 'in_condition', '{fridge}', '1 month', '2020-01-01', 'p:sara', 'Assumption: once in the fridge, the usual buffer month.'),
-  ('reagent', null, null, 'since_origin', null, '2 years',  '2020-01-01', 'p:sara', 'Brief: varies, typically long. 2 years is our assumption.');
+-- recorded_at is set to the same day on purpose: left to default, it would be
+-- the moment this file was loaded, and any "as we knew it then" question about
+-- an earlier day would see no rules at all.
+insert into shelf_life_rule (material_kind_id, material_id, product_id, clock, conditions, duration, effective_from, recorded_at, recorded_by, note) values
+  ('target',  null, null, 'since_origin', null, '3 years',  '2020-01-01', '2020-01-01', 'p:sara', 'Brief: many years in the freezer. 3 years is our assumption.'),
+  ('target',  null, null, 'in_condition', '{fridge}', '7 days', '2020-01-01', '2020-01-01', 'p:sara', 'Assumption: thawed target is good for a week at 4 °C.'),
+  ('target',  null, null, 'in_condition', '{room}',   '8 hours','2020-01-01', '2020-01-01', 'p:sara', 'Assumption: a working day on the bench.'),
+  ('dna',     null, null, 'since_origin', null, '5 years',  '2020-01-01', '2020-01-01', 'p:sara', 'Brief: many years in the freezer.'),
+  ('sample_protein', null, null, 'since_origin', null, '14 days', '2020-01-01', '2020-01-01', 'p:sara', 'Brief: expression plates last 2 weeks.'),
+  ('buffer',  null, null, 'since_origin', null, '1 month',  '2020-01-01', '2020-01-01', 'p:sara', 'Brief: buffers other than GFP stock and loading buffer last 1 month.'),
+  (null, 'buffer:loading',   null, 'since_origin', null, '7 days',   '2020-01-01', '2020-01-01', 'p:sara', 'Brief: loading buffer lasts 1 week.'),
+  (null, 'buffer:gfp-stock', null, 'since_origin', null, '6 months', '2020-01-01', '2020-01-01', 'p:sara', 'Brief: GFP stock lasts 6 months frozen. Outer limit.'),
+  (null, 'buffer:gfp-stock', null, 'in_condition', '{fridge}', '1 month', '2020-01-01', '2020-01-01', 'p:sara', 'Assumption: once in the fridge, the usual buffer month.'),
+  ('reagent', null, null, 'since_origin', null, '2 years',  '2020-01-01', '2020-01-01', 'p:sara', 'Brief: varies, typically long. 2 years is our assumption.');
 
 -- Freeze-thaw limits (decision D7). Assumptions.
-insert into thaw_limit_rule (material_kind_id, material_id, product_id, max_thaws, effective_from, recorded_by, note) values
-  ('target', null, null, 3, '2020-01-01', 'p:sara', 'Assumption: a common default for proteins.'),
-  (null, null, 'vendorB:EGFR-7', 1, '2020-01-01', 'p:sara', 'Example of a supplier-specific limit: this formulation has no glycerol.');
+insert into thaw_limit_rule (material_kind_id, material_id, product_id, max_thaws, effective_from, recorded_at, recorded_by, note) values
+  ('target', null, null, 3, '2020-01-01', '2020-01-01', 'p:sara', 'Assumption: a common default for proteins.'),
+  (null, null, 'vendorB:EGFR-7', 1, '2020-01-01', '2020-01-01', 'p:sara', 'Example of a supplier-specific limit: this formulation has no glycerol.');
