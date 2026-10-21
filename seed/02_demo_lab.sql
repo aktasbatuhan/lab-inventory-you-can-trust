@@ -233,8 +233,8 @@ begin
   ---------------------------------------------------------------------------
   -- 1 to 2 October: DNA arrival and reconstitution. Twist ships the 24
   -- designs as dry DNA, 1 µg per well, in wells A1 to B12 of one plate. Next
-  -- day each well gets 20 µL of water. Reconstituting makes a new lot of the
-  -- same DNA, now measured in µL instead of µg, in the same well.
+  -- day each well gets 20 µL of water. It's the same lot afterwards, now
+  -- counted in µL, and the concentration (0.05 µg/µL) is recorded with it.
   ---------------------------------------------------------------------------
   twist := register_container('plate_96', '2026-10-01 11:00', 'p:lena', 'TW-77812', 'Twist plate SO-77812', p_into => shelf);
   for i in 1 .. 24 loop
@@ -245,11 +245,9 @@ begin
   perform move(twist, bench, null, '2026-10-02 09:00', 'p:marco');
   for i in 1 .. 24 loop
     pos := chr(65 + (i - 1) / 12) || ((i - 1) % 12 + 1);
-    dna_l := dna_l || make('dna:D-' || lpad(i::text, 3, '0'), jsonb_build_array(
-                             jsonb_build_object('container', well(twist, pos), 'lot', twist_l[i], 'amount', 1, 'dimension', 'mass'),
-                             jsonb_build_object('container', water, 'lot', water_l, 'amount', 20)),
-                           well(twist, pos), 20, 'volume', '2026-10-02 09:30', 'p:marco');
+    perform reconstitute(well(twist, pos), twist_l[i], 1, 20, water, water_l, '2026-10-02 09:30', 'p:marco');
   end loop;
+  dna_l := twist_l;
   perform move(twist, f2, 'shelf 1', '2026-10-02 10:00', 'p:marco');
 
   ---------------------------------------------------------------------------

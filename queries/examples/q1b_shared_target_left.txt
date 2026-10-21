@@ -1,0 +1,44 @@
+SET
+Null display is "-".
+Target protein EGFR, as of 2026-10-21 17:00, as recorded by now
+
+1. Each delivery (lot) of this protein
+ lot | supplier | product  | supplier lot |  received  |  qc  |   qc on    | held µL | usable µL | usable tubes 
+-----+----------+----------+--------------+------------+------+------------+---------+-----------+--------------
+   8 | Vendor A | EGFR-100 | L4471        | 2026-09-02 | pass | 2026-09-03 |   355.0 |     225.0 |           11
+(1 row)
+
+
+2. Every tube we still hold, usable ones first
+    barcode     | lot | held µL | usable µL | thaws |       status       | warnings |                                where                                 | last confirmed 
+----------------+-----+---------+-----------+-------+--------------------+----------+----------------------------------------------------------------------+----------------
+ TGT-0101       |   8 |    80.0 |      75.0 |     2 | usable             | -        | Freezer F1 (-80)                                                     | 2026-09-23
+ EGFR-L4471-010 |   8 |    25.0 |      15.0 |     1 | usable             | -        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 10 | 2026-10-16
+ EGFR-L4471-011 |   8 |    25.0 |      15.0 |     1 | usable             | -        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 11 | 2026-10-16
+ EGFR-L4471-012 |   8 |    25.0 |      15.0 |     1 | usable             | -        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 12 | 2026-10-16
+ EGFR-L4471-013 |   8 |    25.0 |      15.0 |     1 | usable             | -        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 13 | 2026-10-16
+ EGFR-L4471-003 |   8 |    25.0 |      15.0 |     1 | usable             | -        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 3  | 2026-10-16
+ EGFR-L4471-004 |   8 |    25.0 |      15.0 |     1 | usable             | -        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 4  | 2026-10-16
+ EGFR-L4471-005 |   8 |    25.0 |      15.0 |     1 | usable             | -        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 5  | 2026-10-16
+ EGFR-L4471-006 |   8 |    25.0 |      15.0 |     1 | usable             | -        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 6  | 2026-10-16
+ EGFR-L4471-007 |   8 |    25.0 |      15.0 |     1 | usable             | -        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 7  | 2026-10-16
+ EGFR-L4471-008 |   8 |    25.0 |      15.0 |     1 | usable             | -        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 8  | 2026-10-16
+ EGFR-L4471-009 |   8 |    25.0 |       0.0 |     1 | location uncertain | -        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 9  | 2026-09-04
+(12 rows)
+
+
+3. What earlier experiments took of this protein
+   experiment    |      protocol      |     on     | took µL 
+-----------------+--------------------+------------+---------
+ EXP-0431        | BLI binding screen | 2026-09-23 |    30.0
+ EXP-0457        | BLI binding screen | 2026-10-19 |    30.0
+ average per run | -                  | -          |    30.0
+(3 rows)
+
+
+4. Bottom line
+ usable µL now | µL per run so far | runs it covers, at that rate 
+---------------+-------------------+------------------------------
+         225.0 |              30.0 |                            7
+(1 row)
+

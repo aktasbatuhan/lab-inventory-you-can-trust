@@ -3,6 +3,7 @@
 #
 #   ./run.sh            build and test
 #   ./run.sh demo       build, load the demo lab and open psql
+#   ./run.sh examples   build the demo lab and save every query's answer to queries/examples/
 #
 # Needs PostgreSQL 14+ client and server tools on PATH (or set PG_BIN), and a
 # server reachable through the usual PG* environment variables.
@@ -22,6 +23,15 @@ load tests/_helpers.sql
 if [[ "${1:-}" == "demo" ]]; then
   load seed/02_demo_lab.sql
   exec "$PSQL" -d "$DB"
+fi
+
+if [[ "${1:-}" == "examples" ]]; then
+  load seed/02_demo_lab.sql
+  for q in queries/q*.sql; do
+    "$PSQL" -v ON_ERROR_STOP=1 -d "$DB" -f "$q" > "queries/examples/$(basename "$q" .sql).txt" 2>&1
+    echo "wrote queries/examples/$(basename "$q" .sql).txt"
+  done
+  exit 0
 fi
 
 pass=0; fail=0

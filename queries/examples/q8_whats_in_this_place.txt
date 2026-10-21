@@ -1,0 +1,25 @@
+SET
+Null display is "-".
+Contents of LOC-F1, as of 2026-10-21 17:00, as recorded by now
+              container               |    barcode     |      holds       | held  | usable | unit | why not all usable | warnings |                   last confirmed                   |    note     
+--------------------------------------+----------------+------------------+-------+--------+------+--------------------+----------+----------------------------------------------------+-------------
+ Freezer F1 (-80)                     | LOC-F1         | -                |     - |      - | -    | -                  | -        | 2026-10-16, found in a count (something inside it) | fixed place
+     Rack A @shelf 1                  | RACK-A         | -                |     - |      - | -    | -                  | -        | 2026-10-16, found in a count (something inside it) | -
+         Box EGFR L4471 @slot 1       | BOX-0011       | -                |     - |      - | -    | -                  | -        | 2026-10-16, found in a count (something inside it) | -
+             tube_matrix #23 @slot 3  | EGFR-L4471-003 | target:egfr      |  25.0 |   15.0 | µL   | -                  | -        | 2026-10-16, found in a count                       | -
+             tube_matrix #24 @slot 4  | EGFR-L4471-004 | target:egfr      |  25.0 |   15.0 | µL   | -                  | -        | 2026-10-16, found in a count                       | -
+             tube_matrix #25 @slot 5  | EGFR-L4471-005 | target:egfr      |  25.0 |   15.0 | µL   | -                  | -        | 2026-10-16, found in a count                       | -
+             tube_matrix #26 @slot 6  | EGFR-L4471-006 | target:egfr      |  25.0 |   15.0 | µL   | -                  | -        | 2026-10-16, found in a count                       | -
+             tube_matrix #27 @slot 7  | EGFR-L4471-007 | target:egfr      |  25.0 |   15.0 | µL   | -                  | -        | 2026-10-16, found in a count                       | -
+             tube_matrix #28 @slot 8  | EGFR-L4471-008 | target:egfr      |  25.0 |   15.0 | µL   | -                  | -        | 2026-10-16, found in a count                       | -
+             tube_matrix #29 @slot 9  | EGFR-L4471-009 | target:egfr      |  25.0 |    0.0 | µL   | location uncertain | -        | 2026-09-04, moved with a scan                      | uncertain
+             tube_matrix #30 @slot 10 | EGFR-L4471-010 | target:egfr      |  25.0 |   15.0 | µL   | -                  | -        | 2026-10-16, found in a count                       | -
+             tube_matrix #31 @slot 11 | EGFR-L4471-011 | target:egfr      |  25.0 |   15.0 | µL   | -                  | -        | 2026-10-16, found in a count                       | -
+             tube_matrix #32 @slot 12 | EGFR-L4471-012 | target:egfr      |  25.0 |   15.0 | µL   | -                  | -        | 2026-10-16, found in a count                       | -
+             tube_matrix #33 @slot 13 | EGFR-L4471-013 | target:egfr      |  25.0 |   15.0 | µL   | -                  | -        | 2026-10-16, found in a count                       | -
+     EGFR stock L4471                 | TGT-0101       | target:egfr      |  80.0 |   75.0 | µL   | -                  | -        | 2026-09-23, moved with a scan                      | -
+     PD-L1 stock P-2209               | TGT-0102       | target:pdl1      | 400.0 |    0.0 | µL   | failed QC          | -        | 2026-09-08, moved with a scan                      | -
+     PD-L1 stock P-2231               | TGT-0103       | target:pdl1      | 200.0 |  195.0 | µL   | -                  | -        | 2026-09-17, moved with a scan                      | -
+     PURE expression mix              | PURE-0930      | reagent:pure-mix | 140.0 |  135.0 | µL   | -                  | -        | 2026-10-09, moved with a scan                      | -
+(18 rows)
+

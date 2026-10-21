@@ -1,0 +1,16 @@
+SET
+Null display is "-".
+Re-run of BLI binding screen for EXP-0457, designs D-003,D-010,D-017,D-021, planned for 2026-10-28 09:00
+Today is 2026-10-21 17:00, record as written by now
+        material        |  unit  | took last time | usable today | usable on the day | verdict | why not, on the day | usable stock next expires 
+------------------------+--------+----------------+--------------+-------------------+---------+---------------------+---------------------------
+ buffer:loading         | µL     |         1824.0 |      47176.0 |               0.0 | none    | expired             | -
+ protein:D-003          | µL     |            4.0 |         12.0 |               0.0 | none    | expired             | -
+ protein:D-010          | µL     |            4.0 |         12.0 |               0.0 | none    | expired             | -
+ protein:D-017          | µL     |            4.0 |         12.0 |               0.0 | none    | expired             | -
+ protein:D-021          | µL     |            4.0 |         12.0 |               0.0 | none    | expired             | -
+ buffer:bli-running     | µL     |         2370.0 |     386460.0 |          197130.0 | enough  | -                   | 2026-11-16 09:00:00+01
+ consumable:bli-sensors | pieces |           24.0 |         72.0 |              72.0 | enough  | -                   | -
+ target:egfr            | µL     |           30.0 |        225.0 |             225.0 | enough  | -                   | 2028-09-01 00:00:00+02
+(8 rows)
+

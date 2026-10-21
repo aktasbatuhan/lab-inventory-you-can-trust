@@ -86,3 +86,8 @@ insert into shelf_life_rule (material_kind_id, material_id, product_id, clock, c
 insert into thaw_limit_rule (material_kind_id, material_id, product_id, max_thaws, effective_from, recorded_at, recorded_by, note) values
   ('target', null, null, 3, '2020-01-01', '2020-01-01', 'p:sara', 'Assumption: a common default for proteins.'),
   (null, null, 'vendorB:EGFR-7', 1, '2020-01-01', '2020-01-01', 'p:sara', 'Example of a supplier-specific limit: this formulation has no glycerol.');
+
+-- Consumables don't expire (brief). Said explicitly, so that "no rule at all"
+-- can be told apart from "never expires" and warned about.
+insert into shelf_life_rule (material_kind_id, clock, duration, effective_from, recorded_at, recorded_by, note)
+values ('consumable', 'since_origin', null, '2020-01-01', '2020-01-01', 'p:sara', 'Brief: consumables have no expiry.');

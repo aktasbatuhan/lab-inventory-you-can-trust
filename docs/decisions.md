@@ -54,3 +54,10 @@ The scenario agents guessed that people forget to record a step 3 to 40% of the 
 
 We considered the simpler rule "the clock starts the first time it enters the fridge and never stops". It breaks targets: the 8-hour room-temperature allowance would start the moment someone thaws a tube for 20 minutes to take an aliquot, and the tube would expire that evening even though it's back at -80. A total-time budget is closer to how people in the lab think about it ("this tube has been out for most of a day already") and handles both cases with one rule.
 Scenarios: LIFE-002, LIFE-008. Found by test `11_expiry_clocks.sql`; the discussion is in `journal/agent-runs/schema-gaps.md`.
+
+## D10. A robot run that finished normally did its plan; an aborted one did not
+
+When a liquid handler finishes a run, its log should have a line for every step on the worklist. Sometimes one is missing anyway: the robot PC was offline, an upload failed. Treating the step as not done leaves the source well looking fuller than it is, and that's the number a scientist planning a re-expression would trust.
+
+So we apply principle 3. If the run finished normally, a step without a log line is recorded as done, marked as coming from a rule, and flagged "robot step assumed". If the real log line turns up later, it replaces the assumption on its own. If the run was aborted (a tip jam, an emergency stop), nothing is assumed: the missing steps are flagged at both ends, the source wells that may still be full and the destination wells that may be empty, until a person says what happened.
+Scenarios: XFER-007, XFER-008, EDGE-022. Found by the demo lab, see `journal/agent-runs/schema-gaps-queries.md` item 1.

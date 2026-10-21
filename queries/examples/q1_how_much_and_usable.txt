@@ -1,0 +1,133 @@
+SET
+Null display is "-".
+Materials matching %, as of 2026-10-21 17:00, as recorded by now
+      kind      |        material        |            name            |  unit  |   held   |  usable  | can't use | tubes or wells usable | tubes or wells held 
+----------------+------------------------+----------------------------+--------+----------+----------+-----------+-----------------------+---------------------
+ buffer         | buffer:bli-running     | BLI running buffer         | µL     | 388460.0 | 386460.0 |    2000.0 |                     2 |                   2
+ buffer         | buffer:gfp-stock       | GFP1-10 stock              | µL     |   9568.0 |   8568.0 |    1000.0 |                     1 |                   1
+ buffer         | buffer:loading         | Loading buffer             | µL     |  98176.0 |  47176.0 |   51000.0 |                     1 |                   2
+ consumable     | consumable:bli-sensors | Strep-Tactin XT biosensors | pieces |     72.0 |     72.0 |       0.0 |                     1 |                   1
+ dna            | dna:D-001              | DNA for design D-001       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-002              | DNA for design D-002       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-003              | DNA for design D-003       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-004              | DNA for design D-004       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-005              | DNA for design D-005       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-006              | DNA for design D-006       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-007              | DNA for design D-007       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-008              | DNA for design D-008       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-009              | DNA for design D-009       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-010              | DNA for design D-010       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-011              | DNA for design D-011       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-012              | DNA for design D-012       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-013              | DNA for design D-013       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-014              | DNA for design D-014       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-015              | DNA for design D-015       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-016              | DNA for design D-016       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-017              | DNA for design D-017       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-018              | DNA for design D-018       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-019              | DNA for design D-019       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-020              | DNA for design D-020       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-021              | DNA for design D-021       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-022              | DNA for design D-022       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-023              | DNA for design D-023       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ dna            | dna:D-024              | DNA for design D-024       | µL     |     15.0 |     13.0 |       2.0 |                     1 |                   1
+ reagent        | reagent:bsa            | BSA 10%                    | µL     |  49000.0 |  48000.0 |    1000.0 |                     1 |                   1
+ reagent        | reagent:hepes          | HEPES 1 M                  | µL     |  95000.0 |  94000.0 |    1000.0 |                     1 |                   1
+ reagent        | reagent:nacl           | NaCl 5 M                   | µL     |  85000.0 |  84000.0 |    1000.0 |                     1 |                   1
+ reagent        | reagent:pure-mix       | Cell-free expression mix   | µL     |    140.0 |    135.0 |       5.0 |                     1 |                   1
+ reagent        | reagent:water          | Nuclease-free water        | µL     |  19520.0 |  18520.0 |    1000.0 |                     1 |                   1
+ sample_protein | protein:D-001          | Protein of design D-001    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-002          | Protein of design D-002    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-003          | Protein of design D-003    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-004          | Protein of design D-004    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-005          | Protein of design D-005    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-006          | Protein of design D-006    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-007          | Protein of design D-007    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-008          | Protein of design D-008    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-009          | Protein of design D-009    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-010          | Protein of design D-010    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-011          | Protein of design D-011    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-012          | Protein of design D-012    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-013          | Protein of design D-013    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-014          | Protein of design D-014    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-015          | Protein of design D-015    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-016          | Protein of design D-016    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-017          | Protein of design D-017    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-018          | Protein of design D-018    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-019          | Protein of design D-019    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-020          | Protein of design D-020    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-021          | Protein of design D-021    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-022          | Protein of design D-022    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-023          | Protein of design D-023    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ sample_protein | protein:D-024          | Protein of design D-024    | µL     |     14.0 |     12.0 |       2.0 |                     1 |                   1
+ target         | target:egfr            | EGFR extracellular domain  | µL     |    355.0 |    225.0 |     130.0 |                    11 |                  12
+ target         | target:pdl1            | PD-L1                      | µL     |    800.0 |    315.0 |     485.0 |                     9 |                  10
+(59 rows)
+
+
+Why the rest is not usable. A tube with several reasons counts once, under all of them together.
+      material      |                why                | unit | amount  | tubes or wells 
+--------------------+-----------------------------------+------+---------+----------------
+ buffer:bli-running | below pipette reach (dead volume) | µL   |  2000.0 |              2
+ buffer:gfp-stock   | below pipette reach (dead volume) | µL   |  1000.0 |              1
+ buffer:loading     | below pipette reach (dead volume) | µL   |  1000.0 |              1
+ buffer:loading     | expired                           | µL   | 50000.0 |              1
+ dna:D-001          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-002          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-003          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-004          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-005          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-006          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-007          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-008          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-009          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-010          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-011          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-012          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-013          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-014          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-015          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-016          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-017          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-018          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-019          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-020          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-021          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-022          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-023          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ dna:D-024          | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-001      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-002      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-003      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-004      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-005      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-006      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-007      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-008      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-009      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-010      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-011      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-012      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-013      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-014      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-015      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-016      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-017      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-018      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-019      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-020      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-021      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-022      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-023      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ protein:D-024      | below pipette reach (dead volume) | µL   |     2.0 |              1
+ reagent:bsa        | below pipette reach (dead volume) | µL   |  1000.0 |              1
+ reagent:hepes      | below pipette reach (dead volume) | µL   |  1000.0 |              1
+ reagent:nacl       | below pipette reach (dead volume) | µL   |  1000.0 |              1
+ reagent:pure-mix   | below pipette reach (dead volume) | µL   |     5.0 |              1
+ reagent:water      | below pipette reach (dead volume) | µL   |  1000.0 |              1
+ target:egfr        | below pipette reach (dead volume) | µL   |   105.0 |             11
+ target:egfr        | location uncertain                | µL   |    25.0 |              1
+ target:pdl1        | below pipette reach (dead volume) | µL   |    85.0 |              9
+ target:pdl1        | failed QC                         | µL   |   400.0 |              1
+(61 rows)
+

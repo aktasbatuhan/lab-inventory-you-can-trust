@@ -1,0 +1,31 @@
+SET
+Null display is "-".
+Backward trace of BLI-S-0457 B5, as of 2026-10-21 17:00, as recorded by now
+SELECT 1
+
+1. What went into it, and what that was made from
+ lot in the well | steps back |       material       | lot |  origin  |          supplier and lot          | received or made |      qc      | qc on | assay | certificate says 
+-----------------+------------+----------------------+-----+----------+------------------------------------+------------------+--------------+-------+-------+------------------
+              55 |          0 | protein:D-017        |  55 | made     | -                                  | 2026-10-09       | not required | -     | -     | -
+              55 |          1 |   reagent:pure-mix   |   7 | received | Vendor D PURE-1, lot PX-4410       | 2026-09-30       | not required | -     | -     | -
+              55 |          1 |   dna:D-017          |  31 | received | Twist SO-77812/D-017, lot SO-77812 | 2026-10-01       | not required | -     | -     | -
+              64 |          0 | buffer:loading       |  64 | made     | -                                  | 2026-10-19       | not required | -     | -     | -
+              64 |          1 |   reagent:bsa        |   4 | received | Vendor C BSA-10, lot B-5520        | 2026-09-01       | not required | -     | -     | -
+              64 |          1 |   buffer:bli-running |  63 | made     | -                                  | 2026-10-16       | not required | -     | -     | -
+              64 |          2 |     reagent:water    |   1 | received | Vendor C NFW-500, lot W-2291       | 2026-09-01       | not required | -     | -     | -
+              64 |          2 |     reagent:hepes    |   2 | received | Vendor C HEPES-1M, lot H-0731      | 2026-09-01       | not required | -     | -     | -
+              64 |          2 |     reagent:nacl     |   3 | received | Vendor C NACL-5M, lot N-1180       | 2026-09-01       | not required | -     | -     | -
+(9 rows)
+
+
+2. The other side of the measurement: targets and buffers used in the same run
+ experiment | lot used | steps back |      material      | lot |  origin  |       supplier and lot        |      qc      |   qc on    
+------------+----------+------------+--------------------+-----+----------+-------------------------------+--------------+------------
+ EXP-0457   |        8 |          0 | target:egfr        |   8 | received | Vendor A EGFR-100, lot L4471  | pass         | 2026-09-03
+ EXP-0457   |       63 |          0 | buffer:bli-running |  63 | made     | -                             | not required | -
+ EXP-0457   |       63 |          1 |   reagent:water    |   1 | received | Vendor C NFW-500, lot W-2291  | not required | -
+ EXP-0457   |       63 |          1 |   reagent:hepes    |   2 | received | Vendor C HEPES-1M, lot H-0731 | not required | -
+ EXP-0457   |       63 |          1 |   reagent:nacl     |   3 | received | Vendor C NACL-5M, lot N-1180  | not required | -
+(5 rows)
+
+DROP TABLE

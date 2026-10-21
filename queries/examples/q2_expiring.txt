@@ -1,0 +1,11 @@
+SET
+Null display is "-".
+Expired or expiring within 7 days of 2026-10-21 17:00, as recorded by now
+            status            |        expires         |  barcode  |         container         |                 material                 |    held     |   clock    |     clock started      |                                              rule                                              |   where   
+------------------------------+------------------------+-----------+---------------------------+------------------------------------------+-------------+------------+------------------------+------------------------------------------------------------------------------------------------+-----------
+ expired 22 days 07:00:00 ago | 2026-09-29 09:30:00+02 | LB-0922   | Loading buffer LB-0922    | buffer:loading                           | 50000.0 µL  | since made | 2026-09-22 09:30:00+02 | 7 days, set at material level: Brief: loading buffer lasts 1 week.                             | Fridge R1
+ expires in 16:00:00          | 2026-10-22 09:00:00+02 | RB-0922   | Running buffer RB-0922    | buffer:bli-running                       | 190330.0 µL | since made | 2026-09-22 09:00:00+02 | 1 mon, set at kind level: Brief: buffers other than GFP stock and loading buffer last 1 month. | Fridge R1
+ expires in 2 days 01:00:00   | 2026-10-23 18:00:00+02 | EXPR-0457 | Expression plate EXP-0457 | 24 wells: protein:D-001 .. protein:D-024 | 336.0 µL    | since made | 2026-10-09 18:00:00+02 | 14 days, set at kind level: Brief: expression plates last 2 weeks.                             | Fridge R1
+ expires in 4 days 16:00:00   | 2026-10-26 08:30:00+01 | LB-1019   | Loading buffer LB-1019    | buffer:loading                           | 48176.0 µL  | since made | 2026-10-19 08:30:00+02 | 7 days, set at material level: Brief: loading buffer lasts 1 week.                             | Fridge R1
+(4 rows)
+

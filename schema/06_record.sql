@@ -22,9 +22,10 @@ create function new_event(
 $$;
 
 -- Void an event. Returns the correction event, so the right lines can be attached to it.
-create function void(p_event bigint, p_by text, p_note text, p_recorded timestamptz default now())
+create function void(p_event bigint, p_by text, p_note text, p_recorded timestamptz default now(),
+                     p_at timestamptz default null)
 returns bigint language sql as $$
-  select new_event('correction', (select occurred_at from event where id = p_event), p_by,
+  select new_event('correction', coalesce(p_at, (select occurred_at from event where id = p_event)), p_by,
                    'manual', p_note, p_recorded => p_recorded, p_voids => p_event)
 $$;
 
@@ -117,10 +118,27 @@ end $$;
 create function transfer(p_from bigint, p_to bigint, p_lot bigint, p_amount numeric, p_dimension text,
                          p_at timestamptz, p_by text, p_source text default 'manual',
                          p_run bigint default null, p_step int default null,
-                         p_event bigint default null, p_recorded timestamptz default null)
+                         p_event bigint default null, p_recorded timestamptz default null,
+                         p_note text default null)
 returns bigint language plpgsql as $$
-declare ev bigint := coalesce(p_event, new_event('transfer', p_at, p_by, p_source, p_run => p_run, p_step => p_step, p_recorded => p_recorded));
+declare
+  assumed event;
+  ev bigint := p_event;
 begin
+  -- A robot log line that arrives for a step we had assumed (see finish_run)
+  -- replaces the assumption instead of being refused as a duplicate.
+  if ev is null and p_run is not null and p_step is not null and p_source <> 'rule' then
+    select e.* into assumed from event e
+    where e.run_id = p_run and e.run_step = p_step and e.source = 'rule'
+      and e.id not in (select event_id from voided_events('infinity'));
+    if assumed.id is not null then
+      ev := void(assumed.id, p_by, 'robot log line arrived for step ' || p_step || ', replacing the assumed transfer',
+                 greatest(coalesce(p_recorded, p_at), assumed.recorded_at), p_at);
+    end if;
+  end if;
+  if ev is null then
+    ev := new_event('transfer', p_at, p_by, p_source, p_note, p_run, p_step, p_recorded => p_recorded);
+  end if;
   insert into quantity_entry (event_id, container_id, lot_id, dimension, amount, reason) values
     (ev, p_from, p_lot, p_dimension, -p_amount, 'transfer'),
     (ev, p_to,   p_lot, p_dimension,  p_amount, 'transfer');
@@ -300,33 +318,67 @@ begin
   return r;
 end $$;
 
--- Principle 3 / decision D6: when a run finishes, the protocol's expected
--- follow-up is recorded for it. Single-use plates used in the run are recorded
--- as thrown away, marked as coming from a rule. If one turns up later, that's a flag.
-create function finish_run(p_run bigint, p_at timestamptz, p_by text, p_recorded timestamptz default null)
+-- Principle 3 / decisions D6 and D10: when a run ends, what the protocol says
+-- happens next is recorded for it, marked as coming from a rule, so the
+-- exceptions are the only thing anyone has to report.
+--   * A run that finished normally did its planned steps. Steps with no robot
+--     log line are recorded as assumed transfers and flagged; if the log line
+--     turns up later it replaces the assumption.
+--   * An aborted run assumes nothing: missing steps are flagged at both ends.
+--   * Single-use plates used in the run, or sitting in its instrument while it
+--     ran, are recorded as thrown away.
+create function finish_run(p_run bigint, p_at timestamptz, p_by text, p_recorded timestamptz default null,
+                           p_outcome text default 'completed')
 returns bigint language plpgsql as $$
 declare
-  ev bigint := new_event('run finished', p_at, p_by, 'manual', p_run => p_run, p_recorded => p_recorded);
+  ev bigint := new_event(case p_outcome when 'aborted' then 'run aborted' else 'run finished' end,
+                         p_at, p_by, 'manual', p_run => p_run, p_recorded => p_recorded);
   defaults bigint;
+  s record;
+  vessels bigint[];
 begin
-  if exists (
-    select 1 from (
-      select distinct coalesce(c.plate_id, c.id) as vessel
-      from event e join quantity_entry q on q.event_id = e.id join container c on c.id = q.container_id
-      where e.run_id = p_run
-    ) v join container c on c.id = v.vessel join container_type ct on ct.id = c.type_id
-    where ct.single_use and not exists (select 1 from exits(p_at, 'infinity') x where x.container_id = v.vessel)
-  ) then
+  if p_outcome not in ('completed', 'aborted') then
+    raise exception 'a run ends as completed or aborted, not %', p_outcome;
+  end if;
+
+  if p_outcome = 'completed' then
+    for s in
+      select pt.* from planned_transfer pt
+      where pt.run_id = p_run
+        and not exists (select 1 from event e where e.run_id = p_run and e.run_step = pt.step)
+      order by pt.step
+    loop
+      perform transfer(s.from_container_id, s.to_container_id,
+                       coalesce(s.lot_id, (select b.lot_id from balances(p_at, 'infinity') b
+                                           where b.container_id = s.from_container_id and b.amount > 0
+                                           order by b.amount desc limit 1)),
+                       s.amount, s.dimension, p_at, 'rule:protocol-defaults', 'rule', p_run, s.step,
+                       p_recorded => p_recorded,
+                       p_note => 'assumed from the worklist: the robot log has no line for this step');
+    end loop;
+  end if;
+
+  select array_agg(distinct v.vessel) into vessels
+  from (
+    select coalesce(c.plate_id, c.id) as vessel
+    from event e join quantity_entry q on q.event_id = e.id join container c on c.id = q.container_id
+    where e.run_id = p_run
+    union
+    select ps.container_id
+    from run r
+    join event rs on rs.id = r.created_event_id
+    join parent_spans('infinity') ps on ps.parent_id = r.instrument_id
+    where r.id = p_run and ps.from_at < p_at and ps.to_at > rs.occurred_at
+  ) v
+  join container c on c.id = v.vessel
+  join container_type ct on ct.id = c.type_id
+  where ct.single_use and not exists (select 1 from exits(p_at, 'infinity') x where x.container_id = v.vessel);
+
+  if vessels is not null then
     defaults := new_event('discard', p_at, 'rule:protocol-defaults', 'rule',
                           'single-use container thrown away after run ' || p_run, p_recorded => p_recorded);
     insert into container_exit (event_id, container_id, kind)
-    select distinct defaults, v.vessel, 'discard'
-    from (
-      select distinct coalesce(c.plate_id, c.id) as vessel
-      from event e join quantity_entry q on q.event_id = e.id join container c on c.id = q.container_id
-      where e.run_id = p_run
-    ) v join container c on c.id = v.vessel join container_type ct on ct.id = c.type_id
-    where ct.single_use and not exists (select 1 from exits(p_at, 'infinity') x where x.container_id = v.vessel);
+    select defaults, unnest(vessels), 'discard';
   end if;
   return ev;
 end $$;

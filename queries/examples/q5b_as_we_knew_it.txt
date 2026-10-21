@@ -1,0 +1,17 @@
+SET
+Null display is "-".
+Barcodes TGT-0101 on 2026-09-24 12:00, as recorded at that moment versus as recorded by now
+SELECT 1
+ barcode  | lot |  material   | held, then | held, now | usable, then | usable, now |  reasons, then   | reasons, now 
+----------+-----+-------------+------------+-----------+--------------+-------------+------------------+--------------
+ TGT-0101 |   8 | target:egfr |     -100.0 |      80.0 |          0.0 |        75.0 | negative balance | -
+(1 row)
+
+
+What changed the picture: entries written after that moment about things that had already happened
+ event |    kind    |        happened        |        written         |             who              |     voids      |                note                 
+-------+------------+------------------------+------------------------+------------------------------+----------------+-------------------------------------
+   103 | correction | 2026-09-23 09:10:00+02 | 2026-09-25 14:00:00+02 | Marco (production scientist) | voids event 80 | Typed 200, took 20 (notebook p. 41)
+(1 row)
+
+DROP TABLE

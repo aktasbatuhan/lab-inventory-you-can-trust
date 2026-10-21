@@ -176,9 +176,20 @@ language sql stable as $$
     select cl.container_id, e.occurred_at, 'found in a count'
     from events_at(t, k) e join count_line cl on cl.event_id = e.id where cl.found
   ),
+  -- Seeing a tube also confirms the box, rack and freezer it was in at that moment.
+  allps as (select * from parent_spans(k)),
+  confirmations_up (container_id, at, how, depth) as (
+    select container_id, at, how, 0 from confirmations
+    union all
+    select a.parent_id, cu.at,
+           case when cu.depth = 0 then cu.how || ' (something inside it)' else cu.how end, cu.depth + 1
+    from confirmations_up cu
+    join allps a on a.container_id = cu.container_id and a.from_at <= cu.at and cu.at < a.to_at
+    where cu.depth < 15
+  ),
   conf as (
-    select distinct on (container_id) container_id, at, how from confirmations
-    order by container_id, at desc
+    select distinct on (container_id) container_id, at, how from confirmations_up
+    order by container_id, at desc, depth
   ),
   not_found as (
     select cl.container_id, max(e.occurred_at) as at
@@ -194,6 +205,8 @@ language sql stable as $$
            when ct.category in ('place') or l.condition is not null then 'fixed place'
            when nf.at is not null and nf.at > coalesce(conf.at, '-infinity') then 'uncertain'
            when top.depth = 0 then 'not placed'
+           when (select max(from_at) from ps where ps.container_id = l.id) > coalesce(conf.at, '-infinity')
+             then 'placed, not confirmed'
            else 'placed'
          end,
          conf.at, conf.how
@@ -365,7 +378,10 @@ language sql stable as $$
       array_remove(array[
         case when lim.max_thaws is not null and th.thaws > lim.max_thaws
              then 'thawed ' || th.thaws || ' times, limit is ' || lim.max_thaws end,
-        case when xp.expires_at > t and xp.expires_at <= t + interval '14 days' then 'expires within 14 days' end
+        case when xp.expires_at > t and xp.expires_at <= t + interval '14 days' then 'expires within 14 days' end,
+        case when l.supplier_expiry is null
+              and not exists (select 1 from rules_for_lots(t, k) r where r.lot_id = b.lot_id)
+             then 'no shelf-life rule, so expiry is unknown' end
       ], null) as warnings,
       xp.expires_at, xp.clock, coalesce(th.thaws, 0) as thaws
     from b
@@ -434,11 +450,17 @@ language sql stable as $$
     and (select sum(amount) from quantity_entry where lot_id = l1.id and reason = 'receive')
       = (select sum(amount) from quantity_entry where lot_id = l2.id and reason = 'receive')
   union all
-  select 'robot run incomplete', pt.to_container_id, pt.lot_id,
-         'run ' || pt.run_id || ' step ' || pt.step || ' was planned but the robot log has no record of it'
+  select 'robot run incomplete', end_id, pt.lot_id,
+         'run ' || pt.run_id || ' was aborted before step ' || pt.step || ' (' || which || ' of the transfer)'
   from planned_transfer pt
-  where exists (select 1 from events_at(t, k) e where e.run_id = pt.run_id and e.kind = 'run finished')
+  cross join lateral (values (pt.from_container_id, 'source'), (pt.to_container_id, 'destination')) ends (end_id, which)
+  where exists (select 1 from events_at(t, k) e where e.run_id = pt.run_id and e.kind = 'run aborted')
     and not exists (select 1 from events_at(t, k) e where e.run_id = pt.run_id and e.run_step = pt.step)
+  union all
+  select 'robot step assumed', q.container_id, q.lot_id,
+         'run ' || e.run_id || ' step ' || e.run_step || ' finished without a log line; recorded as done by rule'
+  from events_at(t, k) e join quantity_entry q on q.event_id = e.id and q.amount > 0
+  where e.source = 'rule' and e.run_step is not null
   union all
   select 'location uncertain', container_id, null, 'not found in the last count and not seen since'
   from location(t, k) where status = 'uncertain'

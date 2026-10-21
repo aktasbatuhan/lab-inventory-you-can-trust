@@ -1,0 +1,36 @@
+SET
+Null display is "-".
+Thrown away between 2026-09-01 and 2026-10-21 17:00, as recorded by now
+SELECT 131
+
+Each container thrown away with something in it
+      thrown away       |         container         |         how          |                 who                 |                     note                     |         what was in it          |  amount   |    value CHF    
+------------------------+---------------------------+----------------------+-------------------------------------+----------------------------------------------+---------------------------------+-----------+-----------------
+ 2026-09-11 09:05:00+02 | tube_matrix #36           | by hand              | Marco (production scientist)        | dropped while thawing, tube cracked          | target:egfr                     | 25.0 µL   | 15.00
+ 2026-09-23 10:30:00+02 | tube_matrix #34           | by hand              | Marco (production scientist)        | -                                            | target:egfr                     | 10.0 µL   | 6.00
+ 2026-09-23 10:30:00+02 | tube_matrix #35           | by hand              | Marco (production scientist)        | -                                            | target:egfr                     | 10.0 µL   | 6.00
+ 2026-09-23 16:00:00+02 | BLI target plate EXP-0431 | by rule (single use) | What the protocol says happens next | single-use container thrown away after run 1 | 2 lots: buffer, target          | 1200.0 µL | 18.00 + unknown
+ 2026-10-13 11:45:00+02 | Split-GFP plate EXP-0457  | by rule (single use) | What the protocol says happens next | single-use container thrown away after run 4 | 25 lots: buffer, sample_protein | 480.0 µL  | unknown
+ 2026-10-19 15:35:00+02 | tube_matrix #21           | by hand              | Marco (production scientist)        | -                                            | target:egfr                     | 10.0 µL   | 6.00
+ 2026-10-19 15:35:00+02 | tube_matrix #22           | by hand              | Marco (production scientist)        | -                                            | target:egfr                     | 10.0 µL   | 6.00
+ 2026-10-20 15:00:00+02 | BLI sample plate EXP-0457 | by rule (single use) | What the protocol says happens next | single-use container thrown away after run 5 | 25 lots: buffer, sample_protein | 1920.0 µL | unknown
+ 2026-10-20 15:00:00+02 | BLI target plate EXP-0457 | by rule (single use) | What the protocol says happens next | single-use container thrown away after run 5 | 2 lots: buffer, target          | 2400.0 µL | 18.00 + unknown
+(9 rows)
+
+
+Totals by kind of material, accidents and protocol apart
+         how          |      kind      |  amount   | value CHF | containers 
+----------------------+----------------+-----------+-----------+------------
+ by hand              | target         | 65.0 µL   | 39.00     |          5
+ by rule (single use) | buffer         | 5796.0 µL | unknown   |          4
+ by rule (single use) | sample_protein | 144.0 µL  | unknown   |          2
+ by rule (single use) | target         | 60.0 µL   | 36.00     |          2
+(4 rows)
+
+
+Written off without throwing the container away (spills, evaporation)
+ when | container | material | amount | dimension | who | note 
+------+-----------+----------+--------+-----------+-----+------
+(0 rows)
+
+DROP TABLE

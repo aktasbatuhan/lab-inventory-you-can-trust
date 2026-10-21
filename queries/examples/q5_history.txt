@@ -1,0 +1,17 @@
+SET
+Null display is "-".
+History of TGT-0101, everything on record by now
+ event |        happened        |        written         |    kind    |                        what                        |             who              | source |                                                    status                                                    |     note     
+-------+------------------------+------------------------+------------+----------------------------------------------------+------------------------------+--------+--------------------------------------------------------------------------------------------------------------+--------------
+    26 | 2026-09-02 10:00:00+02 | 2026-09-02 10:00:00+02 | register   | label TGT-0101 attached; put into Freezer F1 (-80) | Lena (lab operations)        | scan   | counts                                                                                                       | -
+    27 | 2026-09-02 10:00:00+02 | 2026-09-02 10:00:00+02 | receive    | +500 µL target:egfr (lot 8, receive)               | Lena (lab operations)        | manual | counts                                                                                                       | -
+    28 | 2026-09-03 11:00:00+02 | 2026-09-03 11:00:00+02 | qc         | QC pass for lot 8 (SDS-PAGE and A280)              | Marco (production scientist) | manual | counts                                                                                                       | -
+    29 | 2026-09-04 09:00:00+02 | 2026-09-04 09:00:00+02 | move       | put into Bench B1                                  | Lena (lab operations)        | scan   | counts                                                                                                       | -
+    47 | 2026-09-04 09:30:00+02 | 2026-09-04 09:30:00+02 | split      | -400 µL target:egfr (lot 8, transfer)              | Lena (lab operations)        | manual | counts                                                                                                       | -
+    48 | 2026-09-04 09:45:00+02 | 2026-09-04 09:45:00+02 | move       | put into Freezer F1 (-80)                          | Lena (lab operations)        | scan   | counts                                                                                                       | -
+    79 | 2026-09-23 09:00:00+02 | 2026-09-23 09:00:00+02 | move       | put into Bench B1                                  | Marco (production scientist) | scan   | counts                                                                                                       | -
+    80 | 2026-09-23 09:10:00+02 | 2026-09-23 09:10:00+02 | consume    | -200 µL target:egfr (lot 8, consume)               | Marco (production scientist) | manual | VOIDED by event 103 on 2026-09-25 14:00 by Marco (production scientist): Typed 200, took 20 (notebook p. 41) | SEC re-check
+   103 | 2026-09-23 09:10:00+02 | 2026-09-25 14:00:00+02 | correction | -20 µL target:egfr (lot 8, consume)                | Marco (production scientist) | manual | correction of event 80: Typed 200, took 20 (notebook p. 41)                                                  | -
+    81 | 2026-09-23 09:30:00+02 | 2026-09-23 09:30:00+02 | move       | put into Freezer F1 (-80)                          | Marco (production scientist) | scan   | counts                                                                                                       | -
+(10 rows)
+

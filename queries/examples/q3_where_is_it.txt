@@ -1,0 +1,22 @@
+SET
+Null display is "-".
+Barcodes EGFR-L4471-009,BOX-0012,BLI-S-0457, as of 2026-10-21 17:00, as recorded by now
+    barcode     |         container         |        status         |                                where                                |     last confirmed     |                   how                   |    since then    | label still live 
+----------------+---------------------------+-----------------------+---------------------------------------------------------------------+------------------------+-----------------------------------------+------------------+------------------
+ BLI-S-0457     | BLI sample plate EXP-0457 | discarded             | -                                                                   | 2026-10-20 08:30:00+02 | moved with a scan                       | 1 day 08:00:00   | f
+ BOX-0012       | Box PD-L1 P-2231          | placed, not confirmed | Freezer F3 (-80) @shelf 2                                           | 2026-09-17 09:20:00+02 | moved with a scan (something inside it) | 34 days 07:00:00 | t
+ EGFR-L4471-009 | tube_matrix #29           | uncertain             | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 9 | 2026-09-04 09:30:00+02 | moved with a scan                       | 47 days 07:00:00 | t
+(3 rows)
+
+
+The trail: every place each one has been, and how the move was recorded
+    barcode     |          from          |         until          |            in             |     recorded how      
+----------------+------------------------+------------------------+---------------------------+-----------------------
+ BLI-S-0457     | 2026-10-19 14:00:00+02 | 2026-10-19 15:45:00+02 | Bench B1                  | scanned
+ BLI-S-0457     | 2026-10-19 15:45:00+02 | 2026-10-20 08:30:00+02 | Fridge R1                 | scanned
+ BLI-S-0457     | 2026-10-20 08:30:00+02 | 2026-10-20 15:00:00+02 | Gator BLI 1 @plate 1      | scanned
+ BOX-0012       | 2026-09-17 09:10:00+02 | 2026-09-25 16:00:00+02 | Rack A @slot 2            | scanned
+ BOX-0012       | 2026-09-25 16:00:00+02 | -                      | Freezer F3 (-80) @shelf 2 | typed in, not scanned
+ EGFR-L4471-009 | 2026-09-04 09:30:00+02 | -                      | Box EGFR L4471 @slot 9    | scanned
+(6 rows)
+

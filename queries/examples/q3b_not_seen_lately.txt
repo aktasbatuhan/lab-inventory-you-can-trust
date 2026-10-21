@@ -1,0 +1,26 @@
+SET
+Null display is "-".
+Not confirmed for 14 days before 2026-10-21 17:00, or missing in a count, as recorded by now
+  status   |    barcode     |       container        |                                where                                |     last confirmed     |        how        | days ago |         holds          |  amount  
+-----------+----------------+------------------------+---------------------------------------------------------------------+------------------------+-------------------+----------+------------------------+----------
+ uncertain | EGFR-L4471-009 | tube_matrix #29        | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 9 | 2026-09-04 09:30:00+02 | moved with a scan |       47 | target:egfr            |     25.0
+ placed    | H2O-0901       | Water H2O-0901         | Reagent shelf S1                                                    | 2026-09-01 10:00:00+02 | moved with a scan |       50 | reagent:water          |  19520.0
+ placed    | HEPES-0901     | HEPES 1 M              | Reagent shelf S1                                                    | 2026-09-01 10:05:00+02 | moved with a scan |       50 | reagent:hepes          |  95000.0
+ placed    | NACL-0901      | NaCl 5 M               | Reagent shelf S1                                                    | 2026-09-01 10:10:00+02 | moved with a scan |       50 | reagent:nacl           |  85000.0
+ placed    | BSA-0901       | BSA 10%                | Fridge R1                                                           | 2026-09-01 10:15:00+02 | moved with a scan |       50 | reagent:bsa            |  49000.0
+ placed    | TGT-0102       | PD-L1 stock P-2209     | Freezer F1 (-80)                                                    | 2026-09-08 10:00:00+02 | moved with a scan |       43 | target:pdl1            |    400.0
+ placed    | SENS-0915      | BLI sensor tray        | Reagent shelf S1                                                    | 2026-09-15 11:00:00+02 | moved with a scan |       36 | consumable:bli-sensors |     72.0
+ placed    | PDL1-P2231-001 | tube_matrix #40        | Freezer F3 (-80) @shelf 2 > Box PD-L1 P-2231 @slot 1                | 2026-09-17 09:20:00+02 | moved with a scan |       34 | target:pdl1            |     25.0
+ placed    | PDL1-P2231-002 | tube_matrix #41        | Freezer F3 (-80) @shelf 2 > Box PD-L1 P-2231 @slot 2                | 2026-09-17 09:20:00+02 | moved with a scan |       34 | target:pdl1            |     25.0
+ placed    | PDL1-P2231-003 | tube_matrix #42        | Freezer F3 (-80) @shelf 2 > Box PD-L1 P-2231 @slot 3                | 2026-09-17 09:20:00+02 | moved with a scan |       34 | target:pdl1            |     25.0
+ placed    | PDL1-P2231-004 | tube_matrix #43        | Freezer F3 (-80) @shelf 2 > Box PD-L1 P-2231 @slot 4                | 2026-09-17 09:20:00+02 | moved with a scan |       34 | target:pdl1            |     25.0
+ placed    | PDL1-P2231-005 | tube_matrix #44        | Freezer F3 (-80) @shelf 2 > Box PD-L1 P-2231 @slot 5                | 2026-09-17 09:20:00+02 | moved with a scan |       34 | target:pdl1            |     25.0
+ placed    | PDL1-P2231-006 | tube_matrix #45        | Freezer F3 (-80) @shelf 2 > Box PD-L1 P-2231 @slot 6                | 2026-09-17 09:20:00+02 | moved with a scan |       34 | target:pdl1            |     25.0
+ placed    | PDL1-P2231-007 | tube_matrix #46        | Freezer F3 (-80) @shelf 2 > Box PD-L1 P-2231 @slot 7                | 2026-09-17 09:20:00+02 | moved with a scan |       34 | target:pdl1            |     25.0
+ placed    | PDL1-P2231-008 | tube_matrix #47        | Freezer F3 (-80) @shelf 2 > Box PD-L1 P-2231 @slot 8                | 2026-09-17 09:20:00+02 | moved with a scan |       34 | target:pdl1            |     25.0
+ placed    | TGT-0103       | PD-L1 stock P-2231     | Freezer F1 (-80)                                                    | 2026-09-17 09:40:00+02 | moved with a scan |       34 | target:pdl1            |    200.0
+ placed    | RB-0922        | Running buffer RB-0922 | Fridge R1                                                           | 2026-09-22 09:00:00+02 | moved with a scan |       29 | buffer:bli-running     | 190330.0
+ placed    | LB-0922        | Loading buffer LB-0922 | Fridge R1                                                           | 2026-09-22 09:30:00+02 | moved with a scan |       29 | buffer:loading         |  50000.0
+ placed    | TGT-0101       | EGFR stock L4471       | Freezer F1 (-80)                                                    | 2026-09-23 09:30:00+02 | moved with a scan |       28 | target:egfr            |     80.0
+(19 rows)
+

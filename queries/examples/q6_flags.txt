@@ -1,0 +1,11 @@
+SET
+Null display is "-".
+Open items as of 2026-10-21 17:00, as recorded by now
+         flag          |    barcode     |          container           |    material    |                               detail                                |                                where                                
+-----------------------+----------------+------------------------------+----------------+---------------------------------------------------------------------+---------------------------------------------------------------------
+ expired, still here   | LB-0922        | Loading buffer LB-0922       | buffer:loading | 50000.0 left, expired 2026-09-29 09:30 (since made): throw away     | Fridge R1
+ failed QC, still here | TGT-0102       | PD-L1 stock P-2209           | target:pdl1    | 400.0 left: return to supplier or throw away                        | Freezer F1 (-80)
+ location uncertain    | EGFR-L4471-009 | tube_matrix #29              | -              | not found in the last count and not seen since                      | Freezer F1 (-80) @shelf 1 > Rack A @slot 1 > Box EGFR L4471 @slot 9
+ robot step assumed    | EXPR-0457 B5   | Expression plate EXP-0457 B5 | dna:D-017      | run 2 step 17 finished without a log line; recorded as done by rule | Fridge R1
+(4 rows)
+
