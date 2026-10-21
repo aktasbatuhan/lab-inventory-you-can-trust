@@ -1,0 +1,363 @@
+# Noise model for the lab simulation.
+# Every rate has a central value we'll use by default and a low/high range to sweep.
+# "confidence" says how much to trust the number:
+#   measured   = a published measurement in a similar setting
+#   borrowed   = measured, but in another field (clinical lab, retail, accounts payable)
+#   vendor     = a vendor spec or vendor claim
+#   assumption = our own estimate; no good source found
+# Source keys match the numbered list in journal/agent-runs/research.md.
+
+version: 1
+written: 2026-10-21
+
+human_errors:
+  - name: wrong_container_scanned
+    description: Person scans a tube or plate, but not the one they actually used (picked the neighbour, scanned the box instead of the tube).
+    rate: 0.0005
+    unit: per scan by a person
+    range: [0.0001, 0.002]
+    confidence: borrowed
+    source: [S1, S2]
+    note: Borrowed from "wrong blood in tube" rates in hospitals, about 1 in 2,000 samples. Our setting is calmer than a ward, so the low end may be closer.
+
+  - name: label_error
+    description: Label on a container is wrong, missing, or unreadable by eye (wrong name, wrong lot, handwritten and smudged).
+    rate: 0.001
+    unit: per label made
+    range: [0.0002, 0.005]
+    confidence: borrowed
+    source: [S3]
+    note: CAP Q-Probes across 147 clinical labs found 0.92 per 1,000 labels overall; the worst 10% of labs were far higher (up to 52 per 1,000). We cap the range at 5 per 1,000.
+
+  - name: manual_value_mistyped
+    description: A typed number (volume, concentration, count) doesn't match the true value.
+    rate: 0.037
+    unit: per manually typed value
+    range: [0.008, 0.05]
+    confidence: borrowed
+    source: [S4]
+    note: Point-of-care glucose study found 3.7% of typed results differed from the instrument. Older lab studies range from 0.8% to 5%.
+
+  - name: manual_value_badly_wrong
+    description: Subset of mistyped values that are off by more than 20% (dropped digit, decimal slip, 13 instead of 132).
+    rate: 0.005
+    unit: per manually typed value
+    range: [0.002, 0.01]
+    confidence: borrowed
+    source: [S4]
+    note: 14% of the errors in the same study, about 0.5% of all entries.
+
+  - name: keystroke_error
+    description: Single character typed wrong when a barcode or ID is keyed in by hand instead of scanned.
+    rate: 0.0033
+    unit: per character typed
+    range: [0.002, 0.005]
+    confidence: borrowed
+    source: [S5, S4]
+    note: The common figure is 1 error per 300 characters; a microbiology lab measured 0.83% per keystroke, so the high end is plausible.
+
+  - name: step_not_recorded
+    description: Something happened at the bench (a move, a transfer, a discard) but nobody recorded it.
+    rate: 0.005
+    unit: per routine step
+    range: [0.003, 0.01]
+    confidence: borrowed
+    source: [S6]
+    note: Generic human-reliability numbers for leaving out a step - 0.003 when the step is part of a written procedure, 0.01 with no reminder. Moves are the most likely to be skipped.
+
+  - name: wrong_position_selected
+    description: Right container, wrong well or wrong box slot recorded (A3 instead of A4, swapped rows).
+    rate: 0.003
+    unit: per position chosen by hand
+    range: [0.001, 0.005]
+    confidence: borrowed
+    source: [S6, S7]
+    note: Human-reliability "selection error" values. No lab study gives a per-well rate; a preprint only says manual 96-well work is error prone.
+
+  - name: duplicate_delivery_registration
+    description: Same supplier delivery is booked in twice (two people, or a retry after a timeout).
+    rate: 0.002
+    unit: per delivery
+    range: [0.0005, 0.02]
+    confidence: borrowed
+    source: [S8]
+    note: Borrowed from duplicate invoice rates in accounts payable, which vendors put between 0.05% and 2%. Weak source; treat as a sweep parameter.
+
+  - name: discard_with_material_unrecorded
+    description: Container thrown away with material inside, and the remaining amount is not written off.
+    rate: 0.02
+    unit: per discard
+    range: [0.005, 0.05]
+    confidence: assumption
+    source: []
+    note: No source found. Folded into step_not_recorded in spirit, set higher because discards feel like cleanup, not a task.
+
+scanning:
+  - name: barcode_no_read_1d_label
+    description: Printed 1D barcode on a tube fails to scan on the first try (frost, curve, smudge). Person rescans or types it.
+    rate: 0.02
+    unit: per scan attempt
+    range: [0.005, 0.08]
+    confidence: assumption
+    source: [S9]
+    note: No published no-read rate for lab tubes. Frosted tubes out of a -80 are the worst case. Each no-read that gets typed instead feeds keystroke_error.
+
+  - name: barcode_no_read_2d_rack
+    description: One tube in a 2D-barcoded rack fails to decode on a rack scan.
+    rate: 0.002
+    unit: per tube per rack scan
+    range: [0.0005, 0.01]
+    confidence: assumption
+    source: [S10]
+    note: Vendors say codes are "100% readable" out of the factory and survive 25% damage; field failures come from frost and tubes not sitting flat. No measured rate found.
+
+  - name: barcode_misdecode
+    description: Scanner returns a valid-looking but wrong code.
+    rate: 0.000005
+    unit: per scan
+    range: [0.0000003, 0.00002]
+    confidence: vendor
+    source: [S5, S11]
+    note: Vendor figure is 1 in 3 million characters; a clinical study found real-world rates 10-15 times higher with Code 128. Rare enough that wrong_container_scanned dominates.
+
+liquid_handling:
+  manual_pipette:
+    # ISO 8655 maximum permissible errors, as printed by Gilson. Real calibrated pipettes do better;
+    # tired people with the wrong technique do worse.
+    - name: manual_2ul
+      volume_ul: 2
+      systematic_error_pct: 4.0
+      cv_pct: 2.0
+      confidence: vendor
+      source: [S12]
+    - name: manual_10ul
+      volume_ul: 10
+      systematic_error_pct: 1.2
+      cv_pct: 0.8
+      confidence: vendor
+      source: [S12]
+    - name: manual_100ul_plus
+      volume_ul: 100
+      systematic_error_pct: 0.8
+      cv_pct: 0.3
+      confidence: assumption
+      source: []
+      note: Not looked up; typical order of magnitude for a P200/P1000 in spec.
+  robot:
+    - name: tecan_1ul_50ul_tip
+      volume_ul: 1
+      systematic_error_pct: 8.0
+      cv_pct: 4.0
+      confidence: vendor
+      source: [S13]
+    - name: tecan_1ul_10ul_tip
+      volume_ul: 1
+      systematic_error_pct: 2.0
+      cv_pct: 1.0
+      confidence: vendor
+      source: [S13]
+    - name: bravo_384_2ul
+      volume_ul: 2
+      systematic_error_pct: 1.6
+      cv_pct: 1.3
+      confidence: vendor
+      source: [S14]
+    - name: bravo_96_1ul
+      volume_ul: 1
+      systematic_error_pct: 2.0
+      cv_pct: 1.9
+      confidence: vendor
+      source: [S14]
+  default_robot_cv_pct: 3.0     # what we'll use if we don't model a specific head
+  default_robot_bias_pct: [-5, 5]
+
+containers:
+  # dead_volume_ul = what you can't get back out. working range = what the instrument will accept.
+  - name: tube_1_5ml
+    capacity_ul: 1500
+    dead_volume_ul: 5
+    dead_volume_range_ul: [2, 15]
+    confidence: assumption
+    source: []
+    note: No vendor publishes this for hand pipetting. 5 µL is a careful person with a P10; 15 µL for a robot with liquid-level detection.
+  - name: matrix_2d_tube_0_5ml
+    capacity_ul: 500
+    dead_volume_ul: 15
+    dead_volume_range_ul: [5, 30]
+    confidence: assumption
+    source: [S10]
+    note: V-bottom, sold for "optimal recovery", but no µL figure published.
+  - name: matrix_2d_tube_1_0ml
+    capacity_ul: 1000
+    dead_volume_ul: 20
+    dead_volume_range_ul: [10, 40]
+    confidence: assumption
+    source: [S10]
+  - name: pcr_plate_96
+    wells: 96
+    well_capacity_ul: 200
+    dead_volume_ul_per_well: 3
+    dead_volume_range_ul: [1, 5]
+    confidence: assumption
+    source: [S15]
+    note: Hamilton sells V-bottom PCR plates for low-volume recovery but gives no number.
+  - name: pcr_plate_384
+    wells: 384
+    well_capacity_ul: 40
+    dead_volume_ul_per_well: 2
+    dead_volume_range_ul: [1, 4]
+    confidence: assumption
+    source: []
+  - name: echo_384pp_source
+    wells: 384
+    working_range_ul: [15, 65]
+    dead_volume_ul_per_well: 20
+    dead_volume_range_ul: [15, 20]
+    confidence: measured
+    source: [S16, S17]
+    note: One SOP says 15-65 µL, a protocol says 20-65 µL with "dead volume of about 20 µL". The Echo refuses to fire below the floor, so this is a hard limit, not a soft one.
+  - name: echo_384ldv_source
+    wells: 384
+    working_range_ul: [3, 12]
+    dead_volume_ul_per_well: 3
+    dead_volume_range_ul: [2.5, 3]
+    confidence: measured
+    source: [S16]
+  - name: bli_plate_96
+    wells: 96
+    working_volume_ul: 200
+    working_range_ul: [180, 250]
+    confidence: measured
+    source: [S18, S19]
+  - name: bli_plate_384_tilted
+    wells: 384
+    working_volume_ul: 60
+    working_range_ul: [40, 80]
+    confidence: measured
+    source: [S18, S19, S20]
+
+evaporation:
+  conditions:
+    - name: open_384_bench
+      description: Uncovered 384-well plate on the bench, about 50 µL per well, water-based.
+      rate: 0.9
+      unit: µL per well per hour
+      range: [0.4, 1.2]
+      confidence: measured
+      source: [S21]
+      note: 14.8% of 50 µL lost in 8 h. Edge and corner wells lose more.
+    - name: lidded_384_bench
+      description: Same plate with a loose plastic lid.
+      rate: 0.3
+      unit: µL per well per hour
+      range: [0.1, 0.4]
+      confidence: measured
+      source: [S21]
+    - name: corner_well_30c
+      description: Corner well of a plate in a 30 °C incubator.
+      rate: 0.45
+      unit: µL per well per hour
+      range: [0.3, 0.66]
+      confidence: measured
+      source: [S22]
+      note: 0.66 µL/h at 37 °C. Perimeter wells about half of corner. Humidity from 23% to 47% cut evaporation by about 30%.
+    - name: sealed_plate
+      description: Foil or heat-sealed plate in fridge or freezer.
+      rate: 0.0
+      unit: µL per well per hour
+      range: [0.0, 0.01]
+      confidence: assumption
+      source: []
+  edge_multiplier: 2.0          # perimeter vs centre, rough
+  corner_multiplier: 4.0        # one patent saw ~6x at 35 °C overnight
+
+materials:
+  twist_dna:
+    shipped_as: dried
+    ships_at: ambient           # resuspended DNA ships frozen instead
+    formats: [plate_96, plate_384, tube_2ml]
+    clonal_gene_yield_ug: {microprep: [1, 4], miniprep: [4, 10], midiprep: [10, 100], maxiprep: [100, 1000]}
+    gene_fragment_yield_ng: [100, 1000]
+    resuspend_min_ng_per_ul: 10
+    low_yield_rate: 0.03        # clones reported "NA" (<1 µg guarantee missed); still shipped
+    low_yield_rate_range: [0.01, 0.08]
+    low_yield_confidence: assumption
+    source: [S23, S24]
+    note: Twist doesn't publish a per-well amount; it is on the plate map per order. Low-yield wells are real (Twist has a protocol for them) but the rate is our guess.
+
+  target_protein:
+    purchase_sizes_ug: [50, 100, 500, 1000]
+    typical_purchase_ug: 100
+    price_usd_per_100ug: [200, 400]
+    price_usd_per_1mg: 2400
+    shipped_as: lyophilized     # most catalog proteins; bulk ships as frozen liquid
+    shelf_life_lyophilized_months: 12
+    storage_c: [-80, -20]
+    typical_aliquot_ul: [10, 50]
+    bli_loading_ug_per_ml: [5, 25]   # His-tag on Ni-NTA; 10 is a good default
+    bli_target_ug_per_well_96: 2     # 10 µg/mL x 200 µL
+    bli_target_ug_per_well_384: 0.6  # 10 µg/mL x 60 µL
+    qc_fail_rate: 0.05
+    qc_fail_rate_range: [0.02, 0.15]
+    qc_fail_confidence: assumption
+    source: [S25, S26, S27]
+    note: Prices from distributor listings (Sino Biological, ACRO via VWR), not quotes. A 100 µg vial covers roughly 50 BLI wells at 10 µg/mL in 96-well format, less after dead volume.
+
+  cell_free_expression:
+    yield_ug_per_well: [10, 100]
+    confidence: assumption
+    source: [S28]
+    note: From a third-party description of Adaptyv's service, not Adaptyv itself.
+
+freeze_thaw:
+  recommended_max_cycles: 1
+  recommended_max_cycles_range: [1, 5]
+  activity_loss_per_cycle_pct: 3
+  activity_loss_per_cycle_range_pct: [0, 10]
+  confidence: assumption
+  source: [S29, S30, S31]
+  note: >
+    Vendors all say "aliquot, avoid repeated freeze-thaw" and give no number. One antibody
+    study saw particles after 5 cycles; one patent says freeze once only; another protein was
+    fine after 7. It depends on the protein. Model it as a counter with a per-material limit,
+    not a fixed loss curve.
+
+freezer:
+  - name: freezer_failure
+    description: -80 °C freezer fails or warms enough to need action (compressor, door left open, power).
+    rate: 0.1
+    unit: per freezer per year
+    range: [0.03, 0.16]
+    confidence: vendor
+    source: [S32, S33]
+    note: The only number found, 16% per year, comes from a trade article with no study named. Every Swedish university biobank asked had seen a failure. Use as a rare event that moves many containers at once.
+  - name: freezer_door_left_open
+    description: Short warm-up from a door left ajar; material may need QC.
+    rate: 2
+    unit: per freezer per year
+    range: [0.5, 6]
+    confidence: assumption
+    source: []
+
+inventory_accuracy:
+  conditions:
+    # Share of records where the system's count matches what's on the shelf.
+    - name: no_counting
+      record_accuracy: 0.35
+      range: [0.3, 0.6]
+      confidence: borrowed
+      source: [S34]
+      note: Retail SKU-level study, 65% of records wrong. Labs track fewer, more valuable items, so likely better, but nobody has measured it.
+    - name: legacy_paper_or_spreadsheet
+      record_accuracy: 0.95
+      range: [0.90, 0.98]
+      confidence: vendor
+      source: [S35]
+      note: Location-level accuracy in warehouses, a different measure from the retail one.
+    - name: with_cycle_counting
+      record_accuracy: 0.98
+      range: [0.97, 0.995]
+      confidence: borrowed
+      source: [S36]
+  drift_per_month_without_counting: 0.025   # illustrative decay, 95% -> 90% in two months
+  drift_source: [S37]
