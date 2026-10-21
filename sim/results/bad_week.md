@@ -38,10 +38,10 @@ Truth-usable applies the same rules as the system (QC, expiry, dead volume) to w
 
 | Checkpoint | Amounts off | Wrong place or spot | Ghosts | Lost | Flags raised | Query time (s) |
 |---|---|---|---|---|---|---|
-| day 2 (2026-09-08 23:00) | 0 of 113 | 0 | 0 | 0 | 0 | 0.2 |
-| day 4 (2026-09-10 23:00) | 2 of 160 | 0 | 0 | 0 | 1 | 0.5 |
-| day 6 (2026-09-12 23:00) | 2 of 160 | 0 | 0 | 0 | 3 | 0.5 |
-| end (2026-09-13 23:00) | 2 of 160 | 0 | 0 | 0 | 3 | 0.4 |
+| day 2 (2026-09-08 23:00) | 0 of 113 | 0 | 0 | 0 | 0 | 0.1 |
+| day 4 (2026-09-10 23:00) | 2 of 160 | 0 | 0 | 0 | 1 | 0.2 |
+| day 6 (2026-09-12 23:00) | 2 of 160 | 0 | 0 | 0 | 3 | 0.2 |
+| end (2026-09-13 23:00) | 2 of 160 | 0 | 0 | 0 | 3 | 0.2 |
 
 Flags at the last checkpoint: location uncertain 2, robot step assumed 1.
 

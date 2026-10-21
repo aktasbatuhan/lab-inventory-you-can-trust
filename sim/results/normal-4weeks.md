@@ -1,6 +1,6 @@
 # Simulation report: normal
 
-28 simulated days from 2026-09-07, 768 designs a week, 4 targets (EGFR, PDL1, HER2, IL6R), 8 experiment(s), seed 7. Loading the recorded calls took 11.9 s.
+28 simulated days from 2026-09-07, 768 designs a week, 4 targets (EGFR, PDL1, HER2, IL6R), 8 experiment(s), seed 7. Loading the recorded calls took 9.7 s.
 
 Each checkpoint asks the system what it believed at that moment, using only what had been written down by then, and compares it with what was really in the lab. "Exact" means within 0.5% (rounding and nothing else); pipetting noise alone puts robot-filled wells in the "within 10%" group.
 
@@ -40,12 +40,12 @@ Truth-usable applies the same rules as the system (QC, expiry, dead volume) to w
 
 | Checkpoint | Amounts off | Wrong place or spot | Ghosts | Lost | Flags raised | Query time (s) |
 |---|---|---|---|---|---|---|
-| day 7 (2026-09-13 23:00) | 359 of 1621 | 0 | 1 | 0 | 1 | 16.5 |
-| day 14 (2026-09-20 23:00) | 840 of 3524 | 0 | 3 | 0 | 4 | 88.4 |
-| day 21 (2026-09-27 23:00) | 1570 of 5436 | 0 | 3 | 0 | 5 | 124.6 |
-| end (2026-10-04 23:00) | 1258 of 5438 | 0 | 5 | 0 | 6 | 187.6 |
+| day 7 (2026-09-13 23:00) | 359 of 1621 | 0 | 1 | 0 | 1 | 3.8 |
+| day 14 (2026-09-20 23:00) | 840 of 3524 | 0 | 3 | 0 | 5 | 8.6 |
+| day 21 (2026-09-27 23:00) | 1570 of 5436 | 0 | 3 | 0 | 7 | 14.0 |
+| end (2026-10-04 23:00) | 1258 of 5438 | 0 | 5 | 0 | 8 | 17.1 |
 
-Flags at the last checkpoint: negative balance 1, robot step assumed 5.
+Flags at the last checkpoint: negative balance 1, robot step assumed 5, seen after it left 2.
 
 ## The injected mistakes, and what became of them
 
@@ -54,13 +54,13 @@ Every mistake is in errors.jsonl with an id. "Corrected" means someone noticed a
 | Mistake | Count | corrected | refused at entry | flagged | no lasting harm | silently wrong |
 |---|---|---|---|---|---|---|
 | discard_unscanned | 5 | 0 | 0 | 0 | 0 | 5 |
-| late_sync | 22 | 0 | 0 | 0 | 22 | 0 |
+| late_sync | 22 | 0 | 0 | 2 | 20 | 0 |
 | move_unscanned | 3 | 0 | 0 | 0 | 3 | 0 |
 | robot_step_missing | 5 | 0 | 0 | 5 | 0 | 0 |
 | step_unrecorded | 1 | 0 | 0 | 0 | 1 | 0 |
 | typo_big | 1 | 0 | 0 | 0 | 1 | 0 |
 | typo_small | 1 | 0 | 0 | 1 | 0 | 0 |
-| all | 38 | 0 | 0 | 6 | 27 | 5 |
+| all | 38 | 0 | 0 | 8 | 25 | 5 |
 
 Late entries (22) can only hurt in between: by the end they have all arrived, so they mostly land in "no lasting harm". Their cost shows in the earlier checkpoints, which ask what the system said at the time.
 
@@ -73,7 +73,7 @@ Caught, for example:
 - E00003 robot_step_missing: expression plate prep step 229 (C137/D1 to C139/H1) done but missing from the log. Flag: robot step assumed (run 1 step 229 finished without a log line; recorded as done by rule).
 - E00008 robot_step_missing: split-GFP plate prep and read step 268 (C153/N7 to C155/N7) done but missing from the log. Flag: robot step assumed (run 8 step 268 finished without a log line; recorded as done by rule).
 - E00009 robot_step_missing: BLI binding step 79 (C153/N13 to C166/G7) done but missing from the log. Flag: robot step assumed (run 12 step 79 finished without a log line; recorded as done by rule).
-- E00019 typo_small: amount taken from SEN-00063: typed 38.3 instead of 32. Flag: negative balance (records say -6.3 count, more was taken than was there).
+- E00010 late_sync: use of BUF-00065 written down 2.9 h after it happened. Flag: seen after it left (liquid recorded in or out at 2026-09-16 14:37:54+01 but recorded as discard at 2026-09-16 14:06:00+01).
 
 Missed, for example:
 

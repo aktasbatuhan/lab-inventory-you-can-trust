@@ -1,6 +1,6 @@
 # Simulation report: bad_week
 
-28 simulated days from 2026-09-07, 768 designs a week, 4 targets (EGFR, PDL1, HER2, IL6R), 8 experiment(s), seed 7. Loading the recorded calls took 12.2 s.
+28 simulated days from 2026-09-07, 768 designs a week, 4 targets (EGFR, PDL1, HER2, IL6R), 8 experiment(s), seed 7. Loading the recorded calls took 9.7 s.
 
 Each checkpoint asks the system what it believed at that moment, using only what had been written down by then, and compares it with what was really in the lab. "Exact" means within 0.5% (rounding and nothing else); pipetting noise alone puts robot-filled wells in the "within 10%" group.
 
@@ -40,12 +40,12 @@ Truth-usable applies the same rules as the system (QC, expiry, dead volume) to w
 
 | Checkpoint | Amounts off | Wrong place or spot | Ghosts | Lost | Flags raised | Query time (s) |
 |---|---|---|---|---|---|---|
-| day 7 (2026-09-13 23:00) | 359 of 1237 | 1 | 2 | 0 | 2 | 11.0 |
-| day 14 (2026-09-20 23:00) | 1131 of 3149 | 3 | 4 | 0 | 11 | 77.4 |
-| day 21 (2026-09-27 23:00) | 1755 of 5444 | 8 | 4 | 0 | 13 | 89.2 |
-| end (2026-10-04 23:00) | 2284 of 5816 | 4 | 4 | 0 | 23 | 174.9 |
+| day 7 (2026-09-13 23:00) | 359 of 1237 | 1 | 2 | 0 | 2 | 2.9 |
+| day 14 (2026-09-20 23:00) | 1131 of 3149 | 3 | 4 | 0 | 11 | 8.6 |
+| day 21 (2026-09-27 23:00) | 1755 of 5444 | 8 | 4 | 0 | 14 | 14.3 |
+| end (2026-10-04 23:00) | 2284 of 5816 | 4 | 4 | 0 | 25 | 18.0 |
 
-Flags at the last checkpoint: location uncertain 4, robot step assumed 18, seen after it left 1.
+Flags at the last checkpoint: location uncertain 4, robot step assumed 18, seen after it left 3.
 
 ## The injected mistakes, and what became of them
 
@@ -55,14 +55,14 @@ Every mistake is in errors.jsonl with an id. "Corrected" means someone noticed a
 |---|---|---|---|---|---|---|
 | count_missed | 3 | 0 | 0 | 2 | 1 | 0 |
 | discard_unscanned | 5 | 0 | 0 | 3 | 0 | 2 |
-| late_sync | 54 | 0 | 0 | 0 | 54 | 0 |
+| late_sync | 54 | 0 | 0 | 4 | 50 | 0 |
 | move_unscanned | 48 | 0 | 0 | 0 | 48 | 0 |
 | robot_log_late | 5 | 0 | 0 | 0 | 5 | 0 |
 | robot_step_missing | 18 | 0 | 0 | 18 | 0 | 0 |
 | step_unrecorded | 29 | 2 | 0 | 0 | 21 | 6 |
 | typo_small | 4 | 0 | 0 | 0 | 1 | 3 |
 | wrong_position | 4 | 0 | 0 | 0 | 0 | 4 |
-| all | 170 | 2 | 0 | 23 | 130 | 15 |
+| all | 170 | 2 | 0 | 27 | 126 | 15 |
 
 Late entries (54) can only hurt in between: by the end they have all arrived, so they mostly land in "no lasting harm". Their cost shows in the earlier checkpoints, which ask what the system said at the time.
 
