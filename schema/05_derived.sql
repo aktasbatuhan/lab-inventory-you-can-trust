@@ -124,9 +124,9 @@ language sql stable as $$
     join fs on fs.container_id = ch.node_id and fs.lot_id = ch.lot_id
     where fs.source_container_id is not null and ch.depth < 20
   )
-  select ch.container_id, ch.lot_id,
-         sum((select count(*) from tm where tm.container_id = ch.node_id and tm.thawed_at <= ch.cutoff))::bigint
+  select ch.container_id, ch.lot_id, count(tm.thawed_at)::bigint
   from chain ch
+  left join tm on tm.container_id = ch.node_id and tm.thawed_at <= ch.cutoff
   group by 1, 2
 $$;
 
@@ -192,6 +192,7 @@ language sql stable as $$
     select distinct on (container_id) container_id, at, how from confirmations_up
     order by container_id, at desc, depth
   ),
+  last_move as (select container_id, max(from_at) as at from ps group by 1),
   not_found as (
     select cl.container_id, max(e.occurred_at) as at
     from events_at(t, k) e join count_line cl on cl.event_id = e.id where not cl.found
@@ -206,7 +207,7 @@ language sql stable as $$
            when ct.category in ('place') or l.condition is not null then 'fixed place'
            when nf.at is not null and nf.at > coalesce(conf.at, '-infinity') then 'uncertain'
            when top.depth = 0 then 'not placed'
-           when (select max(from_at) from ps where ps.container_id = l.id) > coalesce(conf.at, '-infinity')
+           when lm.at > coalesce(conf.at, '-infinity')
              then 'placed, not confirmed'
            else 'placed'
          end,
@@ -216,6 +217,7 @@ language sql stable as $$
   join top on top.container_id = l.id
   left join conf on conf.container_id = l.id
   left join not_found nf on nf.container_id = l.id
+  left join last_move lm on lm.container_id = l.id
   left join exits(t, k) x on x.container_id = l.id
 $$;
 
@@ -345,43 +347,46 @@ returns table (container_id bigint, lot_id bigint, material_id text, dimension t
                held numeric, usable numeric, reasons text[], warnings text[],
                expires_at timestamptz, expiry_clock text, thaws bigint)
 language sql stable as $$
-  with b as (select * from balances(t, k)),
-  holder as (
+  with b as materialized (select * from balances(t, k)),
+  holder as materialized (
     select c.id, coalesce(c.plate_id, c.id) as vessel_id, ct.dead_volume_ul
     from container c join container_type ct on ct.id = c.type_id
   ),
-  vol_total as (
+  vol_total as materialized (
     select container_id, sum(amount) as total from b where dimension = 'volume' and amount > 0 group by 1
   ),
-  ex as (select * from exits(t, k)),
-  qc as (select * from lot_qc(t, k)),
-  hl as (select * from active_holds(t, k)),
-  xp as (select * from expiry(t, k)),
-  loc as (select container_id, status from location(t, k)),
-  clash as (select distinct container_id from barcode_clashes(t, k)),
-  th as (select * from lot_thaws(t, k)),
-  lim as (select * from thaw_limits(t, k)),
-  rows as (
+  -- Every lookup is joined once, never looked up row by row.
+  ex as materialized (select container_id, kind from exits(t, k)),
+  qc as materialized (select * from lot_qc(t, k)),
+  hl as materialized (select * from active_holds(t, k)),
+  lot_held as materialized (select distinct lot_id from hl where lot_id is not null),
+  box_held as materialized (select distinct container_id from hl where container_id is not null),
+  xp as materialized (select * from expiry(t, k)),
+  loc as materialized (select container_id, status from location(t, k)),
+  clash as materialized (select distinct container_id from barcode_clashes(t, k)),
+  th as materialized (select * from lot_thaws(t, k)),
+  lim as materialized (select * from thaw_limits(t, k)),
+  ruled as materialized (select distinct lot_id from rules_for_lots(t, k)),
+  rows as materialized (
     select b.*, l.material_id, h.vessel_id,
       case when b.dimension = 'volume' and b.amount > 0
            then h.dead_volume_ul * b.amount / nullif(vt.total, 0) else 0 end as dead_share,
       array_remove(array[
-        case (select kind from ex where ex.container_id = h.vessel_id) when 'discard' then 'discarded' when 'ship' then 'shipped' end,
+        case ex.kind when 'discard' then 'discarded' when 'ship' then 'shipped' end,
         case when b.amount < 0 then 'negative balance' end,
         case qc.status when 'pending' then 'waiting for QC' when 'fail' then 'failed QC' end,
-        case when exists (select 1 from hl where hl.lot_id = b.lot_id) then 'lot on hold' end,
-        case when exists (select 1 from hl where hl.container_id in (b.container_id, h.vessel_id)) then 'container on hold' end,
+        case when lh.lot_id is not null then 'lot on hold' end,
+        case when bh1.container_id is not null or bh2.container_id is not null then 'container on hold' end,
         case when xp.expires_at <= t then 'expired' end,
-        case when exists (select 1 from clash where clash.container_id = h.vessel_id) then 'barcode clash' end,
-        case when (select status from loc where loc.container_id = h.vessel_id) = 'uncertain' then 'location uncertain' end,
+        case when cl.container_id is not null then 'barcode clash' end,
+        case when loc.status = 'uncertain' then 'location uncertain' end,
         case when b.dimension = 'volume' and b.amount > 0 and vt.total <= h.dead_volume_ul then 'below dead volume' end
       ], null) as reasons,
       array_remove(array[
         case when lim.max_thaws is not null and th.thaws > lim.max_thaws
              then 'thawed ' || th.thaws || ' times, limit is ' || lim.max_thaws end,
         case when xp.expires_at > t and xp.expires_at <= t + interval '14 days' then 'expires within 14 days' end,
-        case when l.supplier_expiry is null
-              and not exists (select 1 from rules_for_lots(t, k) r where r.lot_id = b.lot_id)
+        case when l.supplier_expiry is null and ru.lot_id is null
              then 'no shelf-life rule, so expiry is unknown' end
       ], null) as warnings,
       xp.expires_at, xp.clock, coalesce(th.thaws, 0) as thaws
@@ -389,8 +394,15 @@ language sql stable as $$
     join lot l on l.id = b.lot_id
     join holder h on h.id = b.container_id
     left join vol_total vt on vt.container_id = b.container_id
+    left join ex on ex.container_id = h.vessel_id
     left join qc on qc.lot_id = b.lot_id
+    left join lot_held lh on lh.lot_id = b.lot_id
+    left join box_held bh1 on bh1.container_id = b.container_id
+    left join box_held bh2 on bh2.container_id = h.vessel_id and h.vessel_id <> b.container_id
     left join xp on xp.container_id = b.container_id and xp.lot_id = b.lot_id
+    left join clash cl on cl.container_id = h.vessel_id
+    left join loc on loc.container_id = h.vessel_id
+    left join ruled ru on ru.lot_id = b.lot_id
     left join th on th.container_id = b.container_id and th.lot_id = b.lot_id
     left join lim on lim.lot_id = b.lot_id
   )
@@ -466,6 +478,8 @@ language sql stable as $$
   select 'location uncertain', container_id, null, 'not found in the last count and not seen since'
   from location(t, k) where status = 'uncertain'
   union all
-  select 'over thaw limit', container_id, lot_id, w
-  from usable(t, k), unnest(warnings) w where w like 'thawed %'
+  select 'over thaw limit', th.container_id, th.lot_id,
+         'thawed ' || th.thaws || ' times, limit is ' || lim.max_thaws
+  from lot_thaws(t, k) th join thaw_limits(t, k) lim on lim.lot_id = th.lot_id
+  where lim.max_thaws is not null and th.thaws > lim.max_thaws
 $$;
