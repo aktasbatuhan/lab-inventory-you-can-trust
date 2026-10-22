@@ -652,6 +652,10 @@ async function load(name) { try { const r = await fetch(`data/${name}.json`); re
 
 (async () => {
   [state.tests, state.scenarios, state.sim] = await Promise.all([load("tests"), load("scenarios"), load("sim")]);
+  if (!state.tests.length) {
+    document.getElementById("test-detail").innerHTML = `<p class="muted">The test traces didn’t load. Reload the page; if it keeps happening, the data files are missing from this copy.</p>`;
+    document.getElementById("tally").textContent = "Data didn’t load";
+  }
   state.tests.sort((a, b) => a.number - b.number);
   for (const s of state.scenarios) state.byId[s.id] = s;
   for (const t of state.tests) for (const id of t.scenarios) state.tested.add(id);
