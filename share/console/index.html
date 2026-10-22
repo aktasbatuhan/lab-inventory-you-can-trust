@@ -2,54 +2,58 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a lab notebook with a ledger. Sticky header with three views; the test
-   view is a list on the left and the ledger of one test on the right. */
+/* Layout: a clean, white lab tool in Adaptyv's own visual language. Sticky
+   header with three views; the test view is a list on the left and the
+   ledger of one test on the right. */
 :root {
-  --paper: #f3f5f2;      /* bench paper, faintly green */
-  --sheet: #fbfcfa;
-  --ink: #17221e;
-  --muted: #5c6b65;
-  --line: #d9e0dc;
-  --accent: #2f7d5b;     /* a muted GFP green */
-  --accent-soft: #e2efe8;
-  --ok: #2f7d5b;
+  --paper: #fafbfd;
+  --sheet: #ffffff;
+  --ink: #142933;        /* navy, never black */
+  --muted: #546874;
+  --line: #e1e8ed;
+  --accent: #2091c9;     /* links and current state */
+  --accent-soft: #e9f2f7;/* dusty blue fills */
+  --ok: #1e7a50;
+  --ok-soft: #e4f3ea;
   --bad: #b3402a;
-  --bad-soft: #f7e4df;
-  --warn: #9a6a12;
-  --warn-soft: #f6ecd6;
-  --rule: #5a4fb3;       /* things the system assumed by rule */
-  --rule-soft: #e9e7f7;
-  --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
-  --body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --bad-soft: #f8e6e1;
+  --warn: #8a5d00;
+  --warn-soft: #fbf1d9;
+  --rule: #5b4fc4;       /* things the system assumed by rule */
+  --rule-soft: #eeecfb;
+  --display: "Geist", "Helvetica Neue", Arial, sans-serif;
+  --body: "Geist", "Helvetica Neue", Arial, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #111815; --sheet: #172019; --ink: #e3ebe6; --muted: #93a39b; --line: #2a3530;
-    --accent: #6cc39a; --accent-soft: #1d3a2d; --ok: #6cc39a; --bad: #ef8a73; --bad-soft: #3d221c;
-    --warn: #e2b45a; --warn-soft: #382c14; --rule: #a99ff0; --rule-soft: #262245; color-scheme: dark;
+    --paper: #0d1c24; --sheet: #142933; --ink: #eaf1f5; --muted: #93a8b4; --line: #25414f;
+    --accent: #36b7f6; --accent-soft: #183a4b; --ok: #5fcf96; --ok-soft: #173a2b;
+    --bad: #f08c76; --bad-soft: #3e231d; --warn: #e6b65c; --warn-soft: #3a2d12; --rule: #aaa1f5; --rule-soft: #2a2752; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --paper: #111815; --sheet: #172019; --ink: #e3ebe6; --muted: #93a39b; --line: #2a3530;
-  --accent: #6cc39a; --accent-soft: #1d3a2d; --ok: #6cc39a; --bad: #ef8a73; --bad-soft: #3d221c;
-  --warn: #e2b45a; --warn-soft: #382c14; --rule: #a99ff0; --rule-soft: #262245; color-scheme: dark;
+  --paper: #0d1c24; --sheet: #142933; --ink: #eaf1f5; --muted: #93a8b4; --line: #25414f;
+  --accent: #36b7f6; --accent-soft: #183a4b; --ok: #5fcf96; --ok-soft: #173a2b;
+  --bad: #f08c76; --bad-soft: #3e231d; --warn: #e6b65c; --warn-soft: #3a2d12; --rule: #aaa1f5; --rule-soft: #2a2752; color-scheme: dark;
 }
 * { box-sizing: border-box; }
-body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sheet); }
 .wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--sheet); border-bottom: 1px solid var(--line); }
 header .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; padding-block: 14px; }
-h1 { font-family: var(--display); font-weight: 700; font-size: 22px; margin: 0; letter-spacing: -0.01em; }
-h2 { font-family: var(--display); font-weight: 700; font-size: 26px; line-height: 1.2; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
-h3 { font-family: var(--display); font-weight: 500; font-size: 17px; margin: 0; text-wrap: balance; }
+h1 { font-family: var(--display); font-weight: 500; font-size: 22px; margin: 0; letter-spacing: -0.04em; }
+h2 { font-family: var(--display); font-weight: 500; font-size: 28px; line-height: 1.15; margin: 0; text-wrap: balance; letter-spacing: -0.04em; }
+h3 { font-family: var(--display); font-weight: 500; font-size: 17px; margin: 0; text-wrap: balance; letter-spacing: -0.02em; }
 nav { display: flex; gap: 4px; flex-wrap: wrap; }
 nav button { font: 500 14px var(--body); color: var(--muted); background: none; border: 1px solid transparent; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
-nav button[aria-current="true"] { color: var(--ink); background: var(--accent-soft); border-color: var(--line); }
+nav button[aria-current="true"] { color: var(--sheet); background: var(--ink); border-color: var(--ink); }
 nav button:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.brand { display: grid; }
+.by { font-size: 12.5px; color: var(--muted); }
 .tally { margin-left: auto; font: 13px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
 main { padding-block: 24px 64px; }
 
@@ -64,7 +68,7 @@ main { padding-block: 24px 64px; }
 .item .n { font: 12px var(--mono); color: var(--muted); }
 .item .t { font-weight: 500; text-transform: capitalize; }
 .pill { display: inline-flex; align-items: center; gap: 4px; font: 500 12px var(--mono); padding: 1px 8px; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.pill.ok { color: var(--ok); background: var(--accent-soft); }
+.pill.ok { color: var(--ok); background: var(--ok-soft); }
 .pill.bad { color: var(--bad); background: var(--bad-soft); }
 .detail { display: grid; gap: 24px; min-width: 0; }
 .head { display: grid; gap: 10px; }
@@ -76,7 +80,7 @@ main { padding-block: 24px 64px; }
 .story { white-space: pre-line; max-width: 75ch; margin: 0; }
 .cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; }
 @media (max-width: 1080px) { .cols { grid-template-columns: minmax(0, 1fr); } }
-.label { font: 600 12px var(--body); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.label { font: 500 13px var(--body); color: var(--muted); margin: 0 0 8px; }
 
 .events { display: grid; gap: 6px; }
 .ev { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); }
@@ -123,7 +127,7 @@ pre.sql { margin: 10px 0 0; padding: 14px; background: var(--paper); border-radi
 .card .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .tag { font: 11px var(--mono); padding: 1px 7px; border-radius: 4px; background: var(--paper); color: var(--muted); }
 .tag.core { background: var(--accent-soft); color: var(--accent); }
-.tag.tested { background: var(--accent); color: var(--sheet); }
+.tag.tested { background: var(--ok-soft); color: var(--ok); }
 .card p { margin: 0; font-size: 13.5px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* Scenario drawer */
@@ -147,7 +151,7 @@ pre.sql { margin: 10px 0 0; padding: 14px; background: var(--paper); border-radi
 
 <header>
   <div class="wrap">
-    <h1>Lab Ledger Review</h1>
+    <div class="brand"><h1>Lab Ledger Review</h1><span class="by">Take-home by Batuhan Aktas for Adaptyv Bio</span></div>
     <nav aria-label="Views">
       <button id="nav-tests" data-view="tests">Scenario tests</button>
       <button id="nav-sim" data-view="sim">Simulation</button>

@@ -1,6 +1,6 @@
-<section id="next" data-transition="fade" style="background:#f3f5f2;color:#17221e;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
-<h2 style="font-family:'Bricolage Grotesque', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px">How this would land in LabOS</h2>
-<table style="font-size:28px;color:#17221e;font-family:'Public Sans', Arial, sans-serif">
+<section id="next" data-transition="fade" style="background:#fafbfd;color:#142933;font-family:'Geist', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
+<h2 style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;line-height:1.1;letter-spacing:-3px">How this would land in LabOS</h2>
+<table style="font-size:28px;color:#142933;font-family:'Geist', Arial, sans-serif">
 <tr><th style="width:30%;text-align:left">Piece</th><th style="width:70%;text-align:left">How it fits</th></tr>
 <tr><td>Database</td><td>Plain Postgres, so it runs as is on Supabase</td></tr>
 <tr><td>Writing facts</td><td>The record functions are the API: scanners, the app and imports all call them</td></tr>
@@ -8,6 +8,6 @@
 <tr><td>Speed</td><td>Cached summaries per container and lot, rebuilt from the facts and checked in tests</td></tr>
 <tr><td>London</td><td>A second site is one more place at the top of the tree</td></tr>
 </table>
-<p style="font-size:28px;line-height:1.4;color:#4a5a53;width:1550px">The first users are lab operations: receiving, splitting and putting away. That’s where a scan has to take seconds, and where most facts start.</p>
+<p style="font-size:28px;line-height:1.4;color:#4f6470;width:1550px">The first users are lab operations: receiving, splitting and putting away. That’s where a scan has to take seconds, and where most facts start.</p>
 <aside>From Adaptyv's public job posts: LabOS runs on Postgres on Supabase with Python and TypeScript, and the robots are driven from Python with PyLabRobot. The lab technician post says that person will lead the rollout of new inventory management, so I'd design the first screens around receiving, aliquoting and putting away, where scans happen.</aside>
 </section>

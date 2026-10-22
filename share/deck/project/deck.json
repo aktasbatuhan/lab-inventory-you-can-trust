@@ -1,20 +1,63 @@
 {
   "v": 4,
-  "createdOnFiles": {"v": 1, "at": "2026-10-21T23:55:00Z"},
+  "createdOnFiles": {
+    "v": 1,
+    "at": "2026-10-21T23:55:00Z"
+  },
   "lists": "css",
   "title": "Lab Inventory You Can Trust",
-  "order": ["cover", "problem", "method", "principle", "two-times", "four-things", "model", "usable", "moves", "budgets", "robots", "correction", "found", "sim", "agents", "cut", "open", "next", "close"],
+  "order": [
+    "cover",
+    "problem",
+    "method",
+    "principle",
+    "two-times",
+    "four-things",
+    "model",
+    "usable",
+    "moves",
+    "budgets",
+    "robots",
+    "correction",
+    "found",
+    "sim",
+    "agents",
+    "cut",
+    "open",
+    "next",
+    "close"
+  ],
   "sections": {
-    "why": {"description": "Why the inventory matters: it is the thing everything else trusts.", "start": "cover"},
-    "how": {"description": "How the work was done: scenarios first, schema second.", "start": "method"},
-    "design": {"description": "The design: facts and rules in, every answer worked out.", "start": "principle"},
-    "proof": {"description": "Proof: a correction story, what the tests caught, and the simulations.", "start": "correction"},
-    "limits": {"description": "What was cut, what to check, and how it would land in LabOS.", "start": "cut"}
+    "why": {
+      "description": "Why the inventory matters: it is the thing everything else trusts.",
+      "start": "cover"
+    },
+    "how": {
+      "description": "How the work was done: scenarios first, schema second.",
+      "start": "method"
+    },
+    "design": {
+      "description": "The design: facts and rules in, every answer worked out.",
+      "start": "principle"
+    },
+    "proof": {
+      "description": "Proof: a correction story, what the tests caught, and the simulations.",
+      "start": "correction"
+    },
+    "limits": {
+      "description": "What was cut, what to check, and how it would land in LabOS.",
+      "start": "cut"
+    }
   },
   "faces": {
-    "bricolage-grotesque": {"family": "Bricolage Grotesque", "href": "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap"},
-    "public-sans": {"family": "Public Sans", "href": "https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap"},
-    "jetbrains-mono": {"family": "JetBrains Mono", "href": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"}
+    "geist": {
+      "family": "Geist",
+      "href": "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap"
+    },
+    "geist-mono": {
+      "family": "Geist Mono",
+      "href": "https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap"
+    }
   },
   "designSystems": []
 }

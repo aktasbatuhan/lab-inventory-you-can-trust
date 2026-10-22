@@ -1,1 +1,2101 @@
-[]
+[
+ {
+  "path": "sim/out/bad_week",
+  "load_seconds": 9.7,
+  "checkpoints": [
+   {
+    "label": "day 7",
+    "t": "2026-09-13T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 15,
+      "within 10%": 16,
+      "off": 2
+     },
+     "consumable": {
+      "exact": 5,
+      "within 10%": 0,
+      "off": 0
+     },
+     "target": {
+      "exact": 19,
+      "within 10%": 25,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 1,
+      "within 10%": 0,
+      "off": 2
+     },
+     "dna": {
+      "exact": 547,
+      "within 10%": 221,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 0,
+      "within 10%": 29,
+      "off": 355
+     }
+    },
+    "ghosts": [
+     "C44",
+     "C132"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 111,
+     "right place, wrong spot": 0,
+     "wrong place": 1,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      299028.7,
+      342767.2
+     ],
+     "consumable": [
+      1792.0,
+      1792.0
+     ],
+     "dna": [
+      18600.9,
+      18589.1
+     ],
+     "reagent": [
+      2369397.3,
+      2369376.0
+     ],
+     "sample_protein": [
+      848.3,
+      1152.0
+     ],
+     "target:egfr": [
+      420.6,
+      385.0
+     ],
+     "target:her2": [
+      281.5,
+      280.0
+     ],
+     "target:il6r": [
+      421.5,
+      420.0
+     ],
+     "target:pdl1": [
+      421.6,
+      420.0
+     ]
+    },
+    "flags": {
+     "robot step assumed": 1,
+     "location uncertain": 1
+    },
+    "timings": {
+     "balances": 0.04,
+     "containers": 0.03,
+     "usable": 2.54,
+     "flags": 0.29
+    }
+   },
+   {
+    "label": "day 14",
+    "t": "2026-09-20T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 12,
+      "within 10%": 12,
+      "off": 9
+     },
+     "consumable": {
+      "exact": 4,
+      "within 10%": 0,
+      "off": 1
+     },
+     "target": {
+      "exact": 15,
+      "within 10%": 21,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 1,
+      "within 10%": 2,
+      "off": 0
+     },
+     "dna": {
+      "exact": 652,
+      "within 10%": 884,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 2,
+      "within 10%": 413,
+      "off": 1121
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C44",
+     "C132",
+     "C134"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 112,
+     "right place, wrong spot": 0,
+     "wrong place": 3,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      272736.7,
+      272456.0
+     ],
+     "consumable": [
+      1536.0,
+      1568.0
+     ],
+     "dna": [
+      70732.5,
+      70656.0
+     ],
+     "reagent": [
+      1853799.1,
+      1901688.5
+     ],
+     "sample_protein": [
+      4323.8,
+      5376.0
+     ],
+     "target:egfr": [
+      351.5,
+      315.0
+     ],
+     "target:her2": [
+      141.7,
+      140.0
+     ],
+     "target:il6r": [
+      352.7,
+      350.0
+     ],
+     "target:pdl1": [
+      421.6,
+      420.0
+     ]
+    },
+    "flags": {
+     "robot step assumed": 8,
+     "location uncertain": 3
+    },
+    "timings": {
+     "balances": 0.04,
+     "containers": 0.03,
+     "usable": 7.98,
+     "flags": 0.57
+    }
+   },
+   {
+    "label": "day 21",
+    "t": "2026-09-27T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 6,
+      "within 10%": 10,
+      "off": 15
+     },
+     "consumable": {
+      "exact": 3,
+      "within 10%": 0,
+      "off": 1
+     },
+     "target": {
+      "exact": 10,
+      "within 10%": 20,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 0,
+      "within 10%": 3,
+      "off": 0
+     },
+     "dna": {
+      "exact": 1160,
+      "within 10%": 1528,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 64,
+      "within 10%": 885,
+      "off": 1739
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C44",
+     "C132",
+     "C134"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 114,
+     "right place, wrong spot": 4,
+     "wrong place": 4,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      216318.8,
+      217480.0
+     ],
+     "consumable": [
+      1216.0,
+      1280.0
+     ],
+     "dna": [
+      123767.1,
+      123648.0
+     ],
+     "reagent": [
+      1339903.4,
+      1339502.0
+     ],
+     "sample_protein": [
+      7129.7,
+      8448.0
+     ],
+     "target:egfr": [
+      141.8,
+      140.0
+     ],
+     "target:her2": [
+      211.9,
+      210.0
+     ],
+     "target:il6r": [
+      282.8,
+      280.0
+     ],
+     "target:pdl1": [
+      421.6,
+      420.0
+     ]
+    },
+    "flags": {
+     "seen after it left": 1,
+     "robot step assumed": 11,
+     "location uncertain": 2
+    },
+    "timings": {
+     "balances": 0.06,
+     "containers": 0.04,
+     "usable": 13.17,
+     "flags": 0.99
+    }
+   },
+   {
+    "label": "end",
+    "t": "2026-10-04T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 5,
+      "within 10%": 9,
+      "off": 17
+     },
+     "consumable": {
+      "exact": 3,
+      "within 10%": 0,
+      "off": 1
+     },
+     "target": {
+      "exact": 6,
+      "within 10%": 12,
+      "off": 0
+     },
+     "dna": {
+      "exact": 1322,
+      "within 10%": 1750,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 2,
+      "within 10%": 421,
+      "off": 2265
+     },
+     "buffer": {
+      "exact": 0,
+      "within 10%": 2,
+      "off": 1
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C44",
+     "C132",
+     "C134"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 110,
+     "right place, wrong spot": 4,
+     "wrong place": 0,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      62378.6,
+      61896.0
+     ],
+     "consumable": [
+      800.0,
+      864.0
+     ],
+     "dna": [
+      141453.3,
+      132480.0
+     ],
+     "reagent": [
+      1337537.5,
+      1334611.2
+     ],
+     "sample_protein": [
+      2973.1,
+      4032.0
+     ],
+     "target:egfr": [
+      106.5,
+      105.0
+     ],
+     "target:her2": [
+      0.0,
+      0.0
+     ],
+     "target:il6r": [
+      282.8,
+      280.0
+     ],
+     "target:pdl1": [
+      212.6,
+      210.0
+     ]
+    },
+    "flags": {
+     "seen after it left": 3,
+     "robot step assumed": 18,
+     "location uncertain": 4
+    },
+    "timings": {
+     "balances": 0.07,
+     "containers": 0.04,
+     "usable": 16.39,
+     "flags": 1.49
+    }
+   }
+  ],
+  "verdicts": {
+   "E00001": "flagged",
+   "E00002": "silently wrong",
+   "E00003": "no lasting harm",
+   "E00004": "no lasting harm",
+   "E00005": "no lasting harm",
+   "E00006": "no lasting harm",
+   "E00007": "no lasting harm",
+   "E00008": "flagged",
+   "E00009": "no lasting harm",
+   "E00010": "no lasting harm",
+   "E00011": "corrected",
+   "E00012": "no lasting harm",
+   "E00013": "no lasting harm",
+   "E00014": "no lasting harm",
+   "E00015": "silently wrong",
+   "E00016": "silently wrong",
+   "E00017": "silently wrong",
+   "E00018": "no lasting harm",
+   "E00019": "no lasting harm",
+   "E00020": "no lasting harm",
+   "E00021": "no lasting harm",
+   "E00022": "no lasting harm",
+   "E00023": "no lasting harm",
+   "E00024": "no lasting harm",
+   "E00025": "no lasting harm",
+   "E00026": "no lasting harm",
+   "E00027": "flagged",
+   "E00028": "no lasting harm",
+   "E00029": "flagged",
+   "E00030": "flagged",
+   "E00031": "no lasting harm",
+   "E00032": "no lasting harm",
+   "E00033": "flagged",
+   "E00034": "no lasting harm",
+   "E00035": "flagged",
+   "E00036": "no lasting harm",
+   "E00037": "no lasting harm",
+   "E00038": "no lasting harm",
+   "E00039": "no lasting harm",
+   "E00040": "no lasting harm",
+   "E00041": "no lasting harm",
+   "E00042": "no lasting harm",
+   "E00043": "no lasting harm",
+   "E00044": "no lasting harm",
+   "E00045": "no lasting harm",
+   "E00046": "no lasting harm",
+   "E00047": "no lasting harm",
+   "E00048": "no lasting harm",
+   "E00049": "no lasting harm",
+   "E00050": "no lasting harm",
+   "E00051": "flagged",
+   "E00052": "no lasting harm",
+   "E00053": "no lasting harm",
+   "E00054": "no lasting harm",
+   "E00055": "no lasting harm",
+   "E00056": "no lasting harm",
+   "E00057": "no lasting harm",
+   "E00058": "no lasting harm",
+   "E00059": "flagged",
+   "E00060": "flagged",
+   "E00061": "no lasting harm",
+   "E00062": "no lasting harm",
+   "E00063": "no lasting harm",
+   "E00064": "no lasting harm",
+   "E00065": "no lasting harm",
+   "E00066": "no lasting harm",
+   "E00067": "no lasting harm",
+   "E00068": "no lasting harm",
+   "E00069": "silently wrong",
+   "E00070": "silently wrong",
+   "E00071": "no lasting harm",
+   "E00072": "no lasting harm",
+   "E00073": "corrected",
+   "E00074": "no lasting harm",
+   "E00075": "no lasting harm",
+   "E00076": "flagged",
+   "E00077": "no lasting harm",
+   "E00078": "no lasting harm",
+   "E00079": "no lasting harm",
+   "E00080": "flagged",
+   "E00081": "no lasting harm",
+   "E00082": "silently wrong",
+   "E00083": "silently wrong",
+   "E00084": "no lasting harm",
+   "E00085": "no lasting harm",
+   "E00086": "no lasting harm",
+   "E00087": "no lasting harm",
+   "E00088": "no lasting harm",
+   "E00089": "no lasting harm",
+   "E00090": "no lasting harm",
+   "E00091": "no lasting harm",
+   "E00092": "no lasting harm",
+   "E00093": "flagged",
+   "E00094": "no lasting harm",
+   "E00095": "no lasting harm",
+   "E00096": "no lasting harm",
+   "E00097": "no lasting harm",
+   "E00098": "silently wrong",
+   "E00099": "no lasting harm",
+   "E00100": "no lasting harm",
+   "E00101": "no lasting harm",
+   "E00102": "flagged",
+   "E00103": "flagged",
+   "E00104": "no lasting harm",
+   "E00105": "no lasting harm",
+   "E00106": "no lasting harm",
+   "E00107": "no lasting harm",
+   "E00108": "no lasting harm",
+   "E00109": "no lasting harm",
+   "E00110": "no lasting harm",
+   "E00111": "no lasting harm",
+   "E00112": "no lasting harm",
+   "E00113": "silently wrong",
+   "E00114": "no lasting harm",
+   "E00115": "silently wrong",
+   "E00116": "no lasting harm",
+   "E00117": "no lasting harm",
+   "E00118": "no lasting harm",
+   "E00119": "silently wrong",
+   "E00120": "no lasting harm",
+   "E00121": "no lasting harm",
+   "E00122": "silently wrong",
+   "E00123": "silently wrong",
+   "E00124": "no lasting harm",
+   "E00125": "no lasting harm",
+   "E00126": "no lasting harm",
+   "E00127": "flagged",
+   "E00128": "no lasting harm",
+   "E00129": "flagged",
+   "E00130": "silently wrong",
+   "E00131": "no lasting harm",
+   "E00132": "no lasting harm",
+   "E00133": "no lasting harm",
+   "E00134": "no lasting harm",
+   "E00135": "flagged",
+   "E00136": "no lasting harm",
+   "E00137": "no lasting harm",
+   "E00138": "no lasting harm",
+   "E00139": "flagged",
+   "E00140": "no lasting harm",
+   "E00141": "no lasting harm",
+   "E00142": "no lasting harm",
+   "E00143": "flagged",
+   "E00144": "no lasting harm",
+   "E00145": "no lasting harm",
+   "E00146": "no lasting harm",
+   "E00147": "no lasting harm",
+   "E00148": "flagged",
+   "E00149": "flagged",
+   "E00150": "no lasting harm",
+   "E00151": "no lasting harm",
+   "E00152": "no lasting harm",
+   "E00153": "no lasting harm",
+   "E00154": "no lasting harm",
+   "E00155": "no lasting harm",
+   "E00156": "flagged",
+   "E00157": "no lasting harm",
+   "E00158": "no lasting harm",
+   "E00159": "no lasting harm",
+   "E00160": "no lasting harm",
+   "E00161": "no lasting harm",
+   "E00162": "no lasting harm",
+   "E00163": "no lasting harm",
+   "E00164": "flagged",
+   "E00165": "flagged",
+   "E00166": "no lasting harm",
+   "E00167": "no lasting harm",
+   "E00168": "no lasting harm",
+   "E00169": "no lasting harm",
+   "E00170": "no lasting harm",
+   "E00171": "no lasting harm",
+   "E00172": "flagged",
+   "E00173": "flagged",
+   "E00174": "flagged"
+  }
+ },
+ {
+  "path": "sim/out/bad_week-4weeks",
+  "load_seconds": 9.7,
+  "checkpoints": [
+   {
+    "label": "day 7",
+    "t": "2026-09-13T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 15,
+      "within 10%": 16,
+      "off": 2
+     },
+     "consumable": {
+      "exact": 5,
+      "within 10%": 0,
+      "off": 0
+     },
+     "target": {
+      "exact": 19,
+      "within 10%": 25,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 1,
+      "within 10%": 0,
+      "off": 2
+     },
+     "dna": {
+      "exact": 547,
+      "within 10%": 221,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 0,
+      "within 10%": 29,
+      "off": 355
+     }
+    },
+    "ghosts": [
+     "C44",
+     "C132"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 111,
+     "right place, wrong spot": 0,
+     "wrong place": 1,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      299028.7,
+      342767.2
+     ],
+     "consumable": [
+      1792.0,
+      1792.0
+     ],
+     "dna": [
+      18600.9,
+      18589.1
+     ],
+     "reagent": [
+      2369397.3,
+      2369376.0
+     ],
+     "sample_protein": [
+      848.3,
+      1152.0
+     ],
+     "target:egfr": [
+      420.6,
+      385.0
+     ],
+     "target:her2": [
+      281.5,
+      280.0
+     ],
+     "target:il6r": [
+      421.5,
+      420.0
+     ],
+     "target:pdl1": [
+      421.6,
+      420.0
+     ]
+    },
+    "flags": {
+     "robot step assumed": 1,
+     "location uncertain": 1
+    },
+    "timings": {
+     "balances": 0.04,
+     "containers": 0.03,
+     "usable": 2.54,
+     "flags": 0.29
+    }
+   },
+   {
+    "label": "day 14",
+    "t": "2026-09-20T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 12,
+      "within 10%": 12,
+      "off": 9
+     },
+     "consumable": {
+      "exact": 4,
+      "within 10%": 0,
+      "off": 1
+     },
+     "target": {
+      "exact": 15,
+      "within 10%": 21,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 1,
+      "within 10%": 2,
+      "off": 0
+     },
+     "dna": {
+      "exact": 652,
+      "within 10%": 884,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 2,
+      "within 10%": 413,
+      "off": 1121
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C44",
+     "C132",
+     "C134"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 112,
+     "right place, wrong spot": 0,
+     "wrong place": 3,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      272736.7,
+      272456.0
+     ],
+     "consumable": [
+      1536.0,
+      1568.0
+     ],
+     "dna": [
+      70732.5,
+      70656.0
+     ],
+     "reagent": [
+      1853799.1,
+      1901688.5
+     ],
+     "sample_protein": [
+      4323.8,
+      5376.0
+     ],
+     "target:egfr": [
+      351.5,
+      315.0
+     ],
+     "target:her2": [
+      141.7,
+      140.0
+     ],
+     "target:il6r": [
+      352.7,
+      350.0
+     ],
+     "target:pdl1": [
+      421.6,
+      420.0
+     ]
+    },
+    "flags": {
+     "robot step assumed": 8,
+     "location uncertain": 3
+    },
+    "timings": {
+     "balances": 0.04,
+     "containers": 0.03,
+     "usable": 7.98,
+     "flags": 0.57
+    }
+   },
+   {
+    "label": "day 21",
+    "t": "2026-09-27T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 6,
+      "within 10%": 10,
+      "off": 15
+     },
+     "consumable": {
+      "exact": 3,
+      "within 10%": 0,
+      "off": 1
+     },
+     "target": {
+      "exact": 10,
+      "within 10%": 20,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 0,
+      "within 10%": 3,
+      "off": 0
+     },
+     "dna": {
+      "exact": 1160,
+      "within 10%": 1528,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 64,
+      "within 10%": 885,
+      "off": 1739
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C44",
+     "C132",
+     "C134"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 114,
+     "right place, wrong spot": 4,
+     "wrong place": 4,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      216318.8,
+      217480.0
+     ],
+     "consumable": [
+      1216.0,
+      1280.0
+     ],
+     "dna": [
+      123767.1,
+      123648.0
+     ],
+     "reagent": [
+      1339903.4,
+      1339502.0
+     ],
+     "sample_protein": [
+      7129.7,
+      8448.0
+     ],
+     "target:egfr": [
+      141.8,
+      140.0
+     ],
+     "target:her2": [
+      211.9,
+      210.0
+     ],
+     "target:il6r": [
+      282.8,
+      280.0
+     ],
+     "target:pdl1": [
+      421.6,
+      420.0
+     ]
+    },
+    "flags": {
+     "seen after it left": 1,
+     "robot step assumed": 11,
+     "location uncertain": 2
+    },
+    "timings": {
+     "balances": 0.06,
+     "containers": 0.04,
+     "usable": 13.17,
+     "flags": 0.99
+    }
+   },
+   {
+    "label": "end",
+    "t": "2026-10-04T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 5,
+      "within 10%": 9,
+      "off": 17
+     },
+     "consumable": {
+      "exact": 3,
+      "within 10%": 0,
+      "off": 1
+     },
+     "target": {
+      "exact": 6,
+      "within 10%": 12,
+      "off": 0
+     },
+     "dna": {
+      "exact": 1322,
+      "within 10%": 1750,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 2,
+      "within 10%": 421,
+      "off": 2265
+     },
+     "buffer": {
+      "exact": 0,
+      "within 10%": 2,
+      "off": 1
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C44",
+     "C132",
+     "C134"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 110,
+     "right place, wrong spot": 4,
+     "wrong place": 0,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      62378.6,
+      61896.0
+     ],
+     "consumable": [
+      800.0,
+      864.0
+     ],
+     "dna": [
+      141453.3,
+      132480.0
+     ],
+     "reagent": [
+      1337537.5,
+      1334611.2
+     ],
+     "sample_protein": [
+      2973.1,
+      4032.0
+     ],
+     "target:egfr": [
+      106.5,
+      105.0
+     ],
+     "target:her2": [
+      0.0,
+      0.0
+     ],
+     "target:il6r": [
+      282.8,
+      280.0
+     ],
+     "target:pdl1": [
+      212.6,
+      210.0
+     ]
+    },
+    "flags": {
+     "seen after it left": 3,
+     "robot step assumed": 18,
+     "location uncertain": 4
+    },
+    "timings": {
+     "balances": 0.07,
+     "containers": 0.04,
+     "usable": 16.39,
+     "flags": 1.49
+    }
+   }
+  ],
+  "verdicts": {
+   "E00001": "flagged",
+   "E00002": "silently wrong",
+   "E00003": "no lasting harm",
+   "E00004": "no lasting harm",
+   "E00005": "no lasting harm",
+   "E00006": "no lasting harm",
+   "E00007": "no lasting harm",
+   "E00008": "flagged",
+   "E00009": "no lasting harm",
+   "E00010": "no lasting harm",
+   "E00011": "corrected",
+   "E00012": "no lasting harm",
+   "E00013": "no lasting harm",
+   "E00014": "no lasting harm",
+   "E00015": "silently wrong",
+   "E00016": "silently wrong",
+   "E00017": "silently wrong",
+   "E00018": "no lasting harm",
+   "E00019": "no lasting harm",
+   "E00020": "no lasting harm",
+   "E00021": "no lasting harm",
+   "E00022": "no lasting harm",
+   "E00023": "no lasting harm",
+   "E00024": "no lasting harm",
+   "E00025": "no lasting harm",
+   "E00026": "no lasting harm",
+   "E00027": "flagged",
+   "E00028": "no lasting harm",
+   "E00029": "flagged",
+   "E00030": "flagged",
+   "E00031": "no lasting harm",
+   "E00032": "no lasting harm",
+   "E00033": "flagged",
+   "E00034": "no lasting harm",
+   "E00035": "flagged",
+   "E00036": "no lasting harm",
+   "E00037": "no lasting harm",
+   "E00038": "no lasting harm",
+   "E00039": "no lasting harm",
+   "E00040": "no lasting harm",
+   "E00041": "no lasting harm",
+   "E00042": "no lasting harm",
+   "E00043": "no lasting harm",
+   "E00044": "no lasting harm",
+   "E00045": "no lasting harm",
+   "E00046": "no lasting harm",
+   "E00047": "no lasting harm",
+   "E00048": "no lasting harm",
+   "E00049": "no lasting harm",
+   "E00050": "no lasting harm",
+   "E00051": "flagged",
+   "E00052": "no lasting harm",
+   "E00053": "no lasting harm",
+   "E00054": "no lasting harm",
+   "E00055": "no lasting harm",
+   "E00056": "no lasting harm",
+   "E00057": "no lasting harm",
+   "E00058": "no lasting harm",
+   "E00059": "flagged",
+   "E00060": "flagged",
+   "E00061": "no lasting harm",
+   "E00062": "no lasting harm",
+   "E00063": "no lasting harm",
+   "E00064": "no lasting harm",
+   "E00065": "no lasting harm",
+   "E00066": "no lasting harm",
+   "E00067": "no lasting harm",
+   "E00068": "no lasting harm",
+   "E00069": "silently wrong",
+   "E00070": "silently wrong",
+   "E00071": "no lasting harm",
+   "E00072": "no lasting harm",
+   "E00073": "corrected",
+   "E00074": "no lasting harm",
+   "E00075": "no lasting harm",
+   "E00076": "flagged",
+   "E00077": "no lasting harm",
+   "E00078": "no lasting harm",
+   "E00079": "no lasting harm",
+   "E00080": "flagged",
+   "E00081": "no lasting harm",
+   "E00082": "silently wrong",
+   "E00083": "silently wrong",
+   "E00084": "no lasting harm",
+   "E00085": "no lasting harm",
+   "E00086": "no lasting harm",
+   "E00087": "no lasting harm",
+   "E00088": "no lasting harm",
+   "E00089": "no lasting harm",
+   "E00090": "no lasting harm",
+   "E00091": "no lasting harm",
+   "E00092": "no lasting harm",
+   "E00093": "flagged",
+   "E00094": "no lasting harm",
+   "E00095": "no lasting harm",
+   "E00096": "no lasting harm",
+   "E00097": "no lasting harm",
+   "E00098": "silently wrong",
+   "E00099": "no lasting harm",
+   "E00100": "no lasting harm",
+   "E00101": "no lasting harm",
+   "E00102": "flagged",
+   "E00103": "flagged",
+   "E00104": "no lasting harm",
+   "E00105": "no lasting harm",
+   "E00106": "no lasting harm",
+   "E00107": "no lasting harm",
+   "E00108": "no lasting harm",
+   "E00109": "no lasting harm",
+   "E00110": "no lasting harm",
+   "E00111": "no lasting harm",
+   "E00112": "no lasting harm",
+   "E00113": "silently wrong",
+   "E00114": "no lasting harm",
+   "E00115": "silently wrong",
+   "E00116": "no lasting harm",
+   "E00117": "no lasting harm",
+   "E00118": "no lasting harm",
+   "E00119": "silently wrong",
+   "E00120": "no lasting harm",
+   "E00121": "no lasting harm",
+   "E00122": "silently wrong",
+   "E00123": "silently wrong",
+   "E00124": "no lasting harm",
+   "E00125": "no lasting harm",
+   "E00126": "no lasting harm",
+   "E00127": "flagged",
+   "E00128": "no lasting harm",
+   "E00129": "flagged",
+   "E00130": "silently wrong",
+   "E00131": "no lasting harm",
+   "E00132": "no lasting harm",
+   "E00133": "no lasting harm",
+   "E00134": "no lasting harm",
+   "E00135": "flagged",
+   "E00136": "no lasting harm",
+   "E00137": "no lasting harm",
+   "E00138": "no lasting harm",
+   "E00139": "flagged",
+   "E00140": "no lasting harm",
+   "E00141": "no lasting harm",
+   "E00142": "no lasting harm",
+   "E00143": "flagged",
+   "E00144": "no lasting harm",
+   "E00145": "no lasting harm",
+   "E00146": "no lasting harm",
+   "E00147": "no lasting harm",
+   "E00148": "flagged",
+   "E00149": "flagged",
+   "E00150": "no lasting harm",
+   "E00151": "no lasting harm",
+   "E00152": "no lasting harm",
+   "E00153": "no lasting harm",
+   "E00154": "no lasting harm",
+   "E00155": "no lasting harm",
+   "E00156": "flagged",
+   "E00157": "no lasting harm",
+   "E00158": "no lasting harm",
+   "E00159": "no lasting harm",
+   "E00160": "no lasting harm",
+   "E00161": "no lasting harm",
+   "E00162": "no lasting harm",
+   "E00163": "no lasting harm",
+   "E00164": "flagged",
+   "E00165": "flagged",
+   "E00166": "no lasting harm",
+   "E00167": "no lasting harm",
+   "E00168": "no lasting harm",
+   "E00169": "no lasting harm",
+   "E00170": "no lasting harm",
+   "E00171": "no lasting harm",
+   "E00172": "flagged",
+   "E00173": "flagged",
+   "E00174": "flagged"
+  }
+ },
+ {
+  "path": "sim/out/normal",
+  "load_seconds": 9.7,
+  "checkpoints": [
+   {
+    "label": "day 7",
+    "t": "2026-09-13T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 15,
+      "within 10%": 14,
+      "off": 4
+     },
+     "consumable": {
+      "exact": 5,
+      "within 10%": 0,
+      "off": 0
+     },
+     "target": {
+      "exact": 19,
+      "within 10%": 25,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 1,
+      "within 10%": 2,
+      "off": 0
+     },
+     "dna": {
+      "exact": 324,
+      "within 10%": 444,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 43,
+      "within 10%": 370,
+      "off": 355
+     }
+    },
+    "ghosts": [
+     "C121"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 113,
+     "right place, wrong spot": 0,
+     "wrong place": 0,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      300494.4,
+      298568.0
+     ],
+     "consumable": [
+      1792.0,
+      1792.0
+     ],
+     "dna": [
+      35353.5,
+      35328.0
+     ],
+     "reagent": [
+      2347953.3,
+      2347872.0
+     ],
+     "sample_protein": [
+      3079.1,
+      3456.0
+     ],
+     "target:egfr": [
+      420.6,
+      420.0
+     ],
+     "target:her2": [
+      281.5,
+      280.0
+     ],
+     "target:il6r": [
+      421.5,
+      420.0
+     ],
+     "target:pdl1": [
+      421.6,
+      420.0
+     ]
+    },
+    "flags": {
+     "robot step assumed": 1
+    },
+    "timings": {
+     "balances": 0.04,
+     "containers": 0.03,
+     "usable": 3.42,
+     "flags": 0.32
+    }
+   },
+   {
+    "label": "day 14",
+    "t": "2026-09-20T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 12,
+      "within 10%": 12,
+      "off": 4
+     },
+     "consumable": {
+      "exact": 3,
+      "within 10%": 1,
+      "off": 0
+     },
+     "target": {
+      "exact": 15,
+      "within 10%": 18,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 0,
+      "within 10%": 3,
+      "off": 0
+     },
+     "dna": {
+      "exact": 1053,
+      "within 10%": 867,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 63,
+      "within 10%": 637,
+      "off": 836
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C72",
+     "C121"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 111,
+     "right place, wrong spot": 0,
+     "wrong place": 0,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      218222.4,
+      221512.0
+     ],
+     "consumable": [
+      1440.0,
+      1433.7
+     ],
+     "dna": [
+      71551.1,
+      71587.4
+     ],
+     "reagent": [
+      1854384.0,
+      1854535.0
+     ],
+     "sample_protein": [
+      4006.3,
+      4800.0
+     ],
+     "target:egfr": [
+      282.1,
+      280.0
+     ],
+     "target:her2": [
+      106.3,
+      105.0
+     ],
+     "target:il6r": [
+      352.7,
+      350.0
+     ],
+     "target:pdl1": [
+      421.6,
+      420.0
+     ]
+    },
+    "flags": {
+     "seen after it left": 1,
+     "robot step assumed": 4
+    },
+    "timings": {
+     "balances": 0.05,
+     "containers": 0.03,
+     "usable": 7.87,
+     "flags": 0.68
+    }
+   },
+   {
+    "label": "day 21",
+    "t": "2026-09-27T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 6,
+      "within 10%": 11,
+      "off": 11
+     },
+     "consumable": {
+      "exact": 3,
+      "within 10%": 0,
+      "off": 1
+     },
+     "target": {
+      "exact": 8,
+      "within 10%": 17,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 0,
+      "within 10%": 2,
+      "off": 1
+     },
+     "dna": {
+      "exact": 1134,
+      "within 10%": 1458,
+      "off": 96
+     },
+     "sample_protein": {
+      "exact": 76,
+      "within 10%": 1151,
+      "off": 1461
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C72",
+     "C121"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 114,
+     "right place, wrong spot": 0,
+     "wrong place": 0,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      93550.5,
+      90184.0
+     ],
+     "consumable": [
+      1056.0,
+      1056.0
+     ],
+     "dna": [
+      123649.5,
+      119328.0
+     ],
+     "reagent": [
+      1341981.9,
+      1344343.0
+     ],
+     "sample_protein": [
+      5786.8,
+      6528.0
+     ],
+     "target:egfr": [
+      282.1,
+      280.0
+     ],
+     "target:her2": [
+      246.6,
+      245.0
+     ],
+     "target:il6r": [
+      212.7,
+      210.0
+     ],
+     "target:pdl1": [
+      142.1,
+      140.0
+     ]
+    },
+    "flags": {
+     "negative balance": 1,
+     "seen after it left": 2,
+     "robot step assumed": 4
+    },
+    "timings": {
+     "balances": 0.06,
+     "containers": 0.06,
+     "usable": 12.78,
+     "flags": 1.14
+    }
+   },
+   {
+    "label": "end",
+    "t": "2026-10-04T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 6,
+      "within 10%": 9,
+      "off": 12
+     },
+     "consumable": {
+      "exact": 3,
+      "within 10%": 0,
+      "off": 0
+     },
+     "target": {
+      "exact": 11,
+      "within 10%": 18,
+      "off": 0
+     },
+     "dna": {
+      "exact": 1300,
+      "within 10%": 1676,
+      "off": 96
+     },
+     "sample_protein": {
+      "exact": 51,
+      "within 10%": 1103,
+      "off": 1150
+     },
+     "buffer": {
+      "exact": 0,
+      "within 10%": 3,
+      "off": 0
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C72",
+     "C91",
+     "C121",
+     "C131"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 122,
+     "right place, wrong spot": 0,
+     "wrong place": 0,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      118224.0,
+      120136.0
+     ],
+     "consumable": [
+      800.0,
+      800.0
+     ],
+     "dna": [
+      141274.2,
+      136992.0
+     ],
+     "reagent": [
+      1338229.3,
+      1337176.0
+     ],
+     "sample_protein": [
+      3774.7,
+      4608.0
+     ],
+     "target:egfr": [
+      422.4,
+      420.0
+     ],
+     "target:her2": [
+      246.6,
+      245.0
+     ],
+     "target:il6r": [
+      211.7,
+      210.0
+     ],
+     "target:pdl1": [
+      139.9,
+      140.0
+     ]
+    },
+    "flags": {
+     "negative balance": 1,
+     "seen after it left": 2,
+     "robot step assumed": 5
+    },
+    "timings": {
+     "balances": 0.07,
+     "containers": 0.04,
+     "usable": 15.34,
+     "flags": 1.64
+    }
+   }
+  ],
+  "verdicts": {
+   "E00001": "no lasting harm",
+   "E00002": "no lasting harm",
+   "E00003": "flagged",
+   "E00004": "silently wrong",
+   "E00005": "no lasting harm",
+   "E00006": "no lasting harm",
+   "E00007": "no lasting harm",
+   "E00008": "flagged",
+   "E00009": "flagged",
+   "E00010": "flagged",
+   "E00011": "no lasting harm",
+   "E00012": "silently wrong",
+   "E00013": "no lasting harm",
+   "E00014": "silently wrong",
+   "E00015": "no lasting harm",
+   "E00016": "no lasting harm",
+   "E00017": "no lasting harm",
+   "E00018": "flagged",
+   "E00019": "flagged",
+   "E00020": "flagged",
+   "E00021": "no lasting harm",
+   "E00022": "no lasting harm",
+   "E00023": "no lasting harm",
+   "E00024": "no lasting harm",
+   "E00025": "no lasting harm",
+   "E00026": "no lasting harm",
+   "E00027": "no lasting harm",
+   "E00028": "no lasting harm",
+   "E00029": "no lasting harm",
+   "E00030": "no lasting harm",
+   "E00031": "no lasting harm",
+   "E00032": "no lasting harm",
+   "E00033": "silently wrong",
+   "E00034": "no lasting harm",
+   "E00035": "silently wrong",
+   "E00036": "no lasting harm",
+   "E00037": "flagged",
+   "E00038": "no lasting harm",
+   "E00039": "no lasting harm"
+  }
+ },
+ {
+  "path": "sim/out/normal-4weeks",
+  "load_seconds": 9.7,
+  "checkpoints": [
+   {
+    "label": "day 7",
+    "t": "2026-09-13T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 15,
+      "within 10%": 14,
+      "off": 4
+     },
+     "consumable": {
+      "exact": 5,
+      "within 10%": 0,
+      "off": 0
+     },
+     "target": {
+      "exact": 19,
+      "within 10%": 25,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 1,
+      "within 10%": 2,
+      "off": 0
+     },
+     "dna": {
+      "exact": 324,
+      "within 10%": 444,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 43,
+      "within 10%": 370,
+      "off": 355
+     }
+    },
+    "ghosts": [
+     "C121"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 113,
+     "right place, wrong spot": 0,
+     "wrong place": 0,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      300494.4,
+      298568.0
+     ],
+     "consumable": [
+      1792.0,
+      1792.0
+     ],
+     "dna": [
+      35353.5,
+      35328.0
+     ],
+     "reagent": [
+      2347953.3,
+      2347872.0
+     ],
+     "sample_protein": [
+      3079.1,
+      3456.0
+     ],
+     "target:egfr": [
+      420.6,
+      420.0
+     ],
+     "target:her2": [
+      281.5,
+      280.0
+     ],
+     "target:il6r": [
+      421.5,
+      420.0
+     ],
+     "target:pdl1": [
+      421.6,
+      420.0
+     ]
+    },
+    "flags": {
+     "robot step assumed": 1
+    },
+    "timings": {
+     "balances": 0.04,
+     "containers": 0.03,
+     "usable": 3.42,
+     "flags": 0.32
+    }
+   },
+   {
+    "label": "day 14",
+    "t": "2026-09-20T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 12,
+      "within 10%": 12,
+      "off": 4
+     },
+     "consumable": {
+      "exact": 3,
+      "within 10%": 1,
+      "off": 0
+     },
+     "target": {
+      "exact": 15,
+      "within 10%": 18,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 0,
+      "within 10%": 3,
+      "off": 0
+     },
+     "dna": {
+      "exact": 1053,
+      "within 10%": 867,
+      "off": 0
+     },
+     "sample_protein": {
+      "exact": 63,
+      "within 10%": 637,
+      "off": 836
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C72",
+     "C121"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 111,
+     "right place, wrong spot": 0,
+     "wrong place": 0,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      218222.4,
+      221512.0
+     ],
+     "consumable": [
+      1440.0,
+      1433.7
+     ],
+     "dna": [
+      71551.1,
+      71587.4
+     ],
+     "reagent": [
+      1854384.0,
+      1854535.0
+     ],
+     "sample_protein": [
+      4006.3,
+      4800.0
+     ],
+     "target:egfr": [
+      282.1,
+      280.0
+     ],
+     "target:her2": [
+      106.3,
+      105.0
+     ],
+     "target:il6r": [
+      352.7,
+      350.0
+     ],
+     "target:pdl1": [
+      421.6,
+      420.0
+     ]
+    },
+    "flags": {
+     "seen after it left": 1,
+     "robot step assumed": 4
+    },
+    "timings": {
+     "balances": 0.05,
+     "containers": 0.03,
+     "usable": 7.87,
+     "flags": 0.68
+    }
+   },
+   {
+    "label": "day 21",
+    "t": "2026-09-27T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 6,
+      "within 10%": 11,
+      "off": 11
+     },
+     "consumable": {
+      "exact": 3,
+      "within 10%": 0,
+      "off": 1
+     },
+     "target": {
+      "exact": 8,
+      "within 10%": 17,
+      "off": 0
+     },
+     "buffer": {
+      "exact": 0,
+      "within 10%": 2,
+      "off": 1
+     },
+     "dna": {
+      "exact": 1134,
+      "within 10%": 1458,
+      "off": 96
+     },
+     "sample_protein": {
+      "exact": 76,
+      "within 10%": 1151,
+      "off": 1461
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C72",
+     "C121"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 114,
+     "right place, wrong spot": 0,
+     "wrong place": 0,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      93550.5,
+      90184.0
+     ],
+     "consumable": [
+      1056.0,
+      1056.0
+     ],
+     "dna": [
+      123649.5,
+      119328.0
+     ],
+     "reagent": [
+      1341981.9,
+      1344343.0
+     ],
+     "sample_protein": [
+      5786.8,
+      6528.0
+     ],
+     "target:egfr": [
+      282.1,
+      280.0
+     ],
+     "target:her2": [
+      246.6,
+      245.0
+     ],
+     "target:il6r": [
+      212.7,
+      210.0
+     ],
+     "target:pdl1": [
+      142.1,
+      140.0
+     ]
+    },
+    "flags": {
+     "negative balance": 1,
+     "seen after it left": 2,
+     "robot step assumed": 4
+    },
+    "timings": {
+     "balances": 0.06,
+     "containers": 0.06,
+     "usable": 12.78,
+     "flags": 1.14
+    }
+   },
+   {
+    "label": "end",
+    "t": "2026-10-04T23:00:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 6,
+      "within 10%": 9,
+      "off": 12
+     },
+     "consumable": {
+      "exact": 3,
+      "within 10%": 0,
+      "off": 0
+     },
+     "target": {
+      "exact": 11,
+      "within 10%": 18,
+      "off": 0
+     },
+     "dna": {
+      "exact": 1300,
+      "within 10%": 1676,
+      "off": 96
+     },
+     "sample_protein": {
+      "exact": 51,
+      "within 10%": 1103,
+      "off": 1150
+     },
+     "buffer": {
+      "exact": 0,
+      "within 10%": 3,
+      "off": 0
+     }
+    },
+    "ghosts": [
+     "C34",
+     "C72",
+     "C91",
+     "C121",
+     "C131"
+    ],
+    "lost": [],
+    "location": {
+     "right spot": 122,
+     "right place, wrong spot": 0,
+     "wrong place": 0,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      118224.0,
+      120136.0
+     ],
+     "consumable": [
+      800.0,
+      800.0
+     ],
+     "dna": [
+      141274.2,
+      136992.0
+     ],
+     "reagent": [
+      1338229.3,
+      1337176.0
+     ],
+     "sample_protein": [
+      3774.7,
+      4608.0
+     ],
+     "target:egfr": [
+      422.4,
+      420.0
+     ],
+     "target:her2": [
+      246.6,
+      245.0
+     ],
+     "target:il6r": [
+      211.7,
+      210.0
+     ],
+     "target:pdl1": [
+      139.9,
+      140.0
+     ]
+    },
+    "flags": {
+     "negative balance": 1,
+     "seen after it left": 2,
+     "robot step assumed": 5
+    },
+    "timings": {
+     "balances": 0.07,
+     "containers": 0.04,
+     "usable": 15.34,
+     "flags": 1.64
+    }
+   }
+  ],
+  "verdicts": {
+   "E00001": "no lasting harm",
+   "E00002": "no lasting harm",
+   "E00003": "flagged",
+   "E00004": "silently wrong",
+   "E00005": "no lasting harm",
+   "E00006": "no lasting harm",
+   "E00007": "no lasting harm",
+   "E00008": "flagged",
+   "E00009": "flagged",
+   "E00010": "flagged",
+   "E00011": "no lasting harm",
+   "E00012": "silently wrong",
+   "E00013": "no lasting harm",
+   "E00014": "silently wrong",
+   "E00015": "no lasting harm",
+   "E00016": "no lasting harm",
+   "E00017": "no lasting harm",
+   "E00018": "flagged",
+   "E00019": "flagged",
+   "E00020": "flagged",
+   "E00021": "no lasting harm",
+   "E00022": "no lasting harm",
+   "E00023": "no lasting harm",
+   "E00024": "no lasting harm",
+   "E00025": "no lasting harm",
+   "E00026": "no lasting harm",
+   "E00027": "no lasting harm",
+   "E00028": "no lasting harm",
+   "E00029": "no lasting harm",
+   "E00030": "no lasting harm",
+   "E00031": "no lasting harm",
+   "E00032": "no lasting harm",
+   "E00033": "silently wrong",
+   "E00034": "no lasting harm",
+   "E00035": "silently wrong",
+   "E00036": "no lasting harm",
+   "E00037": "flagged",
+   "E00038": "no lasting harm",
+   "E00039": "no lasting harm"
+  }
+ },
+ {
+  "path": "sim/agents/runs/smoke-1d-2p-haiku",
+  "title": "Agent lab, 1 day, 2 people (haiku)",
+  "kind": "agent-lab",
+  "run_id": "smoke-1d-2p-haiku",
+  "model": "haiku",
+  "days": 1,
+  "people": 2,
+  "tool_calls": 155,
+  "refused_calls": 11,
+  "claude_calls": 4,
+  "codex_calls": 1,
+  "rate_limit_waits": 0,
+  "hung_sessions": 0,
+  "friction_events": 3,
+  "discovered_new": 1,
+  "discovered_variant": 3,
+  "discovered_already_covered": 0,
+  "amounts_compared": 80,
+  "amounts_off": 2,
+  "amounts_within_10pct": 43,
+  "wrong_place_or_spot": 0,
+  "ghosts": 0,
+  "lost": 0,
+  "never_recorded": 0,
+  "only_in_inventory": 0,
+  "flags": 0,
+  "target_usable_really_ul": 1150.1,
+  "target_usable_inventory_ul": 963.0,
+  "checkpoints": [
+   {
+    "label": "day 1",
+    "t": "2026-09-07T16:30:00Z",
+    "amounts": {
+     "reagent": {
+      "exact": 16,
+      "within 10%": 17,
+      "off": 0
+     },
+     "consumable": {
+      "exact": 5,
+      "within 10%": 0,
+      "off": 0
+     },
+     "target": {
+      "exact": 11,
+      "within 10%": 25,
+      "off": 2
+     },
+     "buffer": {
+      "exact": 3,
+      "within 10%": 1,
+      "off": 0
+     }
+    },
+    "ghosts": [],
+    "lost": [],
+    "location": {
+     "right spot": 86,
+     "right place, wrong spot": 0,
+     "wrong place": 0,
+     "not placed": 0
+    },
+    "usable": {
+     "buffer": [
+      475769.1,
+      476000.0
+     ],
+     "consumable": [
+      1888.0,
+      1888.0
+     ],
+     "reagent": [
+      2441110.9,
+      2440880.0
+     ],
+     "target:egfr": [
+      537.1,
+      543.0
+     ],
+     "target:pdl1": [
+      613.0,
+      420.0
+     ]
+    },
+    "flags": {},
+    "timings": {
+     "balances": 0.02,
+     "containers": 0.01,
+     "usable": 0.03,
+     "flags": 0.03
+    }
+   }
+  ]
+ }
+]

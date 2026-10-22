@@ -1,10 +1,10 @@
-<section id="budgets" data-transition="fade" style="background:#f3f5f2;color:#17221e;font-family:'Public Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+<section id="budgets" data-transition="fade" style="background:#fafbfd;color:#142933;font-family:'Geist', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
 <div style="display:flex;flex-direction:column;gap:24px">
-<h2 style="font-family:'Bricolage Grotesque', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1.1;letter-spacing:-1px">Storage rules are time budgets</h2>
-<p style="font-size:32px;line-height:1.4;color:#4a5a53;width:1550px">“A month in the fridge” means a month of fridge time in total. Going cold again pauses the clock. Used time never comes back.</p>
+<h2 style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;line-height:1.1;letter-spacing:-3px">Storage rules are time budgets</h2>
+<p style="font-size:32px;line-height:1.4;color:#4f6470;width:1550px">“A month in the fridge” means a month of fridge time in total. Going cold again pauses the clock. Used time never comes back.</p>
 </div>
 <div style="display:flex;flex-direction:column;gap:16px">
-<p style="font-size:26px;color:#4a5a53">One tube of GFP stock, made 1 August</p>
+<p style="font-size:26px;color:#4f6470">One tube of GFP stock, made 1 August</p>
 <div style="display:flex;height:72px;border-radius:12px;overflow:hidden">
 <div style="flex:61;background:#cfe0ea;display:flex;align-items:center;padding:0 20px"><p style="font-size:24px;color:#1d3a4d">−80 °C, 2 months</p></div>
 <div style="flex:9;background:#e2b45a;display:flex;align-items:center;padding:0 12px"><p style="font-size:24px;color:#3a2a08">9 days</p></div>
@@ -12,12 +12,12 @@
 <div style="flex:22;background:#e2b45a;display:flex;align-items:center;padding:0 16px"><p style="font-size:24px;color:#3a2a08">fridge, 22 days left</p></div>
 </div>
 <div style="display:flex">
-<div style="flex:61"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4a5a53">1 Aug</p></div>
-<div style="flex:9"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4a5a53">1 Oct</p></div>
-<div style="flex:10"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4a5a53">10 Oct</p></div>
-<div style="flex:22;display:flex;justify-content:space-between"><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4a5a53">20 Oct</p><p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#b3402a">11 Nov</p></div>
+<div style="flex:61"><p style="font-family:'Geist Mono', 'Courier New', monospace;font-size:24px;color:#4f6470">1 Aug</p></div>
+<div style="flex:9"><p style="font-family:'Geist Mono', 'Courier New', monospace;font-size:24px;color:#4f6470">1 Oct</p></div>
+<div style="flex:10"><p style="font-family:'Geist Mono', 'Courier New', monospace;font-size:24px;color:#4f6470">10 Oct</p></div>
+<div style="flex:22;display:flex;justify-content:space-between"><p style="font-family:'Geist Mono', 'Courier New', monospace;font-size:24px;color:#4f6470">20 Oct</p><p style="font-family:'Geist Mono', 'Courier New', monospace;font-size:24px;color:#b3402a">11 Nov</p></div>
 </div>
 </div>
-<p style="font-size:30px;line-height:1.4;color:#4a5a53;width:1550px">The same rule keeps targets honest: 8 hours on the bench in total, so a 30-minute thaw to take an aliquot uses 30 minutes, not the whole day.</p>
+<p style="font-size:30px;line-height:1.4;color:#4f6470;width:1550px">The same rule keeps targets honest: 8 hours on the bench in total, so a 30-minute thaw to take an aliquot uses 30 minutes, not the whole day.</p>
 <aside>This one came out of a failing test. The agent's suggested fix was to start the fridge clock the first time a tube enters the fridge and never stop it. That sounds safe, but it means a target thawed for 20 minutes would expire that evening even back at minus 80. A total-time budget handles both cases with one rule. Several clocks run at once on every tube, the supplier date, time since made, and time in each condition, and the earliest wins. The answer always says which clock and which rule decided.</aside>
 </section>
