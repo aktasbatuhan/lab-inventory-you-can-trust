@@ -1,4 +1,4 @@
-<section id="loop" data-transition="fade" style="background:#fafbfd;color:#142933;font-family:'Geist', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
+<section id="loop" data-transition="fade" style="background:#fafbfd;color:#142933;font-family:'Geist', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:flex-start;gap:96px">
 <div style="display:flex;flex-direction:column;gap:20px">
 <h2 style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;line-height:1.1;letter-spacing:-3px">How we worked: break it, then fix it on purpose</h2>
 <p style="font-size:30px;line-height:1.4;color:#4f6470;width:1550px">Every stage tried to prove the design wrong in a different way. Agents found problems but weren’t allowed to fix the schema; each fix became a written decision and a test.</p>
@@ -24,19 +24,15 @@
 <p style="font-size:24px;line-height:1.35;color:#4f6470">Read like a scientist would. Caught: a lost robot log line</p>
 </div>
 <x-shape kind="arrow-right" style="width:36px;height:22px;background:#8fa6b2;align-self:center"></x-shape>
-<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#e9f2f7;border-radius:16px;padding:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#ffffff;border:1px solid #e1e8ed;border-radius:16px;padding:24px">
 <h3 style="font-family:'Geist', Arial, sans-serif;font-size:30px;font-weight:500">Dice lab</h3>
 <p style="font-size:24px;line-height:1.35;color:#4f6470">Weeks of lab at scale. Caught: a 77-second query, ghost bins</p>
 </div>
 <x-shape kind="arrow-right" style="width:36px;height:22px;background:#8fa6b2;align-self:center"></x-shape>
-<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#142933;border-radius:16px;padding:24px">
-<h3 style="font-family:'Geist', Arial, sans-serif;font-size:30px;font-weight:500;color:#f2f6f8">Agent lab</h3>
-<p style="font-size:24px;line-height:1.35;color:#b9ccd6">AI staff under time pressure. Caught: two vials on one slip</p>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#ffffff;border:1px solid #e1e8ed;border-radius:16px;padding:24px">
+<h3 style="font-family:'Geist', Arial, sans-serif;font-size:30px;font-weight:500">Agent lab</h3>
+<p style="font-size:24px;line-height:1.35;color:#4f6470">AI staff under time pressure. Caught: two vials on one slip</p>
 </div>
 </div>
-<div style="display:flex;align-items:center;gap:20px;background:#ffffff;border:1px solid #e1e8ed;border-radius:16px;padding:24px 32px">
-<x-shape kind="arrow-left" style="width:56px;height:28px;background:#1a6e99"></x-shape>
-<p style="font-size:28px;line-height:1.35">Back into the design: <b>11 decisions</b> written down with their reasons, each one covered by a test, and every agent’s raw write-up kept in the repo’s journal.</p>
-</div>
-<aside>This is the slide about how I worked, and it matters more than any single result. Each stage was built to find what the previous one missed. The tests caught logic gaps. Reading real answers from a demo lab caught things no test asked about. The dice simulation found problems that only show up at scale, including a query that took 77 seconds. The agent lab found things nobody had written down as a scenario, like a packing slip with two vials. Agents could report but never patch the schema, so every fix was a decision made on purpose.</aside>
+<aside>This is the slide about how I worked, and it matters more than any single result. Each stage was built to find what the previous one missed. The tests caught logic gaps. Reading real answers from a demo lab caught things no test asked about. The dice simulation found problems that only show up at scale, including a query that took 77 seconds. The agent lab found things nobody had written down as a scenario, like a packing slip with two vials. Agents could report but never patch the schema, so every fix was a decision made on purpose. Everything went back into the design: 11 decisions written down with their reasons, each one covered by a test, and every agent's raw write-up kept in the repo's journal.</aside>
 </section>
