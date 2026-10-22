@@ -9,6 +9,7 @@
   "order": [
     "cover",
     "problem",
+    "loop",
     "method",
     "principle",
     "two-times",
@@ -19,9 +20,10 @@
     "budgets",
     "robots",
     "correction",
-    "found",
     "sim",
     "agents",
+    "agent-trace",
+    "found",
     "cut",
     "open",
     "next",
@@ -33,15 +35,15 @@
       "start": "cover"
     },
     "how": {
-      "description": "How the work was done: scenarios first, schema second.",
-      "start": "method"
+      "description": "How the work was done: break it, then fix it on purpose.",
+      "start": "loop"
     },
     "design": {
       "description": "The design: facts and rules in, every answer worked out.",
       "start": "principle"
     },
     "proof": {
-      "description": "Proof: a correction story, what the tests caught, and the simulations.",
+      "description": "Proof: a correction story, the two simulations, and what each stage caught.",
       "start": "correction"
     },
     "limits": {

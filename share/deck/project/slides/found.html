@@ -1,12 +1,14 @@
-<section id="found" data-transition="fade" style="background:#fafbfd;color:#142933;font-family:'Geist', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
-<h2 style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;line-height:1.1;letter-spacing:-3px">What the tests and agents caught</h2>
-<table style="font-size:26px;color:#142933;font-family:'Geist', Arial, sans-serif">
-<tr><th style="width:52%;text-align:left">What was wrong</th><th style="width:48%;text-align:left">What changed</th></tr>
-<tr><td>Rules were stamped with the moment the file loaded, so every question about September saw no shelf-life rules</td><td>Rules carry the date they started</td></tr>
-<tr><td>“A month in the fridge” was ambiguous once a tube went back to the freezer</td><td>Storage rules became time budgets</td></tr>
-<tr><td>A lost robot log line left the source well looking fuller than it was</td><td>Finished runs assume their plan, aborted runs don’t</td></tr>
-<tr><td>Counting every tube in a box didn’t confirm the box; a typed-in move looked as solid as a scanned one</td><td>Seeing a tube confirms its box; typed moves read “placed, not confirmed”</td></tr>
+<section id="found" data-transition="fade" style="background:#fafbfd;color:#142933;font-family:'Geist', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:32px">
+<h2 style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;line-height:1.1;letter-spacing:-3px">What each stage caught</h2>
+<table style="font-size:24px;color:#142933;font-family:'Geist', Arial, sans-serif">
+<tr><th style="width:46%;text-align:left">What was wrong</th><th style="width:16%;text-align:left">Found by</th><th style="width:38%;text-align:left">What changed</th></tr>
+<tr><td>“A month in the fridge” was ambiguous once a tube went back to the freezer</td><td>a test</td><td>Storage rules became time budgets</td></tr>
+<tr><td>Rules were stamped with the load time, so questions about September saw none</td><td>a test</td><td>Rules carry the date they started</td></tr>
+<tr><td>A lost robot log line left the source well looking fuller than it was</td><td>demo answers</td><td>Finished runs assume their plan; aborted runs don’t</td></tr>
+<tr><td>“What’s usable” took 77 seconds at four weeks of data</td><td>dice lab</td><td>Two lookups rewritten: 1.5 seconds, same answers</td></tr>
+<tr><td>A six-tube kit looked like six duplicate deliveries</td><td>dice lab</td><td>One lot across many tubes; people can close judgement flags</td></tr>
+<tr><td>A packing slip with two vials could only book one</td><td>agent lab</td><td>Delivery references are per vial</td></tr>
 </table>
-<p style="font-size:28px;line-height:1.4;color:#4f6470;width:1550px">Agents weren’t allowed to edit the schema. They wrote up what they found, and each fix was a decision made on purpose. Eleven decisions are written down with their reasons.</p>
-<aside>I think this slide says more about the method than any other. Tests caught two of these, and reading real answers from the demo lab caught the other two. None of them would have shown up by looking at the schema. Every finding and every fix is in the journal folder of the repo, with the agent's original write-up next to it.</aside>
+<p style="font-size:28px;line-height:1.4;color:#4f6470;width:1550px">None of these would have shown up by reading the schema. Eleven decisions are written down with their reasons.</p>
+<aside>Each stage found something the previous ones couldn't. Tests catch logic. Reading real answers catches what tests don't ask. Scale catches speed and volume problems. AI staff catch the things nobody thought to write down. Every finding and every fix is in the journal folder, with the agent's original write-up next to it.</aside>
 </section>

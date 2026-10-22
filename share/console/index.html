@@ -402,7 +402,7 @@ function renderTest() {
 }
 
 /* ---------- simulations ---------- */
-const KINDS = [["hands", "Hands: did something in the lab", "--c1"], ["pen", "Pen: wrote it into the inventory", "--c2"], ["ask", "Asked the inventory a question", "--c3"], ["scanner", "Scanned a barcode", "--c4"], ["talk", "Read tasks or talked to someone", "--c0"]];
+const KINDS = [["hands", "Hands: did something in the lab", "--c1"], ["pen", "Pen: wrote it into the inventory", "--c2"], ["ask", "Asked the inventory a question", "--c3"], ["scanner", "Scanned a barcode", "--c4"], ["talk", "Waiting, reading tasks or talking", "--c0"]];
 const KCOLOR = k => css((KINDS.find(x => x[0] === k) || KINDS[4])[2]);
 const FATES = [["silently wrong", "Silently wrong", "--bad"], ["flagged", "Flagged by the system", "--warn-mark"], ["corrected", "Corrected by a person", "--ok"], ["refused at entry", "Refused when typed", "--c4"], ["no lasting harm", "No lasting harm", "--c0"]];
 const FCOLOR = f => css((FATES.find(x => x[0] === f) || FATES[4])[2]);

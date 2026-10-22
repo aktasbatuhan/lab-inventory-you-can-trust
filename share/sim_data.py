@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 KIND = {
     "look": "hands", "pick_up": "hands", "put": "hands", "pipette": "hands", "split": "hands", "inspect": "hands",
-    "get_new": "hands", "use": "hands", "qc_check": "hands", "bin": "hands", "read_label": "hands", "wait": "hands",
+    "get_new": "hands", "use": "hands", "qc_check": "hands", "bin": "hands", "read_label": "hands", "wait": "talk",
     "scan": "scanner",
     "ask_inventory": "ask",
     "tell": "talk", "my_tasks": "talk", "done": "talk", "inbox": "talk",

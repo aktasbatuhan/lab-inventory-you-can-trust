@@ -1,22 +1,29 @@
-<section id="agents" data-transition="fade" style="background:#fafbfd;color:#142933;font-family:'Geist', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
-<div style="display:flex;flex-direction:column;gap:24px">
-<h2 style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;line-height:1.1;letter-spacing:-3px">A lab run by AI agents, under time pressure</h2>
-<p style="font-size:32px;line-height:1.4;color:#4f6470;width:1550px">Dice can only make the mistakes we thought of. So AI agents play the lab staff for a week, and a referee writes up what went wrong.</p>
+<section id="agents" data-transition="fade" style="background:#fafbfd;color:#142933;font-family:'Geist', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<h2 style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;line-height:1.1;letter-spacing:-3px">The agent lab: AI staff, a clock and a referee</h2>
+<p style="font-size:30px;line-height:1.4;color:#4f6470;width:1550px">Dice only make the mistakes we thought of. So four AI agents played Adaptyv’s lab staff for a week, roles taken from Adaptyv’s job posts, and nobody told them to make mistakes.</p>
 </div>
-<div style="display:flex;gap:24px">
-<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#ffffff;border:1px solid #e1e8ed;border-radius:16px;padding:36px">
-<h3 style="font-family:'Geist', Arial, sans-serif;font-size:36px;font-weight:500">Hands and a pen</h3>
-<p style="font-size:28px;line-height:1.4;color:#4f6470">Agents move real tubes in the simulated lab, and separately write it down. Nobody is told to make mistakes.</p>
+<div style="display:flex;gap:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#ffffff;border:1px solid #e1e8ed;border-radius:16px;padding:28px">
+<h3 style="font-family:'Geist', Arial, sans-serif;font-size:32px;font-weight:500">Hands</h3>
+<p style="font-size:24px;line-height:1.4;color:#4f6470">Tools that change the real lab: pick up, pipette, split, bin. Labels frost, vials come short.</p>
 </div>
-<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#ffffff;border:1px solid #e1e8ed;border-radius:16px;padding:36px">
-<h3 style="font-family:'Geist', Arial, sans-serif;font-size:36px;font-weight:500">A clock</h3>
-<p style="font-size:28px;line-height:1.4;color:#4f6470">Every scan costs 10 seconds and every record 30. Shifts end at 18:00, and Fridays are tight.</p>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#ffffff;border:1px solid #e1e8ed;border-radius:16px;padding:28px">
+<h3 style="font-family:'Geist', Arial, sans-serif;font-size:32px;font-weight:500">A pen</h3>
+<p style="font-size:24px;line-height:1.4;color:#4f6470">Separate tools that write to the inventory, true or not. Mistakes appear on their own.</p>
 </div>
-<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#ffffff;border:1px solid #e1e8ed;border-radius:16px;padding:36px">
-<h3 style="font-family:'Geist', Arial, sans-serif;font-size:36px;font-weight:500">A referee</h3>
-<p style="font-size:28px;line-height:1.4;color:#4f6470">A different model sees both notebooks and writes new scenarios from the drift.</p>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#ffffff;border:1px solid #e1e8ed;border-radius:16px;padding:28px">
+<h3 style="font-family:'Geist', Arial, sans-serif;font-size:32px;font-weight:500">A clock</h3>
+<p style="font-size:24px;line-height:1.4;color:#4f6470">A scan costs 10 seconds, a record 30. Deadlines, interruptions, shifts end at 18:00.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#142933;border-radius:16px;padding:28px">
+<h3 style="font-family:'Geist', Arial, sans-serif;font-size:32px;font-weight:500;color:#f2f6f8">A referee</h3>
+<p style="font-size:24px;line-height:1.4;color:#b9ccd6">Codex reads both notebooks each evening and writes up new scenarios.</p>
 </div>
 </div>
-<p style="font-size:28px;line-height:1.4;color:#4f6470;width:1550px">[Findings from the agent run: new scenarios the catalog didn’t have, and any answer from the inventory that misled an agent.]</p>
-<aside>The cast comes from Adaptyv's job posts: a lab operations technician, a production scientist, a procurement manager and a data reviewer. The people are Claude Code sessions and the referee is Codex, both run headless on subscriptions. The most valuable finding would be an agent asking the inventory a question and being misled by the answer. Results pending.</aside>
+<div style="display:flex;flex-direction:column;gap:10px;background:#e9f2f7;border-radius:16px;padding:32px">
+<p style="font-size:24px;color:#4f6470">What nobody planted</p>
+<p style="font-size:30px;line-height:1.4">On day one, Lena couldn’t book the second vial on a two-vial packing slip. It spent the day off the record, and usable PD-L1 read 963 µL against a true 1,150. Delivery references are now per vial.</p>
+</div>
+<aside>The people are headless Claude Code sessions, the referee is Codex, and both ran on my own subscriptions, not API credits. Each person keeps one session for the whole week, so they remember yesterday. The agents never get SQL or a shell, only the lab's tools, so they meet the inventory the way people would. The packing slip is the kind of thing I wanted this for: none of the 244 scenarios had it, and it's exactly the brief's "material we own looks used up".</aside>
 </section>

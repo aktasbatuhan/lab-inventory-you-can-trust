@@ -1,22 +1,34 @@
-<section id="sim" data-transition="fade" style="background:#142933;color:#f2f6f8;font-family:'Geist', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
-<div style="display:flex;flex-direction:column;gap:24px">
-<h2 style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;line-height:1.1;letter-spacing:-3px">Two notebooks</h2>
-<p style="font-size:32px;line-height:1.4;color:#b9ccd6;width:1550px">A simulated month of Adaptyv’s Binding workflow. One notebook holds what really happened. The other holds what people and robots wrote down, with mistakes at published rates. The inventory only ever sees the second.</p>
+<section id="sim" data-transition="fade" style="background:#fafbfd;color:#142933;font-family:'Geist', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;justify-content:space-between;gap:36px">
+<div style="display:flex;flex-direction:column;gap:20px">
+<h2 style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;line-height:1.1;letter-spacing:-3px">The dice lab: two notebooks</h2>
+<p style="font-size:30px;line-height:1.4;color:#4f6470;width:1550px">Show trust instead of claiming it: run the lab, write down what people would write, mistakes included, and check what the inventory believes against what really happened.</p>
 </div>
-<div style="display:flex;gap:24px">
-<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#1c3846;border-radius:16px;padding:36px">
-<p style="font-size:26px;color:#8fa6b2">How far the inventory drifted from the truth</p>
-<p style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;color:#f2f6f8">[__%]</p>
+<div style="display:flex;align-items:stretch;gap:12px">
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#e9f2f7;border-radius:16px;padding:28px">
+<h3 style="font-family:'Geist', Arial, sans-serif;font-size:32px;font-weight:500">The real lab</h3>
+<p style="font-size:24px;line-height:1.4;color:#4f6470">Every tube and µL at Adaptyv’s throughput, from their own docs and job posts</p>
 </div>
-<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#1c3846;border-radius:16px;padding:36px">
-<p style="font-size:26px;color:#8fa6b2">Mistakes its flags caught</p>
-<p style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;color:#36b7f6">[__ of __]</p>
+<x-shape kind="arrow-right" style="width:40px;height:24px;background:#8fa6b2;align-self:center"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#e9f2f7;border-radius:16px;padding:28px">
+<h3 style="font-family:'Geist', Arial, sans-serif;font-size:32px;font-weight:500">What gets written</h3>
+<p style="font-size:24px;line-height:1.4;color:#4f6470">Late scans, typos, bins nobody scans, at published human-error rates</p>
 </div>
-<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#1c3846;border-radius:16px;padding:36px">
-<p style="font-size:26px;color:#8fa6b2">Went silently wrong</p>
-<p style="font-family:'Geist', Arial, sans-serif;font-size:72px;font-weight:500;color:#ef8a73">[__]</p>
+<x-shape kind="arrow-right" style="width:40px;height:24px;background:#8fa6b2;align-self:center"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#142933;border-radius:16px;padding:28px">
+<h3 style="font-family:'Geist', Arial, sans-serif;font-size:32px;font-weight:500;color:#f2f6f8">The inventory</h3>
+<p style="font-size:24px;line-height:1.4;color:#b9ccd6">Our schema, seeing only the second notebook</p>
+</div>
+<x-shape kind="arrow-right" style="width:40px;height:24px;background:#8fa6b2;align-self:center"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:10px;background:#e9f2f7;border-radius:16px;padding:28px">
+<h3 style="font-family:'Geist', Arial, sans-serif;font-size:32px;font-weight:500">The scorer</h3>
+<p style="font-size:24px;line-height:1.4;color:#4f6470">Gives every mistake a fate: flagged, fixed, healed, or silently wrong</p>
 </div>
 </div>
-<p style="font-size:28px;line-height:1.4;color:#8fa6b2;width:1550px">A wrong tube scanned about once in 2,000 scans. 3.7% of typed values wrong. A step forgotten 0.3 to 1% of the time, and a “bad week” setting at ten times that.</p>
-<aside>Results pending: fill in from sim/results once the run finishes. The point of the simulation is to show trust instead of claiming it. The scorer compares every container's real contents and location with what the inventory says, and checks each injected mistake: caught by a flag, fixed by a person, obvious on its own, or silently wrong.</aside>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+<div style="display:flex;flex-direction:column;gap:6px"><p style="font-size:24px;color:#4f6470">We varied</p><p style="font-size:28px;line-height:1.35">1 week to 8 weeks, 48 to 2,000 designs a week, normal and bad-week noise, three random seeds</p></div>
+<div style="display:flex;flex-direction:column;gap:6px"><p style="font-size:24px;color:#4f6470">8 weeks, 2,000 a week, normal noise</p><p style="font-size:28px;line-height:1.35"><b>117 mistakes</b>: 28 flagged, 82 healed by later scans, 6 silently wrong</p></div>
+<div style="display:flex;flex-direction:column;gap:6px"><p style="font-size:24px;color:#4f6470">What stayed wrong</p><p style="font-size:28px;line-height:1.35">Mostly bins nobody scanned, and evaporation nobody records</p></div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#6b7f8a">sim/ and the Simulations view of the review console, where every run and every mistake can be browsed</p>
+<aside>The point isn't a single number. It's that the design was tested against the kind of mess a real lab makes, at the scale Adaptyv runs. The simulation also tested the schema's speed: at four weeks of data, the "what's usable" question took 77 seconds. Profiling found two lookups that ran once per row, and the fix made it 1.5 seconds with identical answers. What stays silently wrong is honest: if nobody scans a bin, no system can know. The answer there is to make the common case automatic, as we did for single-use plates, and to surface things nobody has seen in a while.</aside>
 </section>
