@@ -125,7 +125,9 @@ main { padding-block: 24px 80px; }
 .ck.no { background: var(--bad-soft); border-color: transparent; }
 .ck .mk { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font: 700 11px var(--body); color: var(--sheet); background: var(--ok); margin-top: 1px; }
 .ck.no .mk { background: var(--bad); }
-.ck .val { font: 12px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
+.ck .val { font: 12px var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+.ck .qa { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; margin-top: 4px; align-items: baseline; }
+.ck .ql { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
 details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
 pre.sql { margin: 10px 0 0; padding: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; font: 12px/1.55 var(--mono); }
 
@@ -426,9 +428,9 @@ function renderTest() {
         ${b.error ? `<p style="color:var(--bad)" class="mono">${esc(b.error)}</p>` : ""}
         <div class="blockgrid">
           <div><h3 class="sublabel">What happened, as it was recorded</h3>${feed(b.events)}</div>
-          <div><h3 class="sublabel">What the system had to say</h3><div class="checks">${b.checks.map(c => `
+          <div><h3 class="sublabel">What the system had to answer, and what it said</h3><div class="checks">${b.checks.map(c => `
             <div class="ck ${c.ok ? "" : "no"}"><span class="mk">${c.ok ? "✓" : "✕"}</span>
-            <div><div>${esc(c.what)}</div><div class="val">${c.ok ? esc(c.actual) : `expected ${esc(c.expected)}, got ${esc(c.actual)}`}</div></div></div>`).join("")}</div></div>
+            <div><div>${esc(c.what)}</div><div class="qa"><span class="ql">Had to answer</span><span class="val">${esc(c.expected)}</span><span class="ql">Said</span><span class="val">${esc(c.actual)}</span></div></div></div>`).join("")}</div></div>
         </div>
         <details><summary>The test as SQL</summary><pre class="sql">${esc(b.sql)}</pre></details>
       </article>`).join("")}`;
