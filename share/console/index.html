@@ -191,6 +191,19 @@ table.cmp th, table.cmp td { text-align: right; padding: 6px 10px; border-bottom
 table.cmp th:first-child, table.cmp td:first-child { text-align: left; }
 table.cmp th { font-weight: 500; color: var(--muted); }
 
+/* Principles view */
+.plist { display: grid; gap: 14px; }
+.pcard { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 20px; padding: 22px 24px; background: var(--sheet); border: 1px solid var(--line); border-radius: 14px; }
+.pnum { font: 500 44px/1 var(--display); letter-spacing: -0.04em; color: var(--accent); font-variant-numeric: tabular-nums; }
+.pcard h3, .dcard h3 { font-size: 21px; letter-spacing: -0.03em; line-height: 1.25; }
+.prose { display: grid; gap: 8px; font-size: 15px; max-width: 78ch; }
+.prose p { margin: 0; }
+.prose ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.prose code { font-family: var(--mono); font-size: 0.9em; }
+.dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 14px; align-items: start; }
+.dcard { display: grid; gap: 10px; padding: 20px 22px; background: var(--sheet); border: 1px solid var(--line); border-radius: 14px; }
+.did { font: 500 13px var(--mono); color: var(--accent); }
+
 /* Schema view */
 .erd { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--sheet); }
 .erd svg { display: block; min-width: 980px; width: 100%; height: auto; }
@@ -227,6 +240,7 @@ table.cmp th { font-weight: 500; color: var(--muted); }
   <div class="wrap">
     <div class="brand"><h1>Lab Ledger Review</h1><span class="by">Take-home by Batuhan Aktas for Adaptyv Bio</span></div>
     <nav aria-label="Views">
+      <button id="nav-principles" data-view="principles">Principles</button>
       <button id="nav-tests" data-view="tests">Scenario tests</button>
       <button id="nav-sim" data-view="sim">Simulations</button>
       <button id="nav-schema" data-view="schema">Schema</button>
@@ -237,7 +251,8 @@ table.cmp th { font-weight: 500; color: var(--muted); }
 </header>
 
 <main class="wrap">
-  <section id="view-tests" class="split" aria-label="Scenario tests">
+  <section id="view-principles" aria-label="Principles"><div class="stack" id="principles-body"></div></section>
+  <section id="view-tests" class="split" hidden aria-label="Scenario tests">
     <div class="list" id="test-list" role="list"></div>
     <div class="stack" id="test-detail"><p class="muted">Loading the test traces…</p></div>
   </section>
@@ -603,6 +618,48 @@ function renderSim() {
   el.innerHTML = runPicker() + (r.kind === "agents" ? renderAgents(r) : renderDice(r));
 }
 
+/* ---------- principles ---------- */
+function proseHtml(md) {
+  const inline = x => esc(x).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  const item = l => /^\s*([-*]|\d+\.) /.test(l);
+  return md.split(/\n{2,}/).map(b => b.trim()).filter(Boolean).map(b => {
+    // a sentence followed straight away by list lines: the sentence, then the list
+    const lines = b.split(/\n/).filter(l => l.trim()), first = lines.findIndex(item);
+    const lead = first < 0 ? lines : lines.slice(0, first), rest = first < 0 ? [] : lines.slice(first);
+    return (lead.length ? `<p>${inline(lead.join(" "))}</p>` : "") +
+      (rest.length ? `<ul>${rest.map(l => `<li>${inline(l.replace(/^\s*([-*]|\d+\.) /, ""))}</li>`).join("")}</ul>` : "");
+  }).join("");
+}
+const PSHORT = {
+  "1": "Store facts and rules; work out every number when asked, and show how. What can’t be worked out says unknown, never zero.",
+  "2": "A mistake gets a correction that points at it. Every fact has two times: when it happened and when it was written down.",
+  "3": "The protocol’s normal outcome is recorded by rule, so the common case costs nothing and any exception has to be reported.",
+  "4": "The lab never waits on the inventory. What happened is saved, the mismatch is flagged, and flagged stock leaves usable.",
+  "5": "Usable is always worked out, with every reason when the answer is no."
+};
+const DSHORT = {
+  D1: "Saved and flagged, not refused. Stock in a flagged tube doesn’t count as usable.",
+  D2: "A second delivery of a checked lot waits for its own QC. Aliquots inherit their parent’s.",
+  D3: "A barcode already on a live container is refused. A clash that slips in freezes both tubes.",
+  D4: "A missing tube becomes location uncertain at once. Amounts change only when a person approves.",
+  D5: "A shorter rule applies to existing stock from its start date. The past keeps the old rule.",
+  D6: "Single-use plates are binned by rule when their run ends. A later scan raises a flag.",
+  D7: "Most specific limit wins: product, then protein, then kind. Going over warns, never blocks.",
+  D8: "Published error rates by default; about ten times that is the bad-week setting.",
+  D9: "A month in the fridge is a month in total. Back in the freezer pauses the clock.",
+  D10: "Missing log lines in a finished run are assumed done and flagged. An aborted run assumes nothing.",
+  D11: "Flags like possible duplicate delivery can be closed by a person. Flags backed by numbers can’t."
+};
+function renderPrinciples() {
+  const el = document.getElementById("principles-body"), P = state.principles;
+  if (!P || !P.principles) { el.innerHTML = `<p class="muted">The principles didn’t load. Reload the page.</p>`; return; }
+  el.innerHTML = `
+    <div class="stack" style="gap:10px"><h2>Principles</h2><p class="lede">Five rules, in priority order. When two good ideas conflict, the higher one wins.</p></div>
+    <div class="plist">${P.principles.map(p => `<article class="pcard"><div class="pnum">${esc(p.id)}</div><div class="stack" style="gap:8px"><h3>${esc(p.title)}</h3><div class="prose"><p>${esc(PSHORT[p.id] || "")}</p></div></div></article>`).join("")}</div>
+    <div class="stack" style="gap:10px;margin-top:12px"><h2>Decisions</h2><p class="lede">${P.decisions.length} choices made on purpose, each from a disagreement or a finding. Click a scenario for the story behind it.</p></div>
+    <div class="dgrid">${P.decisions.map(d => `<article class="dcard"><h3>${esc(d.id)}. ${esc(d.title)}</h3><div class="prose"><p>${esc(DSHORT[d.id] || "")}</p></div>${d.scenarios.length ? `<div class="chips">${d.scenarios.map(id => `<button class="chip" data-sc="${esc(id)}">${esc(id)}</button>`).join("")}</div>` : ""}</article>`).join("")}</div>`;
+}
+
 /* ---------- schema ---------- */
 const SCOLS = {
   reference: ["actor", "material_kind", "material", "product", "container_type", "shelf_life_rule", "thaw_limit_rule"],
@@ -699,7 +756,7 @@ const closeDrawer = () => { document.getElementById("drawer-root").innerHTML = "
 /* ---------- navigation ---------- */
 function show(view) {
   state.view = view;
-  for (const v of ["tests", "sim", "schema", "scenarios"]) { document.getElementById("view-" + v).hidden = v !== view; document.getElementById("nav-" + v).setAttribute("aria-current", String(v === view)); }
+  for (const v of ["principles", "tests", "sim", "schema", "scenarios"]) { document.getElementById("view-" + v).hidden = v !== view; document.getElementById("nav-" + v).setAttribute("aria-current", String(v === view)); }
   try { history.replaceState(null, "", "#" + (view === "tests" ? "test-" + String(state.tests[state.test]?.number ?? 1).padStart(2, "0") : view)); } catch (e) {}
 }
 function selectTest(i) { state.test = i; renderList(); renderTest(); show("tests"); window.scrollTo({ top: 0 }); }
@@ -729,7 +786,7 @@ for (const id of ["sc-q", "sc-cluster", "sc-short", "sc-tested"]) document.getEl
 async function load(name) { try { const r = await fetch(`data/${name}.json`); return r.ok ? r.json() : []; } catch (e) { return []; } }
 
 (async () => {
-  [state.tests, state.scenarios, state.sim, state.schema] = await Promise.all([load("tests"), load("scenarios"), load("sim"), load("schema")]);
+  [state.tests, state.scenarios, state.sim, state.schema, state.principles] = await Promise.all([load("tests"), load("scenarios"), load("sim"), load("schema"), load("principles")]);
   if (!state.tests.length) {
     document.getElementById("test-detail").innerHTML = `<p class="muted">The test traces didn’t load. Reload the page; if it keeps happening, the data files are missing from this copy.</p>`;
     document.getElementById("tally").textContent = "Data didn’t load";
@@ -744,7 +801,7 @@ async function load(name) { try { const r = await fetch(`data/${name}.json`); re
   document.getElementById("tally").textContent = `${state.tests.filter(t => t.passed).length}/${state.tests.length} tests pass, ${checks} checks, ${state.sim.length} simulation runs`;
   const h = (location.hash || "").slice(1), m = h.match(/^test-(\d+)$/);
   if (m) { const i = state.tests.findIndex(t => t.number === +m[1]); if (i >= 0) state.test = i; }
-  renderList(); renderTest(); renderScenarios(); renderSim(); renderSchema();
-  show(["sim", "schema", "scenarios"].includes(h) ? h : "tests");
+  renderList(); renderTest(); renderScenarios(); renderSim(); renderSchema(); renderPrinciples();
+  show(m ? "tests" : ["tests", "sim", "schema", "scenarios"].includes(h) ? h : "principles");
 })();
 </script>

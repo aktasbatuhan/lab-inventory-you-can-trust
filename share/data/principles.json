@@ -1,0 +1,156 @@
+{
+ "principles": [
+  {
+   "id": "1",
+   "title": "Every value can be computed",
+   "body": "The system stores two things only: facts (something happened, at a time, recorded by someone) and rules (how long a buffer lasts in the fridge, how much liquid a tube traps at the bottom). Every number anyone sees, whether that's how much is left, how much is usable, where a plate is, when something expires, how many times a tube was thawed, or what was wasted, is worked out from those facts and rules when someone asks.\n\nSo nobody types \"200 µL left\" into a field. They record \"took 50 µL out\", and the 200 is the sum. Nobody types an expiry date either. The system knows when the buffer was made, where it has been kept, and what the rule for that place is, and it works the date out.\n\nThis has three consequences we rely on everywhere:\n- Every number can show how it was worked out. \"Why does this say 140 µL?\" always has an answer made of individual facts.\n- Fixing a fact or a rule fixes every number that depends on it, with nothing to update by hand.\n- When a number truly can't be worked out (we never measured the concentration, say), the answer is \"unknown, because...\", never a guess and never zero.",
+   "scenarios": [],
+   "principles": []
+  },
+  {
+   "id": "2",
+   "title": "Facts are never edited or deleted",
+   "body": "A mistake is fixed by recording a correction that points at the wrong fact. The wrong fact stays, marked as corrected. That's how we can answer \"what did the record say before?\" and \"what did we believe last Tuesday?\".\n\nEvery fact carries two times: when it happened in the lab, and when it was written into the system. They are often different, and both matter.",
+   "scenarios": [],
+   "principles": []
+  },
+  {
+   "id": "3",
+   "title": "Assume the expected thing happened, make the exception loud",
+   "body": "Where a protocol says what normally happens (a BLI plate is thrown away after its run, a robot transfers what its worklist says), the system records that as the default. Anyone who does something different has to say so. This means the common case needs no extra work, and an exception can't slip by quietly. Not reporting it leaves a visible mismatch that someone will have to explain.\n\nDefaults are recorded as facts of their own, marked as coming from a rule, so they can be corrected like anything else.",
+   "scenarios": [],
+   "principles": []
+  },
+  {
+   "id": "4",
+   "title": "Record first, flag after",
+   "body": "The lab doesn't stop because the inventory disagrees with it. If someone takes more than the system thinks a tube holds, the liquid has already moved. Refusing to record it would just make the records wrong in a different way. So we record what happened, flag the mismatch, and keep anything flagged out of the \"usable\" numbers until a person sorts it out.",
+   "scenarios": [],
+   "principles": []
+  },
+  {
+   "id": "5",
+   "title": "Know the difference between \"exists\" and \"usable\"",
+   "body": "Something can be in the freezer and still be no good: expired, failed QC, on hold, stuck below what a pipette can reach, or with a question mark over it. \"Usable\" is always worked out, and it always comes with the list of reasons when the answer is no.",
+   "scenarios": [],
+   "principles": []
+  }
+ ],
+ "decisions": [
+  {
+   "id": "D1",
+   "title": "Taking more than the system thinks is there: record it and flag it",
+   "body": "When someone draws 30 µL from a tube the system says holds 25 µL, we save the 30 µL and flag the tube. The liquid is already in the pipette; refusing to record it only makes the records wrong in a new way. The tube's balance goes negative on purpose, which makes the problem visible, and everything in a flagged tube is left out of \"usable\" until a person resolves it, usually with a corrected volume or a recount.\n\nThis also covers splits where the children add up to more than the parent had, and two people drawing on the same last 50 µL at once.",
+   "scenarios": [
+    "EDGE-009",
+    "EDGE-012",
+    "XFER-001",
+    "XFER-003"
+   ],
+   "principles": [
+    "4"
+   ]
+  },
+  {
+   "id": "D2",
+   "title": "QC belongs to one delivery of one batch, not to the batch number",
+   "body": "If the supplier's lot L-4471 passed QC in March and another box of L-4471 arrives in June, the June box is on hold until it's checked. The box could have warmed up on the way, or the supplier could have reused the lot number. In our system each delivery of a supplier lot is its own batch, linked to the others by the supplier's lot code. Tubes we split from a batch that already passed QC inherit that pass, because they are the same liquid.",
+   "scenarios": [
+    "EDGE-034",
+    "RCV-016",
+    "RCV-034"
+   ],
+   "principles": []
+  },
+  {
+   "id": "D3",
+   "title": "Barcode clashes are refused, and if one slips through, both tubes freeze",
+   "body": "Registering a barcode that already belongs to a live container is refused. If a clash still turns up in the lab (two pre-printed labels from the same roll, a label stuck on the wrong tube), neither tube can have liquid recorded against it until a person says which is which. A barcode is a label a container wears for a while; it is not the container.",
+   "scenarios": [
+    "ASK-032",
+    "EDGE-011",
+    "LOC-006"
+   ],
+   "principles": []
+  },
+  {
+   "id": "D4",
+   "title": "A physical count changes confidence at once, but never amounts by itself",
+   "body": "When someone counts a freezer and a tube isn't there, the tube immediately becomes \"location uncertain\". Amounts only change when a person approves the count's findings, and the approval is a fact of its own with the counted values in it.",
+   "scenarios": [
+    "ASK-021",
+    "LOC-040"
+   ],
+   "principles": []
+  },
+  {
+   "id": "D5",
+   "title": "Changed shelf-life rules apply to existing stock from the day they change",
+   "body": "Rules have versions with a start date. If the lab decides loading buffer only lasts 5 days instead of 7, buffer made last week follows the new rule from today on. Questions about the past are still answered with the rule that applied then.",
+   "scenarios": [
+    "EDGE-026",
+    "LIFE-030"
+   ],
+   "principles": []
+  },
+  {
+   "id": "D6",
+   "title": "The expected action is recorded by default; doing something else must be reported",
+   "body": "Single-use plates (GFP and BLI) are recorded as thrown away when their run finishes, without anyone scanning the bin. The same idea applies wherever a protocol says what normally happens. The default is a fact marked as coming from a rule, so if the plate later turns up on a bench, that's a visible mismatch and someone has to explain it. We'd rather make the common case free and the exception loud than ask people to record the obvious.",
+   "scenarios": [
+    "ASK-035",
+    "EDGE-016",
+    "LIFE-004",
+    "LOC-036"
+   ],
+   "principles": [
+    "3"
+   ]
+  },
+  {
+   "id": "D7",
+   "title": "Freeze-thaw limits are set per protein and source, and they warn rather than block",
+   "body": "Sources disagree on how many freeze-thaw cycles a protein survives (1 to 5), and the answer depends on the protein and on who made it and in what formulation. So limits are rules that can be set at three levels, and the most specific one wins:\n1. this protein from this supplier product (say, a target from one vendor's catalog number)\n2. this protein from any source\n3. this kind of material (all target proteins)\n\nIf no limit is set at any level, the system still counts the cycles and shows the number, but doesn't judge it. Going over a limit flags the container; it doesn't block it, because the scientist may know the protein is fine.",
+   "scenarios": [
+    "ASK-024",
+    "LIFE-008"
+   ],
+   "principles": []
+  },
+  {
+   "id": "D8",
+   "title": "The simulation starts from researched error rates",
+   "body": "The scenario agents guessed that people forget to record a step 3 to 40% of the time. Published human-reliability figures say 0.3 to 1% per step. The simulation starts from the researched numbers in `sim/noise-model.yaml` and uses the agents' higher numbers as a \"bad week\" setting, so we can show how the system behaves in both.",
+   "scenarios": [],
+   "principles": []
+  },
+  {
+   "id": "D9",
+   "title": "Storage rules are time budgets: used time never comes back, and going cold again pauses the clock",
+   "body": "\"GFP stock lasts a month in the fridge\" means a month of fridge time in total, not a month from the first time it went in. Nine days in the fridge, back to the freezer, then out again leaves one month minus nine days. While the tube is back in the freezer its fridge clock is paused and the other clocks decide.\n\nWe considered the simpler rule \"the clock starts the first time it enters the fridge and never stops\". It breaks targets: the 8-hour room-temperature allowance would start the moment someone thaws a tube for 20 minutes to take an aliquot, and the tube would expire that evening even though it's back at -80. A total-time budget is closer to how people in the lab think about it (\"this tube has been out for most of a day already\") and handles both cases with one rule.",
+   "scenarios": [
+    "LIFE-002",
+    "LIFE-008"
+   ],
+   "principles": []
+  },
+  {
+   "id": "D10",
+   "title": "A robot run that finished normally did its plan; an aborted one did not",
+   "body": "When a liquid handler finishes a run, its log should have a line for every step on the worklist. Sometimes one is missing anyway: the robot PC was offline, an upload failed. Treating the step as not done leaves the source well looking fuller than it is, and that's the number a scientist planning a re-expression would trust.\n\nSo we apply principle 3. If the run finished normally, a step without a log line is recorded as done, marked as coming from a rule, and flagged \"robot step assumed\". If the real log line turns up later, it replaces the assumption on its own. If the run was aborted (a tip jam, an emergency stop), nothing is assumed: the missing steps are flagged at both ends, the source wells that may still be full and the destination wells that may be empty, until a person says what happened.",
+   "scenarios": [
+    "EDGE-022",
+    "XFER-007",
+    "XFER-008"
+   ],
+   "principles": []
+  },
+  {
+   "id": "D11",
+   "title": "Some flags ask for judgement, and a person can close them",
+   "body": "\"Possible duplicate delivery\" can't tell two real orders of the same supplier lot from one delivery registered twice; only someone with the delivery notes can. The same goes for \"seen after it left\", \"robot step assumed\" and \"over thaw limit\". For these, a person records a review (\"two separate orders, DN-601 and DN-644\"), and the flag closes from then on. The review is a fact like any other, so asking about the moment before it still shows the flag open. Flags backed by numbers, like a negative balance or a barcode clash, can't be closed this way: they go away when the facts behind them are fixed.",
+   "scenarios": [],
+   "principles": []
+  }
+ ]
+}

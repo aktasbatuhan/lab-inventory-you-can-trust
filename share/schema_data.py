@@ -71,7 +71,28 @@ def function_signatures():
     return sigs
 
 
+def sections(path, pattern):
+    """Split a markdown doc into its `## ` sections: id, title, body paragraphs, scenario ids."""
+    text = (ROOT / path).read_text()
+    out = []
+    for m in re.finditer(r"^## (.+?)\n(.*?)(?=^## |\Z)", text, re.S | re.M):
+        head, body = m.group(1).strip(), m.group(2).strip()
+        h = re.match(pattern, head)
+        if not h:
+            continue
+        scen = re.findall(r"\b(?:RCV|XFER|LOC|LIFE|ASK|EDGE)-\d+\b", body)
+        body = re.sub(r"^Scenarios:.*$", "", body, flags=re.M)
+        body = re.sub(r"^(Found by|Research:).*$", "", body, flags=re.M).strip()
+        out.append({"id": h.group(1), "title": h.group(2).strip(), "body": body,
+                    "scenarios": sorted(set(scen)), "principles": sorted(set(re.findall(r"Principle (\d)", m.group(2))))})
+    return out
+
+
 def main():
+    (ROOT / "share/data/principles.json").write_text(json.dumps({
+        "principles": sections("docs/principles.md", r"(\d+)\. (.+)"),
+        "decisions": sections("docs/decisions.md", r"(D\d+)\. (.+)"),
+    }, indent=1, ensure_ascii=False))
     cols, keys = q(COLUMNS_SQL), q(KEYS_SQL)
     tcomm, fcomm, sigs = comments("table"), comments("function"), function_signatures()
     tables = {}

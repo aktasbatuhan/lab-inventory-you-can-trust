@@ -61,7 +61,7 @@ def build_review():
     assert "/review/data/" in body
     reset = "<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>"
     (out / "index.html").write_text(head(title, "review", reset) + "<body>\n" + body + "\n</body>\n</html>\n")
-    for f in ("tests.json", "scenarios.json", "sim.json", "schema.json"):
+    for f in ("tests.json", "scenarios.json", "sim.json", "schema.json", "principles.json"):
         shutil.copy(ROOT / "share/data" / f, out / "data" / f)
 
 
