@@ -191,6 +191,22 @@ table.cmp th, table.cmp td { text-align: right; padding: 6px 10px; border-bottom
 table.cmp th:first-child, table.cmp td:first-child { text-align: left; }
 table.cmp th { font-weight: 500; color: var(--muted); }
 
+/* Schema view */
+.erd { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--sheet); }
+.erd svg { display: block; min-width: 980px; width: 100%; height: auto; }
+.erd .tbl { cursor: pointer; }
+.erd .tbl:focus-visible rect { stroke: var(--accent); stroke-width: 2; }
+.cols { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.cols th, .cols td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.cols th { font-weight: 500; color: var(--muted); }
+.cols td.mono { font-family: var(--mono); font-size: 12.5px; }
+.key { font: 11px var(--mono); padding: 1px 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.key.pk { background: var(--ink); color: var(--sheet); }
+.fngrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; align-items: start; }
+.fn { display: grid; gap: 4px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--sheet); }
+.fn .sig { font: 12.5px var(--mono); overflow-wrap: anywhere; }
+.fn p { margin: 0; font-size: 13px; color: var(--muted); }
+
 /* Scenario catalog */
 .filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
 .filters input[type=search], .filters select { font: inherit; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--sheet); color: var(--ink); min-width: 0; }
@@ -213,6 +229,7 @@ table.cmp th { font-weight: 500; color: var(--muted); }
     <nav aria-label="Views">
       <button id="nav-tests" data-view="tests">Scenario tests</button>
       <button id="nav-sim" data-view="sim">Simulations</button>
+      <button id="nav-schema" data-view="schema">Schema</button>
       <button id="nav-scenarios" data-view="scenarios">Scenario catalog</button>
     </nav>
     <span class="tally" id="tally">Loading…</span>
@@ -225,6 +242,7 @@ table.cmp th { font-weight: 500; color: var(--muted); }
     <div class="stack" id="test-detail"><p class="muted">Loading the test traces…</p></div>
   </section>
   <section id="view-sim" hidden aria-label="Simulations"><div class="stack" id="sim-body"></div></section>
+  <section id="view-schema" hidden aria-label="Schema"><div class="stack" id="schema-body"></div></section>
   <section id="view-scenarios" hidden aria-label="Scenario catalog">
     <div class="filters">
       <input type="search" id="sc-q" placeholder="Search stories, noise, ids" aria-label="Search scenarios">
@@ -585,6 +603,65 @@ function renderSim() {
   el.innerHTML = runPicker() + (r.kind === "agents" ? renderAgents(r) : renderDice(r));
 }
 
+/* ---------- schema ---------- */
+const SCOLS = {
+  reference: ["actor", "material_kind", "material", "product", "container_type", "shelf_life_rule", "thaw_limit_rule"],
+  things: ["lot_parent", "lot", "event", "container", "run", "planned_transfer"],
+  lines: ["quantity_entry", "placement", "sighting", "label", "qc_result", "hold_placed", "hold_released", "container_exit", "count_line", "measurement", "flag_review"]
+};
+const SGROUP = { reference: "Reference data and rules", things: "Batches, containers and events", lines: "Fact lines, all hanging off an event" };
+const FGROUP = [["time", "Time travel", "Every answer takes two times: the moment asked about, and how much of the record to believe."], ["answers", "Calculated answers", "What people and other systems query. Nothing here is stored."], ["record", "Recording facts", "The API scanners, robots and imports call. Each writes one event and its lines."]];
+function schemaLayout() {
+  const W = 250, H = 46, top = 56, pos = {};
+  SCOLS.reference.forEach((n, i) => pos[n] = { x: 30, y: top + i * 84, col: 0 });
+  SCOLS.things.forEach((n, i) => pos[n] = { x: 465, y: top + 24 + i * 96, col: 1 });
+  SCOLS.lines.forEach((n, i) => pos[n] = { x: 900, y: top + i * 58, col: 2 });
+  return { pos, W, H, height: top + 11 * 58 + 8 };
+}
+function edgePath(a, b, L) {
+  const ay = a.y + L.H / 2, by = b.y + L.H / 2;
+  if (a.col === b.col) { const x = a.x + L.W, bulge = 44 + Math.abs(ay - by) * 0.12; return `M${x} ${ay}C${x + bulge} ${ay},${x + bulge} ${by},${x + 6} ${by}`; }
+  const ltr = a.col < b.col, x1 = ltr ? a.x + L.W : a.x, x2 = ltr ? b.x - 6 : b.x + L.W + 6, mx = (x1 + x2) / 2;
+  return `M${x1} ${ay}C${mx} ${ay},${mx} ${by},${x2} ${by}`;
+}
+function renderSchema() {
+  const el = document.getElementById("schema-body"), S = state.schema;
+  if (!S || !S.tables) { el.innerHTML = `<p class="muted">The schema didn’t load. Reload the page.</p>`; return; }
+  const T = Object.fromEntries(S.tables.map(t => [t.name, t])), L = schemaLayout();
+  const sel = state.tbl && T[state.tbl] ? state.tbl : "event";
+  const edges = S.tables.flatMap(t => t.references.filter(r => L.pos[t.name] && L.pos[r]).map(r => ({ from: t.name, to: r })));
+  const near = new Set([sel, ...edges.filter(e => e.from === sel || e.to === sel).flatMap(e => [e.from, e.to])]);
+  let g = `<defs><marker id="erd-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${css("--faint")}"/></marker><marker id="erd-arrow-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="${css("--accent")}"/></marker></defs>`;
+  [["reference", 30], ["things", 465], ["lines", 900]].forEach(([k, x]) => { g += `<text x="${x}" y="30" font-size="13" font-weight="500" fill="${css("--muted")}">${SGROUP[k]}</text>`; });
+  for (const e of edges) {
+    const on = e.from === sel || e.to === sel;
+    g += `<path d="${edgePath(L.pos[e.from], L.pos[e.to], L)}" fill="none" stroke="${on ? css("--accent") : css("--faint")}" stroke-width="${on ? 2 : 1}" opacity="${on ? 1 : 0.28}" marker-end="url(#${on ? "erd-arrow-on" : "erd-arrow"})"/>`;
+  }
+  for (const [name, p] of Object.entries(L.pos)) {
+    const t = T[name]; if (!t) continue;
+    const isSel = name === sel, isNear = near.has(name), hub = name === "event";
+    g += `<g class="tbl" data-tbl="${name}" tabindex="0" role="button" aria-label="${name}" opacity="${isNear ? 1 : 0.55}">
+      <rect x="${p.x}" y="${p.y}" width="${L.W}" height="${L.H}" rx="8" fill="${isSel ? css("--accent-soft") : css("--sheet")}" stroke="${isSel || hub ? css("--accent") : css("--line")}" stroke-width="${isSel ? 2 : hub ? 1.5 : 1}"/>
+      <text x="${p.x + 14}" y="${p.y + 28}" font-family="Geist Mono, monospace" font-size="13.5" font-weight="500" fill="${css("--ink")}">${name}</text>
+      <text x="${p.x + L.W - 14}" y="${p.y + 28}" text-anchor="end" font-size="11.5" fill="${css("--muted")}">${t.columns.length} columns</text></g>`;
+  }
+  const t = T[sel], by = edges.filter(e => e.to === sel).map(e => e.from);
+  const fns = S.functions || [];
+  el.innerHTML = `
+    <p class="lede"><b>${S.tables.length} tables</b> and <b>${fns.length} functions</b>, read straight from the database. Reference data and rules sit on the left; every fact is an <b>event</b> with two times, and its lines on the right say what happened to which container and lot. Nothing on this page is stored as an answer: the functions below work answers out on request. Click a table to see its columns and connections.</p>
+    <div class="erd"><svg viewBox="0 0 1180 ${L.height}" role="img" aria-label="Schema diagram: ${S.tables.length} tables and their foreign keys">${g}</svg></div>
+    <div class="panel stack">
+      <div class="chips"><span class="tag">${esc(SGROUP[t.group] || t.group)}</span><span class="tag">${esc(t.file || "")}</span></div>
+      <h2 class="mono" style="font-family:var(--mono);letter-spacing:0">${esc(t.name)}</h2>
+      ${t.comment ? `<p class="lede" style="font-size:15.5px">${esc(t.comment)}</p>` : ""}
+      <div style="overflow-x:auto"><table class="cols"><tr><th>Column</th><th>Type</th><th>Key</th><th>Can be empty</th></tr>${t.columns.map(c => `<tr><td class="mono">${esc(c.name)}</td><td class="mono">${esc(c.type)}</td><td>${c.pk ? `<span class="key pk">primary key</span>` : c.fk ? `<button class="chip" data-tbl="${esc(c.fk)}">→ ${esc(c.fk)}</button>` : ""}</td><td>${c.nullable ? "yes" : "no"}</td></tr>`).join("")}</table></div>
+      ${by.length ? `<div><h3 class="sublabel">Pointed at by</h3><div class="chips">${by.map(n => `<button class="chip" data-tbl="${esc(n)}">${esc(n)}</button>`).join("")}</div></div>` : ""}
+    </div>
+    <div class="stack"><h2>Functions</h2>
+      <div class="fngrid">${FGROUP.map(([k, name, about]) => `<div class="stack" style="gap:10px"><div><h3>${name}</h3><p class="muted" style="margin:4px 0 0;font-size:13.5px">${about}</p></div>${fns.filter(f => f.group === k).map(f => `<div class="fn"><span class="sig"><b>${esc(f.name)}</b>(${esc((f.args || []).join(", "))})</span>${f.comment ? `<p>${esc(f.comment)}</p>` : ""}</div>`).join("")}</div>`).join("")}</div>
+    </div>`;
+}
+
 /* ---------- scenarios ---------- */
 function scenarioCard(s) {
   return `<button class="sc card2" data-sc="${esc(s.id)}">
@@ -622,7 +699,7 @@ const closeDrawer = () => { document.getElementById("drawer-root").innerHTML = "
 /* ---------- navigation ---------- */
 function show(view) {
   state.view = view;
-  for (const v of ["tests", "sim", "scenarios"]) { document.getElementById("view-" + v).hidden = v !== view; document.getElementById("nav-" + v).setAttribute("aria-current", String(v === view)); }
+  for (const v of ["tests", "sim", "schema", "scenarios"]) { document.getElementById("view-" + v).hidden = v !== view; document.getElementById("nav-" + v).setAttribute("aria-current", String(v === view)); }
   try { history.replaceState(null, "", "#" + (view === "tests" ? "test-" + String(state.tests[state.test]?.number ?? 1).padStart(2, "0") : view)); } catch (e) {}
 }
 function selectTest(i) { state.test = i; renderList(); renderTest(); show("tests"); window.scrollTo({ top: 0 }); }
@@ -636,6 +713,7 @@ document.addEventListener("click", e => {
   const disc = t.closest("[data-disc]"); if (disc) { const r = state.sim.find(x => x.name === state.run); const i = +disc.dataset.disc; if (state.hlDisc === i) { state.hlDisc = null; state.hl = null; } else { state.hlDisc = i; state.hl = evidence(r.discovered[i]); } return renderSim(); }
   const fate = t.closest("[data-fate]"); if (fate) { state.fateFilter = fate.dataset.fate || null; state.showAll = false; return renderSim(); }
   const sa = t.closest("[data-showall]"); if (sa) { state.showAll = true; return renderSim(); }
+  const tb = t.closest("[data-tbl]"); if (tb) { state.tbl = tb.dataset.tbl; return renderSchema(); }
   const sc = t.closest("[data-sc]"); if (sc) return openScenario(sc.dataset.sc);
   if (t.id === "scrim" || t.id === "dr-close") closeDrawer();
 });
@@ -646,12 +724,12 @@ document.addEventListener("mouseover", e => {
   hideTip();
 });
 document.addEventListener("mousemove", e => { if (!tip.hidden) moveTip(e); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); const tb = e.target.closest && e.target.closest(".tbl"); if (tb && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); state.tbl = tb.dataset.tbl; renderSchema(); } });
 for (const id of ["sc-q", "sc-cluster", "sc-short", "sc-tested"]) document.getElementById(id).addEventListener("input", renderScenarios);
 async function load(name) { try { const r = await fetch(`data/${name}.json`); return r.ok ? r.json() : []; } catch (e) { return []; } }
 
 (async () => {
-  [state.tests, state.scenarios, state.sim] = await Promise.all([load("tests"), load("scenarios"), load("sim")]);
+  [state.tests, state.scenarios, state.sim, state.schema] = await Promise.all([load("tests"), load("scenarios"), load("sim"), load("schema")]);
   if (!state.tests.length) {
     document.getElementById("test-detail").innerHTML = `<p class="muted">The test traces didn’t load. Reload the page; if it keeps happening, the data files are missing from this copy.</p>`;
     document.getElementById("tally").textContent = "Data didn’t load";
@@ -666,7 +744,7 @@ async function load(name) { try { const r = await fetch(`data/${name}.json`); re
   document.getElementById("tally").textContent = `${state.tests.filter(t => t.passed).length}/${state.tests.length} tests pass, ${checks} checks, ${state.sim.length} simulation runs`;
   const h = (location.hash || "").slice(1), m = h.match(/^test-(\d+)$/);
   if (m) { const i = state.tests.findIndex(t => t.number === +m[1]); if (i >= 0) state.test = i; }
-  renderList(); renderTest(); renderScenarios(); renderSim();
-  show(["sim", "scenarios"].includes(h) ? h : "tests");
+  renderList(); renderTest(); renderScenarios(); renderSim(); renderSchema();
+  show(["sim", "schema", "scenarios"].includes(h) ? h : "tests");
 })();
 </script>

@@ -61,7 +61,7 @@ def build_review():
     assert "/review/data/" in body
     reset = "<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>"
     (out / "index.html").write_text(head(title, "review", reset) + "<body>\n" + body + "\n</body>\n</html>\n")
-    for f in ("tests.json", "scenarios.json", "sim.json"):
+    for f in ("tests.json", "scenarios.json", "sim.json", "schema.json"):
         shutil.copy(ROOT / "share/data" / f, out / "data" / f)
 
 
@@ -74,6 +74,9 @@ def build_deck():
     for sid in deck["order"]:
         html = (ROOT / "share/deck/project/slides" / f"{sid}.html").read_text().strip()
         html = re.sub(r"/_blob/[0-9a-f]{32}", "/deck/img/swimlanes.png", html)
+        # Speaker notes stay private (they live in the meeting brief), never in the public deck.
+        html = re.sub(r"\s*<aside>.*?</aside>", "", html, flags=re.S)
+        assert "<aside" not in html
         slides.append(html)
     css = """<style>
 :root { color-scheme: light; --ink: #142933; --muted: #546874; --line: #e1e8ed; }
@@ -83,7 +86,6 @@ html, body { margin: 0; height: 100%; background: #0d1c24; overflow: hidden; fon
 section { position: absolute; inset: 0; width: 1920px; height: 1080px; box-sizing: border-box; overflow: hidden; opacity: 0; visibility: hidden; transition: opacity .25s ease; }
 section.on { opacity: 1; visibility: visible; }
 section * { box-sizing: border-box; margin: 0; }
-section aside { display: none; }
 section h1 { font-size: 96px; font-weight: 600; line-height: 1.1; }
 section h2 { font-size: 64px; font-weight: 600; line-height: 1.15; }
 section h3 { font-size: 44px; font-weight: 600; line-height: 1.2; }
@@ -101,24 +103,21 @@ body:hover .bar, .bar:focus-within { opacity: 1; }
 .bar button { font: inherit; color: #f2f6f8; background: rgb(255 255 255 / 0.08); border: 1px solid rgb(255 255 255 / 0.15); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
 .bar .count { font-family: "Geist Mono", monospace; }
 .bar .by { margin-left: auto; }
-.notes { position: fixed; left: 50%; bottom: 56px; transform: translateX(-50%); width: min(900px, calc(100% - 32px)); max-height: 40vh; overflow: auto; background: #142933; color: #eaf1f5; border: 1px solid #25414f; border-radius: 12px; padding: 16px 18px; font: 15px/1.55 "Geist", Arial, sans-serif; }
 </style>"""
     body = f"""<body>
 <div class="stage"><div class="frame" id="frame">
 {chr(10).join(slides)}
 </div></div>
-<div class="notes" id="notes" hidden></div>
 <div class="bar">
   <button id="prev" aria-label="Previous slide">Previous</button>
   <button id="next" aria-label="Next slide">Next</button>
   <span class="count" id="count"></span>
-  <button id="toggle-notes">Speaker notes (N)</button>
   <span class="by">Take-home by Batuhan Aktas for Adaptyv Bio</span>
 </div>
 <script>
 (function () {{
   var slides = Array.prototype.slice.call(document.querySelectorAll("#frame > section"));
-  var frame = document.getElementById("frame"), notes = document.getElementById("notes");
+  var frame = document.getElementById("frame");
   var i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1), 10) || 1) - 1));
   var seen = {{}};
   function fit() {{ var s = Math.min(innerWidth / 1920, innerHeight / 1080); frame.style.transform = "translate(-50%, -50%) scale(" + s + ")"; }}
@@ -126,18 +125,15 @@ body:hover .bar, .bar:focus-within { opacity: 1; }
     i = Math.max(0, Math.min(slides.length - 1, n));
     slides.forEach(function (s, k) {{ s.classList.toggle("on", k === i); }});
     document.getElementById("count").textContent = (i + 1) + " / " + slides.length;
-    var a = slides[i].querySelector("aside"); notes.textContent = a ? a.textContent : "No notes for this slide.";
     try {{ history.replaceState(null, "", "#" + (i + 1)); }} catch (e) {{}}
     if (!seen[i]) {{ seen[i] = 1; window.trackView && window.trackView({{ slide: i + 1, slide_id: slides[i].id }}); }}
   }}
   document.getElementById("prev").onclick = function () {{ show(i - 1); }};
   document.getElementById("next").onclick = function () {{ show(i + 1); }};
-  document.getElementById("toggle-notes").onclick = function () {{ notes.hidden = !notes.hidden; }};
   addEventListener("keydown", function (e) {{
     if (["ArrowRight", "PageDown", " ", "Enter"].indexOf(e.key) >= 0) {{ e.preventDefault(); show(i + 1); }}
     else if (["ArrowLeft", "PageUp", "Backspace"].indexOf(e.key) >= 0) {{ e.preventDefault(); show(i - 1); }}
     else if (e.key === "Home") show(0); else if (e.key === "End") show(slides.length - 1);
-    else if (e.key === "n" || e.key === "N") notes.hidden = !notes.hidden;
   }});
   var x0 = null;
   addEventListener("touchstart", function (e) {{ x0 = e.touches[0].clientX; }}, {{ passive: true }});
@@ -173,8 +169,9 @@ a.card span { color: var(--accent); font-weight: 500; }
 <h1>Lab inventory you can trust</h1>
 <p class="lede">A data model where every number can explain where it came from. Facts and rules go in; how much is left, what is usable and why not, where things are and what a bad batch touched are all worked out when someone asks.</p>
 <div class="cards">
-  <a class="card" href="/deck"><h2>The presentation</h2><p>How the work was done and the decisions that carry it. Arrow keys to move, N for speaker notes.</p><span>Open the slides</span></a>
+  <a class="card" href="/deck"><h2>The presentation</h2><p>How the work was done and the decisions that carry it. Arrow keys or swipe to move.</p><span>Open the slides</span></a>
   <a class="card" href="/review"><h2>The review console</h2><p>Every scenario test as a timeline, both simulations as pictures, and all 244 scenarios.</p><span>Open the console</span></a>
+  <a class="card" href="https://github.com/aktasbatuhan/lab-inventory-you-can-trust"><h2>The code</h2><p>Schema, tests, queries, simulations and a day-by-day journal of how it was built. Open source.</p><span>Open on GitHub</span></a>
 </div>
 </main></body></html>
 """

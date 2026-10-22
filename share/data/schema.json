@@ -1,0 +1,1754 @@
+{
+ "tables": [
+  {
+   "name": "actor",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "kind",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "name",
+     "type": "text",
+     "nullable": false
+    }
+   ],
+   "references": [],
+   "comment": "",
+   "file": "schema/01_reference.sql",
+   "group": "reference"
+  },
+  {
+   "name": "container",
+   "columns": [
+    {
+     "name": "id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "type_id",
+     "type": "text",
+     "nullable": false,
+     "fk": "container_type"
+    },
+    {
+     "name": "plate_id",
+     "type": "bigint",
+     "nullable": true,
+     "fk": "container"
+    },
+    {
+     "name": "position",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "name",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "condition",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "created_event_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "event"
+    }
+   ],
+   "references": [
+    "event",
+    "container_type"
+   ],
+   "comment": "A tube, plate, well, box, rack, freezer, bench or instrument. Wells are containers too, fixed inside their plate. Places that set a storage condition (a -80 freezer, a fridge, the bench) carry it here.",
+   "file": "schema/02_facts.sql",
+   "group": "things"
+  },
+  {
+   "name": "container_exit",
+   "columns": [
+    {
+     "name": "event_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "event"
+    },
+    {
+     "name": "container_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "container"
+    },
+    {
+     "name": "kind",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "destination",
+     "type": "text",
+     "nullable": true
+    }
+   ],
+   "references": [
+    "event",
+    "container"
+   ],
+   "comment": "A container leaves the inventory: thrown away (with whatever was left in it) or shipped out.",
+   "file": "schema/02_facts.sql",
+   "group": "lines"
+  },
+  {
+   "name": "container_type",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "category",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "description",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "capacity_ul",
+     "type": "numeric",
+     "nullable": true
+    },
+    {
+     "name": "dead_volume_ul",
+     "type": "numeric",
+     "nullable": false
+    },
+    {
+     "name": "grid_rows",
+     "type": "integer",
+     "nullable": true
+    },
+    {
+     "name": "grid_cols",
+     "type": "integer",
+     "nullable": true
+    },
+    {
+     "name": "well_type_id",
+     "type": "text",
+     "nullable": true,
+     "fk": "container_type"
+    },
+    {
+     "name": "single_use",
+     "type": "boolean",
+     "nullable": false
+    }
+   ],
+   "references": [],
+   "comment": "Kinds of containers and places. Tubes, plates and wells hold material; boxes, racks, freezers, benches and instruments hold containers.",
+   "file": "schema/01_reference.sql",
+   "group": "reference"
+  },
+  {
+   "name": "count_line",
+   "columns": [
+    {
+     "name": "event_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "event"
+    },
+    {
+     "name": "container_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "container"
+    },
+    {
+     "name": "found",
+     "type": "boolean",
+     "nullable": false
+    },
+    {
+     "name": "observed_amount",
+     "type": "numeric",
+     "nullable": true
+    },
+    {
+     "name": "dimension",
+     "type": "text",
+     "nullable": true
+    }
+   ],
+   "references": [
+    "event",
+    "container"
+   ],
+   "comment": "One line of a physical count: was it there, and how much did it look like.",
+   "file": "schema/02_facts.sql",
+   "group": "lines"
+  },
+  {
+   "name": "event",
+   "columns": [
+    {
+     "name": "id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "kind",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "occurred_at",
+     "type": "timestamp with time zone",
+     "nullable": false
+    },
+    {
+     "name": "recorded_at",
+     "type": "timestamp with time zone",
+     "nullable": false
+    },
+    {
+     "name": "recorded_by",
+     "type": "text",
+     "nullable": false,
+     "fk": "actor"
+    },
+    {
+     "name": "performed_by",
+     "type": "text",
+     "nullable": true,
+     "fk": "actor"
+    },
+    {
+     "name": "source",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "run_id",
+     "type": "bigint",
+     "nullable": true,
+     "fk": "run"
+    },
+    {
+     "name": "run_step",
+     "type": "integer",
+     "nullable": true
+    },
+    {
+     "name": "external_ref",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "voids_event_id",
+     "type": "bigint",
+     "nullable": true,
+     "fk": "event"
+    },
+    {
+     "name": "note",
+     "type": "text",
+     "nullable": true
+    }
+   ],
+   "references": [
+    "actor",
+    "run"
+   ],
+   "comment": "",
+   "file": "schema/02_facts.sql",
+   "group": "things"
+  },
+  {
+   "name": "flag_review",
+   "columns": [
+    {
+     "name": "event_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "event"
+    },
+    {
+     "name": "flag",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "container_id",
+     "type": "bigint",
+     "nullable": true,
+     "fk": "container"
+    },
+    {
+     "name": "lot_id",
+     "type": "bigint",
+     "nullable": true,
+     "fk": "lot"
+    }
+   ],
+   "references": [
+    "event",
+    "container",
+    "lot"
+   ],
+   "comment": "A person reviewed a flag and closed it. Only flags that ask for judgement can be closed this way; the ones backed by numbers go away when the numbers are fixed.",
+   "file": "schema/02_facts.sql",
+   "group": "lines"
+  },
+  {
+   "name": "hold_placed",
+   "columns": [
+    {
+     "name": "event_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "event"
+    },
+    {
+     "name": "lot_id",
+     "type": "bigint",
+     "nullable": true,
+     "fk": "lot"
+    },
+    {
+     "name": "container_id",
+     "type": "bigint",
+     "nullable": true,
+     "fk": "container"
+    },
+    {
+     "name": "reason",
+     "type": "text",
+     "nullable": false
+    }
+   ],
+   "references": [
+    "event",
+    "lot",
+    "container"
+   ],
+   "comment": "",
+   "file": "schema/02_facts.sql",
+   "group": "lines"
+  },
+  {
+   "name": "hold_released",
+   "columns": [
+    {
+     "name": "event_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "event"
+    },
+    {
+     "name": "hold_event_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "hold_placed"
+    }
+   ],
+   "references": [
+    "event",
+    "hold_placed"
+   ],
+   "comment": "",
+   "file": "schema/02_facts.sql",
+   "group": "lines"
+  },
+  {
+   "name": "label",
+   "columns": [
+    {
+     "name": "event_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "event",
+     "pk": true
+    },
+    {
+     "name": "container_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "container",
+     "pk": true
+    },
+    {
+     "name": "barcode",
+     "type": "text",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "action",
+     "type": "text",
+     "nullable": false
+    }
+   ],
+   "references": [
+    "event",
+    "container"
+   ],
+   "comment": "A barcode is a label a container wears for a while, not the container itself.",
+   "file": "schema/02_facts.sql",
+   "group": "lines"
+  },
+  {
+   "name": "lot",
+   "columns": [
+    {
+     "name": "id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "material_id",
+     "type": "text",
+     "nullable": false,
+     "fk": "material"
+    },
+    {
+     "name": "origin",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "created_event_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "event"
+    },
+    {
+     "name": "product_id",
+     "type": "text",
+     "nullable": true,
+     "fk": "product"
+    },
+    {
+     "name": "supplier_lot_code",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "supplier_expiry",
+     "type": "date",
+     "nullable": true
+    },
+    {
+     "name": "coa",
+     "type": "jsonb",
+     "nullable": true
+    },
+    {
+     "name": "unit_price",
+     "type": "numeric",
+     "nullable": true
+    },
+    {
+     "name": "currency",
+     "type": "text",
+     "nullable": true
+    }
+   ],
+   "references": [
+    "material",
+    "event",
+    "product"
+   ],
+   "comment": "One batch of material. A received lot is one delivery of one supplier lot (decision D2); a made lot is one making of something from other lots.",
+   "file": "schema/02_facts.sql",
+   "group": "things"
+  },
+  {
+   "name": "lot_parent",
+   "columns": [
+    {
+     "name": "lot_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "lot"
+    },
+    {
+     "name": "parent_lot_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "lot"
+    }
+   ],
+   "references": [
+    "lot"
+   ],
+   "comment": "Made from. The parent is always older than the child, so lineage can't loop.",
+   "file": "schema/02_facts.sql",
+   "group": "things"
+  },
+  {
+   "name": "material",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "kind_id",
+     "type": "text",
+     "nullable": false,
+     "fk": "material_kind"
+    },
+    {
+     "name": "name",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "attributes",
+     "type": "jsonb",
+     "nullable": false
+    }
+   ],
+   "references": [
+    "material_kind"
+   ],
+   "comment": "A specific material: \"EGFR extracellular domain\", \"Loading buffer\", \"the protein of design D-0042\".",
+   "file": "schema/01_reference.sql",
+   "group": "reference"
+  },
+  {
+   "name": "material_kind",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "description",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "base_dimension",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "needs_qc",
+     "type": "boolean",
+     "nullable": false
+    },
+    {
+     "name": "required_attributes",
+     "type": "ARRAY",
+     "nullable": false
+    }
+   ],
+   "references": [],
+   "comment": "A kind of material. New kinds (small molecules, enzymes) are new rows, not new tables.",
+   "file": "schema/01_reference.sql",
+   "group": "reference"
+  },
+  {
+   "name": "measurement",
+   "columns": [
+    {
+     "name": "event_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "event"
+    },
+    {
+     "name": "container_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "container"
+    },
+    {
+     "name": "lot_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "lot"
+    },
+    {
+     "name": "property",
+     "type": "text",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "value",
+     "type": "numeric",
+     "nullable": false
+    },
+    {
+     "name": "unit",
+     "type": "text",
+     "nullable": false
+    }
+   ],
+   "references": [
+    "event",
+    "container",
+    "lot"
+   ],
+   "comment": "A measured property, such as concentration. Kept apart from amounts on purpose.",
+   "file": "schema/02_facts.sql",
+   "group": "lines"
+  },
+  {
+   "name": "placement",
+   "columns": [
+    {
+     "name": "event_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "event"
+    },
+    {
+     "name": "container_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "container"
+    },
+    {
+     "name": "parent_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "container"
+    },
+    {
+     "name": "position",
+     "type": "text",
+     "nullable": true
+    }
+   ],
+   "references": [
+    "event",
+    "container"
+   ],
+   "comment": "A container was put into another one (a tube into a box slot, a box into a freezer).",
+   "file": "schema/02_facts.sql",
+   "group": "lines"
+  },
+  {
+   "name": "planned_transfer",
+   "columns": [
+    {
+     "name": "run_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "run"
+    },
+    {
+     "name": "step",
+     "type": "integer",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "from_container_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "container"
+    },
+    {
+     "name": "to_container_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "container"
+    },
+    {
+     "name": "lot_id",
+     "type": "bigint",
+     "nullable": true
+    },
+    {
+     "name": "dimension",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "amount",
+     "type": "numeric",
+     "nullable": false
+    }
+   ],
+   "references": [
+    "run",
+    "container"
+   ],
+   "comment": "What a robot was told to do. What it actually did arrives as events with the same run and step.",
+   "file": "schema/02_facts.sql",
+   "group": "things"
+  },
+  {
+   "name": "product",
+   "columns": [
+    {
+     "name": "id",
+     "type": "text",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "material_id",
+     "type": "text",
+     "nullable": false,
+     "fk": "material"
+    },
+    {
+     "name": "supplier",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "catalog_number",
+     "type": "text",
+     "nullable": false
+    }
+   ],
+   "references": [
+    "material"
+   ],
+   "comment": "Something a supplier sells: one material under one catalog number.",
+   "file": "schema/01_reference.sql",
+   "group": "reference"
+  },
+  {
+   "name": "qc_result",
+   "columns": [
+    {
+     "name": "event_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "event"
+    },
+    {
+     "name": "lot_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "lot"
+    },
+    {
+     "name": "assay",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "outcome",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "measured",
+     "type": "jsonb",
+     "nullable": true
+    }
+   ],
+   "references": [
+    "event",
+    "lot"
+   ],
+   "comment": "",
+   "file": "schema/02_facts.sql",
+   "group": "lines"
+  },
+  {
+   "name": "quantity_entry",
+   "columns": [
+    {
+     "name": "id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "event_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "event"
+    },
+    {
+     "name": "container_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "container"
+    },
+    {
+     "name": "lot_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "lot"
+    },
+    {
+     "name": "dimension",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "amount",
+     "type": "numeric",
+     "nullable": false
+    },
+    {
+     "name": "reason",
+     "type": "text",
+     "nullable": false
+    }
+   ],
+   "references": [
+    "event",
+    "container",
+    "lot"
+   ],
+   "comment": "The ledger. Amounts are in the base unit of their dimension: volume in \u00b5L, mass in \u00b5g, count in pieces, activity in U.",
+   "file": "schema/02_facts.sql",
+   "group": "lines"
+  },
+  {
+   "name": "run",
+   "columns": [
+    {
+     "name": "id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "protocol",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "instrument_id",
+     "type": "bigint",
+     "nullable": true,
+     "fk": "container"
+    },
+    {
+     "name": "experiment_ref",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "created_event_id",
+     "type": "bigint",
+     "nullable": false,
+     "fk": "event"
+    }
+   ],
+   "references": [
+    "container",
+    "event"
+   ],
+   "comment": "A group of events that belong to one lab task: a robot run, a split, a BLI run.",
+   "file": "schema/02_facts.sql",
+   "group": "things"
+  },
+  {
+   "name": "shelf_life_rule",
+   "columns": [
+    {
+     "name": "id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "material_kind_id",
+     "type": "text",
+     "nullable": true,
+     "fk": "material_kind"
+    },
+    {
+     "name": "material_id",
+     "type": "text",
+     "nullable": true,
+     "fk": "material"
+    },
+    {
+     "name": "product_id",
+     "type": "text",
+     "nullable": true,
+     "fk": "product"
+    },
+    {
+     "name": "clock",
+     "type": "text",
+     "nullable": false
+    },
+    {
+     "name": "conditions",
+     "type": "ARRAY",
+     "nullable": true
+    },
+    {
+     "name": "duration",
+     "type": "interval",
+     "nullable": true
+    },
+    {
+     "name": "effective_from",
+     "type": "timestamp with time zone",
+     "nullable": false
+    },
+    {
+     "name": "recorded_at",
+     "type": "timestamp with time zone",
+     "nullable": false
+    },
+    {
+     "name": "recorded_by",
+     "type": "text",
+     "nullable": false,
+     "fk": "actor"
+    },
+    {
+     "name": "note",
+     "type": "text",
+     "nullable": true
+    }
+   ],
+   "references": [
+    "material_kind",
+    "material",
+    "product",
+    "actor"
+   ],
+   "comment": "How long material lasts. A rule targets a supplier product, a material, or a whole kind; the most specific one wins for the same clock and storage conditions. A null duration means \"no limit\" and overrides a broader rule. since_origin: counted from when the lot was received or made in_condition: counted from when the material entered one of these storage conditions",
+   "file": "schema/01_reference.sql",
+   "group": "reference"
+  },
+  {
+   "name": "sighting",
+   "columns": [
+    {
+     "name": "event_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "event"
+    },
+    {
+     "name": "container_id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true,
+     "fk": "container"
+    },
+    {
+     "name": "scanned_code",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "seen_in_id",
+     "type": "bigint",
+     "nullable": true,
+     "fk": "container"
+    }
+   ],
+   "references": [
+    "event",
+    "container"
+   ],
+   "comment": "Someone or something saw a container: a barcode scan, a rack scan, a robot reading a plate.",
+   "file": "schema/02_facts.sql",
+   "group": "lines"
+  },
+  {
+   "name": "thaw_limit_rule",
+   "columns": [
+    {
+     "name": "id",
+     "type": "bigint",
+     "nullable": false,
+     "pk": true
+    },
+    {
+     "name": "material_kind_id",
+     "type": "text",
+     "nullable": true,
+     "fk": "material_kind"
+    },
+    {
+     "name": "material_id",
+     "type": "text",
+     "nullable": true,
+     "fk": "material"
+    },
+    {
+     "name": "product_id",
+     "type": "text",
+     "nullable": true,
+     "fk": "product"
+    },
+    {
+     "name": "max_thaws",
+     "type": "integer",
+     "nullable": true
+    },
+    {
+     "name": "effective_from",
+     "type": "timestamp with time zone",
+     "nullable": false
+    },
+    {
+     "name": "recorded_at",
+     "type": "timestamp with time zone",
+     "nullable": false
+    },
+    {
+     "name": "recorded_by",
+     "type": "text",
+     "nullable": false,
+     "fk": "actor"
+    },
+    {
+     "name": "note",
+     "type": "text",
+     "nullable": true
+    }
+   ],
+   "references": [
+    "material_kind",
+    "material",
+    "product",
+    "actor"
+   ],
+   "comment": "How many freeze-thaw cycles a material tolerates. Going over warns; it never blocks.",
+   "file": "schema/01_reference.sql",
+   "group": "reference"
+  }
+ ],
+ "functions": [
+  {
+   "name": "voided_events",
+   "args": [
+    "k"
+   ],
+   "returns": "table (event_id bigint)",
+   "file": "schema/04_time.sql",
+   "comment": "Events that have been voided, as far as we knew at k. A correction can itself be corrected, so we walk each chain of corrections from its newest end: the newest stands, the one it voids falls, the one before that stands again, and so on.",
+   "group": "time"
+  },
+  {
+   "name": "events_at",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "setof event",
+   "file": "schema/04_time.sql",
+   "comment": "The events that count: on record by k, happened by t, and not voided.",
+   "group": "time"
+  },
+  {
+   "name": "container_label",
+   "args": [
+    "c"
+   ],
+   "returns": "text",
+   "file": "schema/05_derived.sql",
+   "comment": "",
+   "group": "answers"
+  },
+  {
+   "name": "balances",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (container_id bigint, lot_id bigint, dimension text, amount numeric)",
+   "file": "schema/05_derived.sql",
+   "comment": "How much of each lot is in each container.",
+   "group": "answers"
+  },
+  {
+   "name": "exits",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (container_id bigint, kind text, exited_at timestamptz, event_id bigint, source text)",
+   "file": "schema/05_derived.sql",
+   "comment": "The latest exit (thrown away or shipped) of each container, if any.",
+   "group": "answers"
+  },
+  {
+   "name": "parent_spans",
+   "args": [
+    "k"
+   ],
+   "returns": "table (container_id bigint, parent_id bigint, slot text, from_at timestamptz, to_at timestamptz, source text)",
+   "file": "schema/05_derived.sql",
+   "comment": "Where each container was, as a list of time spans. A well sits in its plate forever; anything else sits where it was last put, until it's moved again or leaves.",
+   "group": "answers"
+  },
+  {
+   "name": "condition_spans",
+   "args": [
+    "k"
+   ],
+   "returns": "table (container_id bigint, condition text, from_at timestamptz, to_at timestamptz)",
+   "file": "schema/05_derived.sql",
+   "comment": "What storage condition each container was in, over time. A tube takes the condition of the nearest place above it: tube in box in rack in a -80 freezer.",
+   "group": "answers"
+  },
+  {
+   "name": "condition_stretches",
+   "args": [
+    "k"
+   ],
+   "returns": "table (container_id bigint, condition text, from_at timestamptz, to_at timestamptz)",
+   "file": "schema/05_derived.sql",
+   "comment": "The same, with back-to-back spans in the same condition joined into one stretch.",
+   "group": "answers"
+  },
+  {
+   "name": "thaw_moments",
+   "args": [
+    "k"
+   ],
+   "returns": "table (container_id bigint, thawed_at timestamptz)",
+   "file": "schema/05_derived.sql",
+   "comment": "Every moment a container came out of the freezer.",
+   "group": "answers"
+  },
+  {
+   "name": "first_source",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (container_id bigint, lot_id bigint, source_container_id bigint, arrived_at timestamptz)",
+   "file": "schema/05_derived.sql",
+   "comment": "Where a lot in a container came from: the source container of the first transfer that brought it in.",
+   "group": "answers"
+  },
+  {
+   "name": "lot_thaws",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (container_id bigint, lot_id bigint, thaws bigint)",
+   "file": "schema/05_derived.sql",
+   "comment": "Freeze-thaw cycles a lot has been through in a container, including the ones it went through in the tubes it was poured from before.",
+   "group": "answers"
+  },
+  {
+   "name": "live_labels",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (barcode text, container_id bigint, attached_at timestamptz)",
+   "file": "schema/05_derived.sql",
+   "comment": "Labels on containers. A barcode is live while it's attached and its container hasn't left.",
+   "group": "answers"
+  },
+  {
+   "name": "barcode_clashes",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (barcode text, container_id bigint)",
+   "file": "schema/05_derived.sql",
+   "comment": "",
+   "group": "answers"
+  },
+  {
+   "name": "location",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (container_id bigint, path text, top_place_id bigint, status text,",
+   "file": "schema/05_derived.sql",
+   "comment": "Where each container is, how we know, and how sure we are.",
+   "group": "answers"
+  },
+  {
+   "name": "lot_qc",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (lot_id bigint, status text, decided_at timestamptz, decided_by_event bigint)",
+   "file": "schema/05_derived.sql",
+   "comment": "QC state of each lot. Only kinds that need QC can be pending or failed.",
+   "group": "answers"
+  },
+  {
+   "name": "active_holds",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (hold_event_id bigint, lot_id bigint, container_id bigint, reason text, placed_at timestamptz)",
+   "file": "schema/05_derived.sql",
+   "comment": "",
+   "group": "answers"
+  },
+  {
+   "name": "rules_for_lots",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (lot_id bigint, rule_id bigint, clock text, conditions text[], duration interval, scope text)",
+   "file": "schema/05_derived.sql",
+   "comment": "The shelf-life rules that apply to each lot at time t. For each clock and set of storage conditions, the most specific rule wins, then the newest version.",
+   "group": "answers"
+  },
+  {
+   "name": "expiry_clocks",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (container_id bigint, lot_id bigint, clock text, rule_id bigint, started_at timestamptz, expires_at timestamptz)",
+   "file": "schema/05_derived.sql",
+   "comment": "Every expiry clock running on each lot in each container. The earliest one wins.",
+   "group": "answers"
+  },
+  {
+   "name": "expiry",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (container_id bigint, lot_id bigint, expires_at timestamptz, clock text, rule_id bigint)",
+   "file": "schema/05_derived.sql",
+   "comment": "",
+   "group": "answers"
+  },
+  {
+   "name": "thaw_limits",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (lot_id bigint, max_thaws int, rule_id bigint, scope text)",
+   "file": "schema/05_derived.sql",
+   "comment": "",
+   "group": "answers"
+  },
+  {
+   "name": "usable",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (container_id bigint, lot_id bigint, material_id text, dimension text,",
+   "file": "schema/05_derived.sql",
+   "comment": "Exists versus usable. Every row is something we hold (or held until it was thrown away); `reasons` says why it can't be used, `warnings` what to look at.",
+   "group": "answers"
+  },
+  {
+   "name": "lot_descendants",
+   "args": [
+    "root",
+    "k"
+   ],
+   "returns": "table (lot_id bigint, depth int)",
+   "file": "schema/05_derived.sql",
+   "comment": "Lineage. Lots made from a lot, at any depth, and the other way round.",
+   "group": "answers"
+  },
+  {
+   "name": "lot_ancestors",
+   "args": [
+    "root",
+    "k"
+   ],
+   "returns": "table (lot_id bigint, depth int)",
+   "file": "schema/05_derived.sql",
+   "comment": "",
+   "group": "answers"
+  },
+  {
+   "name": "flags",
+   "args": [
+    "t",
+    "k"
+   ],
+   "returns": "table (flag text, container_id bigint, lot_id bigint, detail text)",
+   "file": "schema/05_derived.sql",
+   "comment": "Things that need a person to look at them. All calculated; a flag goes away when the facts behind it are corrected.",
+   "group": "answers"
+  },
+  {
+   "name": "new_event",
+   "args": [
+    "p_kind",
+    "p_at",
+    "p_by",
+    "p_source",
+    "p_note",
+    "p_run",
+    "p_step",
+    "p_ref",
+    "p_recorded",
+    "p_voids",
+    "p_performed"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "void",
+   "args": [
+    "p_event",
+    "p_by",
+    "p_note",
+    "p_recorded",
+    "p_at"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "Void an event. Returns the correction event, so the right lines can be attached to it.",
+   "group": "record"
+  },
+  {
+   "name": "attach_label",
+   "args": [
+    "p_container",
+    "p_barcode",
+    "p_at",
+    "p_by",
+    "p_source",
+    "p_event",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "move",
+   "args": [
+    "p_container",
+    "p_into",
+    "p_position",
+    "p_at",
+    "p_by",
+    "p_source",
+    "p_event",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "register_container",
+   "args": [
+    "p_type",
+    "p_at",
+    "p_by",
+    "p_barcode",
+    "p_name",
+    "p_condition",
+    "p_into",
+    "p_position",
+    "p_source",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "well",
+   "args": [
+    "p_plate",
+    "p_position"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "receive",
+   "args": [
+    "p_product",
+    "p_container",
+    "p_amount",
+    "p_dimension",
+    "p_at",
+    "p_by",
+    "p_supplier_lot",
+    "p_ref",
+    "p_expiry",
+    "p_coa",
+    "p_price",
+    "p_source",
+    "p_recorded",
+    "p_event",
+    "p_lot",
+    "p_material"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "A delivery arrives: one new lot (decision D2: each delivery is its own batch).",
+   "group": "record"
+  },
+  {
+   "name": "transfer",
+   "args": [
+    "p_from",
+    "p_to",
+    "p_lot",
+    "p_amount",
+    "p_dimension",
+    "p_at",
+    "p_by",
+    "p_source",
+    "p_run",
+    "p_step",
+    "p_event",
+    "p_recorded",
+    "p_note"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "Liquid (or powder, or pieces) moves from one container to another. The lot stays the same.",
+   "group": "record"
+  },
+  {
+   "name": "split",
+   "args": [
+    "p_from",
+    "p_lot",
+    "p_count",
+    "p_each",
+    "p_tube_type",
+    "p_at",
+    "p_by",
+    "p_barcode_prefix",
+    "p_into",
+    "p_recorded"
+   ],
+   "returns": "bigint[]",
+   "file": "schema/06_record.sql",
+   "comment": "Split one tube into many: new tubes are registered and filled in one event. Returns the new tubes in order.",
+   "group": "record"
+  },
+  {
+   "name": "make",
+   "args": [
+    "p_material",
+    "p_inputs",
+    "p_out_container",
+    "p_out_amount",
+    "p_out_dimension",
+    "p_at",
+    "p_by",
+    "p_source",
+    "p_run",
+    "p_step",
+    "p_event",
+    "p_recorded",
+    "p_lot"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "Make something new from other lots: a buffer from its components, protein from DNA. p_inputs is a list of {\"container\":\u2026, \"lot\":\u2026, \"amount\":\u2026, \"dimension\":\u2026}.",
+   "group": "record"
+  },
+  {
+   "name": "consume",
+   "args": [
+    "p_container",
+    "p_lot",
+    "p_amount",
+    "p_dimension",
+    "p_at",
+    "p_by",
+    "p_source",
+    "p_run",
+    "p_step",
+    "p_note",
+    "p_event",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "lose",
+   "args": [
+    "p_container",
+    "p_lot",
+    "p_amount",
+    "p_dimension",
+    "p_at",
+    "p_by",
+    "p_note",
+    "p_event",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "Liquid gone without being used: evaporation, a spill, liquid left in tips.",
+   "group": "record"
+  },
+  {
+   "name": "scan",
+   "args": [
+    "p_container",
+    "p_at",
+    "p_by",
+    "p_code",
+    "p_seen_in",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "discard",
+   "args": [
+    "p_container",
+    "p_at",
+    "p_by",
+    "p_source",
+    "p_note",
+    "p_event",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "ship",
+   "args": [
+    "p_container",
+    "p_destination",
+    "p_at",
+    "p_by",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "qc",
+   "args": [
+    "p_lot",
+    "p_outcome",
+    "p_assay",
+    "p_at",
+    "p_by",
+    "p_measured",
+    "p_recorded",
+    "p_sample_from",
+    "p_sample_ul"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "The sample the assay used can be recorded in the same step, so the honest record is also the easy one.",
+   "group": "record"
+  },
+  {
+   "name": "hold",
+   "args": [
+    "p_reason",
+    "p_at",
+    "p_by",
+    "p_lot",
+    "p_container",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "release",
+   "args": [
+    "p_hold",
+    "p_at",
+    "p_by",
+    "p_note",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "count_place",
+   "args": [
+    "p_lines",
+    "p_at",
+    "p_by",
+    "p_note",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "A physical count. p_lines: [{\"container\":\u2026, \"found\":true|false, \"amount\":\u2026, \"dimension\":\u2026}]. Decision D4: a count changes how sure we are of locations straight away, but amounts only change through approve_count.",
+   "group": "record"
+  },
+  {
+   "name": "approve_count",
+   "args": [
+    "p_count",
+    "p_at",
+    "p_by",
+    "p_note",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "A person accepts what a count found: each line sets the amount to what was counted.",
+   "group": "record"
+  },
+  {
+   "name": "start_run",
+   "args": [
+    "p_protocol",
+    "p_at",
+    "p_by",
+    "p_instrument",
+    "p_experiment",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "finish_run",
+   "args": [
+    "p_run",
+    "p_at",
+    "p_by",
+    "p_recorded",
+    "p_outcome"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "Principle 3 / decisions D6 and D10: when a run ends, what the protocol says happens next is recorded for it, marked as coming from a rule, so the exceptions are the only thing anyone has to report. * A run that finished normally did its planned steps. Steps with no robot log line are recorded as assumed transfers and flagged; if the log line turns up later it replaces the assumption. * An aborted run assumes nothing: missing steps are flagged at both ends. * Single-use plates used in the run, or sitting in its instrument while it ran, are recorded as thrown away.",
+   "group": "record"
+  },
+  {
+   "name": "reconstitute",
+   "args": [
+    "p_container",
+    "p_lot",
+    "p_mass_ug",
+    "p_volume_ul",
+    "p_solvent_container",
+    "p_solvent_lot",
+    "p_at",
+    "p_by",
+    "p_source",
+    "p_run",
+    "p_step",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "Dissolve dry material: the same lot goes from a mass to a volume. The solvent is used up and the concentration is recorded as a measurement, so the amount in \u00b5g stays recoverable without guessing.",
+   "group": "record"
+  },
+  {
+   "name": "measure",
+   "args": [
+    "p_container",
+    "p_lot",
+    "p_property",
+    "p_value",
+    "p_unit",
+    "p_at",
+    "p_by",
+    "p_source",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "",
+   "group": "record"
+  },
+  {
+   "name": "review_flag",
+   "args": [
+    "p_flag",
+    "p_at",
+    "p_by",
+    "p_note",
+    "p_container",
+    "p_lot",
+    "p_recorded"
+   ],
+   "returns": "bigint",
+   "file": "schema/06_record.sql",
+   "comment": "A person looked at a flag and decided it needs nothing more (\"checked, not a duplicate\"). The flag disappears from flags() from then on; nothing is deleted.",
+   "group": "record"
+  }
+ ]
+}
