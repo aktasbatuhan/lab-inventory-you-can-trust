@@ -18,7 +18,7 @@ KIND = {
     "ask_inventory": "ask",
     "tell": "talk", "my_tasks": "talk", "done": "talk", "inbox": "talk",
 }
-ROLE = {"lena": "Lab operations", "marco": "Production scientist", "priya": "Procurement", "jonas": "Data reviewer"}
+ROLE = {"lena": "Lab operations", "marco": "Production scientist", "jonas": "Procurement", "priya": "Data reviewer"}
 
 
 def kind(tool):

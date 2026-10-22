@@ -23,3 +23,8 @@ Contents of LOC-F1, as of 2026-10-21 17:00, as recorded by now
      PURE expression mix             | PURE-0930      | reagent:pure-mix | 140.0 |  135.0 | µL   | -                  | -        | 2026-10-09, moved with a scan                      | -
 (18 rows)
 
+
+ note 
+------
+(0 rows)
+

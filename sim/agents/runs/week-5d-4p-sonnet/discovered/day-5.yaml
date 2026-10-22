@@ -1,0 +1,122 @@
+- id: AGENT-D5-01
+  title: Freezer queries omit contents and then report known boxes as unexpected
+  status: "variant of LOC-020"
+  story: |
+    Given Lena physically put BOX-00078 and BOX-00079 into Freezer F80-1 and recorded both moves.
+    When she queried the freezer contents, the inventory returned no rows.
+    Then her later count reported 55 expected and 55 found, but also called all 16 boxes unexpected and told her to record moves, including the two moves already recorded.
+  real_life_noise:
+    - The freezer contains tubes nested inside boxes.
+    - The count lists both boxes and individual tubes.
+    - A matching tube total appears beside warnings about every box.
+  system_should: |
+    Resolve freezer contents through containment. Distinguish boxes from tubes in count totals. Check existing moves before recommending more moves, and explain any difference in query scope.
+  question_it_answers: Does this freezer count show a real location discrepancy?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: False warnings waste reconciliation work and can encourage unsupported move records.
+  depth: core
+  sim_hook: |
+    Put and record two filled boxes into a freezer. Query freezer contents, then count boxes and tubes together. Check that known boxes are included and are not reported as unexpected.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0061"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0062"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0067"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0068"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0074"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0082"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0126"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D5-02
+  title: Recording only the return hides hours on the bench
+  status: "variant of LOC-009"
+  story: |
+    Given BUF-00047 was in Fridge R1 and SEN-00003 was on Shelf S1.
+    When Marco took both to Bench B2, used material and recorded consumption, he recorded neither outbound move.
+    Then he returned both after lunch and recorded their destinations, leaving correct final locations but no move records for their time on the bench.
+  real_life_noise:
+    - Consumption is recorded while movement is omitted.
+    - Returning an item to its original place makes the final location look correct.
+  system_should: |
+    Preserve intermediate location evidence and separate happened time from recording time. Offer reconciliation when use suggests a missing movement. Do not invent an exact bench interval from consumption alone; show unresolved exposure as uncertain.
+  question_it_answers: Did correct final locations conceal an unrecorded storage interval?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Missing warm exposure can make storage history and expiry calculations too reassuring.
+  depth: core
+  sim_hook: |
+    Pick up buffer and sensors, record their consumption without outbound moves, then return them and record only the returns. Check both final location and historical uncertainty.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0079"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0080"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0083"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0084"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0085"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0086"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0133"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0134"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0135"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0136"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D5-03
+  title: A typed barcode error leaves a binned tube live until a retry
+  status: "variant of LOC-005"
+  story: |
+    Given Marco had physically binned ALQ-00011-001 with only residual liquid left.
+    When he typed its disposal record, the barcode became ALQ-00911-001 and the inventory rejected the unknown identifier.
+    Then the real tube remained undisposed in the records until Marco retried successfully several minutes later.
+  real_life_noise:
+    - A single mistyped digit produces an unknown barcode.
+    - Other work happens between rejection and retry.
+  system_should: |
+    Keep the failed attempt visible and make retrying against the confirmed tube easy. Never treat rejection as completed disposal or apply the event to a guessed barcode.
+  question_it_answers: Was the physical disposal eventually recorded against the right tube?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: An abandoned retry leaves ghost stock and an incomplete disposal history.
+  depth: core
+  sim_hook: |
+    Bin a known tube, corrupt one digit in a typed disposal attempt, then retry with the correct barcode. Check that exactly one disposal is recorded.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0087"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0088"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0101"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D5-04
+  title: A visibly short delivery produces fewer aliquots than the slip implies
+  status: "variant of RCV-029"
+  story: |
+    Given the delivery slip described TGT-00076 as containing 200 µL.
+    When Lena saw substantially less liquid, she registered 145 µL from a visual estimate rather than copying the slip.
+    Then she took the QC sample, made three 45 µL aliquots, recorded those actions and told Sara about the short delivery.
+  real_life_noise:
+    - The first visual estimate was 135 µL and the pickup estimate was 145 µL.
+    - The packing slip still said 200 µL.
+    - Visual estimates are less precise than their entered numeric values suggest.
+  system_should: |
+    Preserve the declared amount separately from the observed estimate and its method. Carry the estimated receipt through consumption and splitting, and retain the supplier discrepancy without advertising the missing volume as stock.
+  question_it_answers: Was available stock based on the observed delivery or the packing slip?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Copying the slip would promise an aliquot the delivery could not supply.
+  depth: supported
+  sim_hook: |
+    Deliver a short-filled vial with a 200 µL slip. Let the receiver inspect it, register an estimate, sample it for QC and split three aliquots. Check quantity provenance and the supplier discrepancy.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0011"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0019"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0024"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0032"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0035"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0037"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0051"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0060"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0129"
+  source: agent-sim
+  run: week-5d-4p-sonnet

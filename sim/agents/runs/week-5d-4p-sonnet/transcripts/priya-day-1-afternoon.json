@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 58168,
+ "stop_reason": "end_turn",
+ "session_id": "bef141eb-8c75-4f05-bf31-0110f35febc5",
+ "total_cost_usd": 0.1893358,
+ "usage": {
+  "input_tokens": 10,
+  "cache_creation_input_tokens": 4639,
+  "cache_read_input_tokens": 118301,
+  "output_tokens": 2026,
+  "output_tokens_details": {
+   "thinking_tokens": 243
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 4639,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 648,
+    "cache_read_input_tokens": 25556,
+    "cache_creation_input_tokens": 757,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 757
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-sonnet-5-5": {
+   "inputTokens": 32,
+   "outputTokens": 5778,
+   "thinkingTokens": 749,
+   "cacheReadInputTokens": 262398,
+   "cacheCreationInputTokens": 26313,
+   "webSearchRequests": 0,
+   "costUSD": 0.1893358,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 11,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "**Handover (Mon 7 Sep, afternoon).** T1 is ticked off, but the expression plate is still unaccounted for.\n\n**What I checked**\n- **PD-L1:** the 12 tubes are all in place and QC-passed. I'm using lot 19, tubes ALQ-00040-001 to 003, which is about 105 \u00b5L usable. Lots 7 and 13 are spare.\n- **Loading buffer:** my morning message to Marco was wrong. BUF-00046 was thrown away this morning at 08:41, and the inventory shows that. Its replacement, BUF-00049, was made today and is in Fridge R1 (about 50 mL by eye), so it's good until 14 Sep. I've corrected this with Marco.\n- **Running buffer and sensors:** Marco used 40 mL of BUF-00047 and 32 sensors from SEN-00003 today for EXP-07. That leaves about 332 mL and 352 sensors, which is plenty. BUF-00047 is no longer in the fridge, so I assume it's on Marco's bench.\n\n**Expression plate**\n- I still can't find the EXP-05 plate. It isn't in the inventory or in any place I looked. Marco knows nothing about it and Lena hasn't answered.\n- I told Marco to start fresh expression for the three designs so it's ready by Thursday. I did not check the Hamilton deck myself. If the old plate turns up and is under 14 days old on Thursday, it can be used instead.\n\n**Still open**\n- Lena's reply about the plate.\n- Marco confirming that fresh expression has started.\n\n**Odd things**\n- Most PD-L1 and other items have had no scan confirmation for 2\u20133 weeks.\n- The frosted-label tube in BOX-00010 slot 1 is still unread.\n- Bench B1 was empty when I looked this afternoon. Its water, HEPES and NaCl bottles were there this morning, and I don't know where they went.",
+ "ttft_ms": 2378,
+ "type": "result",
+ "duration_ms": 19016,
+ "uuid": "345e6bf2-01d8-4189-bd82-5819a2240c2a",
+ "ttft_stream_ms": 2230,
+ "time_to_request_ms": 165,
+ "first_content_frame_ms": 2230,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 20.6,
+ "exit_code": 0
+}

@@ -1,0 +1,182 @@
+===== discovered/day-2.yaml
+- id: AGENT-D2-01
+  title: Frosted scans leave four completed transfers waiting for records
+  story: |
+    Given Marco has pipetted 4 µL into each of eight wells of TP-00056.
+    When four transfer records fail because the source label is frosted, the physical plate is ahead of the inventory.
+    Then Marco types the barcode for those four transfers and completes all eight records.
+  real_life_noise:
+    - The same source label scans successfully for some wells and fails for others.
+    - Successful and failed records are interleaved, so Marco must track which wells need another attempt.
+  system_should: |
+    Offer typed entry with clear source identification. Keep successful records visible so retries fill only the missing records and do not repeat the physical transfers.
+  question_it_answers: Which completed well transfers still need recording?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Missing or duplicated records distort source amounts and well contents.
+  depth: core
+  sim_hook: |
+    Pipette eight wells, fail source scans for A1, D1, E1 and G1, then record only those four with typed=true.
+  source: agent-sim
+  run: week-5d-4p-sonnet
+  status: "already covered by LOC-005"
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0024"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0038"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0046"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0049"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0050"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0055"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0066"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0067"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0071"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0072"
+
+- id: AGENT-D2-02
+  title: A return scan hides an unrecorded morning on the bench
+  story: |
+    Given BUF-00047 is recorded in Fridge R1 and SEN-00003 on Shelf S1.
+    When Marco takes both to Bench B2 without recording the outbound moves, they remain there for more than five hours.
+    Then he returns both and records their storage locations, leaving the final locations correct but the bench visits absent from the movement records.
+  real_life_noise:
+    - Consumption is recorded, but the moves that made it possible are not.
+    - Recording the return makes the current location look complete.
+  system_should: |
+    Preserve the missing movement interval rather than treating a correct final location as a complete history. Let a person add the actual departure time later, and show uncertainty in storage exposure until it is resolved.
+  question_it_answers: Was this bottle really refrigerated throughout the morning?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Correct final locations can hide missing storage exposure and mislead searches during use.
+  depth: core
+  sim_hook: |
+    Pick up a refrigerated bottle and sensor box without record_move, use and record their contents, then return them after lunch and record only the returns.
+  source: agent-sim
+  run: week-5d-4p-sonnet
+  status: "variant of LOC-003"
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0058"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0059"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0075"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0076"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0122"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0123"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0124"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0125"
+
+- id: AGENT-D2-03
+  title: An experiment name used as a barcode becomes a missing-plate conclusion
+  story: |
+    Given Priya needs the expression plate for an EXP-06 re-run.
+    When she asks where_is_it for barcodes EXP-06 and EXP-05, the inventory returns no rows.
+    Then she reports that neither expression plate is in the inventory and requests fresh expression, although this lookup has not established which container barcodes belong to those experiments.
+  real_life_noise:
+    - The reviewer knows experiment names but has no plate barcode.
+    - Physical searches do not resolve the identity, and the Hamilton deck remains unchecked.
+    - The planning task is marked done while fresh expression still has no confirmed owner.
+  system_should: |
+    Distinguish an unmatched barcode from an experiment with no recorded source plate. Support tracing an experiment to its expression plate and DNA, and state what remains unknown when that trace cannot be made.
+  question_it_answers: Which source plate belongs to this re-run, and is it available on Thursday?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: An unsupported missing-plate conclusion can cause needless expression or leave a re-run without a source.
+  depth: core
+  sim_hook: |
+    Give the reviewer experiment identifiers without container barcodes. Return no matches from a barcode lookup and check whether the result is treated as unresolved identity or proof of absence.
+  source: agent-sim
+  run: week-5d-4p-sonnet
+  status: "variant of ASK-005"
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0010"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0041"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0061"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0065"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0101"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0127"
+
+- id: AGENT-D2-04
+  title: Stock totals support a purchasing decision without a usage forecast
+  story: |
+    Given Jonas must decide what to order before the noon supplier cut-off.
+    When shared_target_left reports stock but no earlier experiment usage or runs covered, he asks Sara for bookings.
+    Then, without a reply, he marks the task done with no order, using Marco's estimate of one tube per run and stock figures from the morning.
+  real_life_noise:
+    - Accurate stock totals sit beside blank usage and coverage fields.
+    - Bookings are held outside the inventory and do not arrive before the decision.
+    - Marco records today's target transfers, but those calls contain no experiment identifier.
+  system_should: |
+    Keep unknown demand and missing experiment links explicit. Support linking consumption to experiments and deriving usage rates from those facts. Leave the demand forecast to the planning system and avoid presenting stock alone as proof of two weeks of cover.
+  question_it_answers: Do we know enough to decide whether stock will last until the next delivery?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: A purchasing decision without demand evidence can miss a supplier cut-off and delay runs.
+  depth: core
+  sim_hook: |
+    Return stock with blank historical usage, withhold the booking reply, and advance toward the supplier cut-off while procurement decides whether the task is complete.
+  source: agent-sim
+  run: week-5d-4p-sonnet
+  status: "variant of ASK-036"
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0001"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0002"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0007"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0021"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0066"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0077"
+
+- id: AGENT-D2-05
+  title: Parent vials containing target are described as empty
+  story: |
+    Given each new target vial was recorded at 200 µL, sampled for 5 µL and split into four 45 µL aliquots.
+    When Lena bins the parents, the simulator reports about 15 µL left in each.
+    Then she records both disposals with the note "empty vial after split".
+  real_life_noise:
+    - The task itself calls the parents empty.
+    - Both the split result and the bin result report liquid remaining.
+    - The disposal is recorded, so this is a misleading description rather than an unrecorded disappearance.
+  system_should: |
+    Derive discarded contents from the remaining balance and keep them separate from experimental consumption. Preserve the note without allowing "empty" to erase the calculated residue.
+  question_it_answers: How much target was discarded after aliquoting?
+  frequency: daily
+  cost_if_wrong: low
+  cost_reason: Small residues accumulate into misleading waste and consumption reports.
+  depth: core
+  sim_hook: |
+    Receive 200 µL, record a 5 µL QC sample and four 45 µL aliquots, then dispose of the parent with an empty-vial note.
+  source: agent-sim
+  run: week-5d-4p-sonnet
+  status: "already covered by LIFE-020"
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0098"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0099"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0108"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0109"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0113"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-2.txt L0114"
+
+===== verdicts/day-2.md
+The day ended with close agreement on stock and final locations. The scorer found no large amount errors, missing containers or location mismatches, and no flags remained open. That result hides incomplete movement history and unresolved planning questions. All assigned tasks were marked done, but nobody confirmed that fresh expression had started.
+
+### Gaps between the notebooks
+
+BUF-00047 and SEN-00003 went to Bench B2 without outbound movement records (L0058–L0059). Their returns were physically completed and recorded after lunch (L0122–L0125), fixing the final locations but silently leaving more than five hours of bench history absent; no flag is reported.
+
+Four completed transfers initially lacked records because scanning failed (L0046, L0049–L0050, L0055). Marco recovered all four through typed entries (L0066–L0067, L0071–L0072), so this temporary amount and well-content gap was fixed.
+
+QC also briefly put the hands ahead of the records: both 5 µL samples were taken before their consumption was recorded (L0069–L0070, L0080, L0082). Lena completed those records and both QC decisions before splitting, leaving no unresolved sample-use gap.
+
+Lena discarded two parent vials with about 15 µL still inside, then described them as empty (L0108–L0109, L0113–L0114). Disposal itself was recorded; the misleading notes were not corrected, but the evidence does not show that the inventory erased the residual waste.
+
+The remaining measured amount differences are only a few percent and do not warrant separate findings. The frosted box was physically present but unidentified to Priya (L0042, L0117); that is not proof of an unregistered or lost container.
+
+### Inventory answers that misled or could mislead
+
+The clearest case was the plate search. Priya supplied experiment names to a barcode lookup and received no rows (L0041), then said the expression plates were absent from the inventory and requested fresh expression (L0061). The answer established no matching barcodes, not the absence of plates associated with those experiments. The identity question remained unresolved when she escalated it after lunch (L0127).
+
+The shared-target answers gave stock totals but no historical usage rate or run coverage (L0002, L0007). Jonas recognised the missing demand information and asked Sara, but still closed procurement without bookings before the cut-off (L0021, L0077). No shortage is demonstrated; two weeks of cover was never established.
+
+The EGFR answer correctly distinguished 13 µL held from 3 µL usable in ALQ-00011-002 (L0011). Priya skipped it and Marco described it as unusable in practice (L0061, L0100). That is a run-size judgement: the answer could be clearer about which tubes can supply a full run, but the 3 µL was not a false inventory balance.
+
+Marco's afternoon handover claimed about 283 mL of running buffer remained. The records show two 40 mL draws from 400 mL, and the final inventory balance is 320 mL (L0032, L0073, L0075). That discrepancy belongs to the handover, not to an observed inventory answer.
+
+Summary: Final stock reconciled closely, but missing bench history, an inconclusive plate lookup and an unsupported demand forecast remained unresolved.
+

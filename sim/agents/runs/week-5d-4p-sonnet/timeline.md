@@ -1,0 +1,739 @@
+# What happened in the lab
+
+Every tool call in order of simulated time, in plain words. The full calls with arguments and answers are in `calls.jsonl` and `log/day-N.txt`.
+
+## Day 1, Monday 7 September
+
+- 08:00 Priya checked the task list.
+- 08:00 Jonas asked the inventory (shared_target_left protein=EGFR).
+- 08:00 Marco asked the inventory (how_much material=EGFR).
+- 08:00 Lena checked the task list.
+- 08:00 Lena looked in Shelf S1.
+- 08:00 Priya asked the inventory (how_much material=PD-L1).
+- 08:00 Lena asked the inventory (flags ).
+- 08:01 Jonas asked the inventory (shared_target_left protein=PD-L1).
+- 08:01 Marco asked the inventory (shared_target_left protein=EGFR).
+- 08:01 Priya asked the inventory (expiring days=7).
+- 08:02 Lena asked the inventory (expiring days=7).
+- 08:03 Marco looked in Freezer F80-1.
+- 08:03 Jonas asked the inventory (expiring days=14).
+- 08:03 Priya asked the inventory (flags ).
+- 08:03 Lena: took a new bottle, printed and stuck on label BUF-00049, and put it on Bench B1.
+- 08:04 Jonas asked the inventory (flags ).
+- 08:04 Priya asked the inventory (shared_target_left protein=PD-L1).
+- 08:05 Marco looked in BOX-00010.
+- 08:05 Marco looked in BOX-00026.
+- 08:05 Lena take WAT-00017 (water, about 471 mL by eye) out of Shelf S1 and put it on Bench B1.
+- 08:05 Lena take HEP-00002 (hepes, about 89 mL by eye) out of Shelf S1 and put it on Bench B1.
+- 08:06 Marco looked in BOX-00037.
+- 08:06 Priya asked the inventory (how_much material=expression).
+- 08:06 Jonas asked the inventory (how_much material=sensor:%).
+- 08:06 Marco: aLQ-00011-002 is a tube_matrix with egfr, about 40 µL by eye. It is BOX-00010 slot 2 in Freezer F80-1. Supplier lot on the label: S000.
+- 08:06 Lena take NAC-00004 (nacl, about 84 mL by eye) out of Shelf S1 and put it on Bench B1.
+- 08:06 Lena: made loading in BUF-00049: 48.5 mL water from WAT-00017, 0.5 mL hepes from HEP-00002, 1 mL nacl from NAC-00004. It holds loading, about 50 mL by eye.
+- 08:07 Jonas looked in Freezer F80-1.
+- 08:07 Priya looked in Freezer F80-1.
+- 08:07 Marco: aLQ-00027-003 is a tube_matrix with egfr, about 45 µL by eye. It is BOX-00026 slot 3 in Freezer F80-1. Supplier lot on the label: S001.
+- 08:07 Marco take ALQ-00011-002 (egfr, about 45 µL by eye) out of BOX-00010 slot 2 in Freezer F80-1 and put it on Bench B2.
+- 08:08 Marco: took a new plate_bli, printed and stuck on label TP-00048, and put it on Bench B2.
+- 08:09 Marco recorded it. new plate_bli TP-00048 in Bench B2.
+- 08:10 Marco tried record move but couldn't: the scanner beeps: no read on ALQ-00011-002, the label is frosted from the freezer. Try again, or pass typed=true to type the code by hand.
+- 08:10 Marco: pipetted 4 µL from ALQ-00011-002 into TP-00048:A1.
+- 08:10 The lab itself: scanner couldn't read ALQ-00011-002 (frosted).
+- 08:11 Jonas looked in Shelf S1.
+- 08:11 Jonas asked the inventory (how_much material=bli-sensors).
+- 08:11 Marco: pipetted 4 µL from ALQ-00011-002 into TP-00048:B1.
+- 08:12 Priya looked in Fridge R1.
+- 08:12 Marco: pipetted 4 µL from ALQ-00011-002 into TP-00048:C1.
+- 08:12 Marco: pipetted 4 µL from ALQ-00011-002 into TP-00048:D1.
+- 08:13 Jonas asked the inventory (waste from=2026-09-01).
+- 08:13 Marco: pipetted 4 µL from ALQ-00011-002 into TP-00048:E1.
+- 08:14 Jonas tried ask inventory but couldn't: wrong arguments (AgentLab.t_ask_inventory() got an unexpected keyword argument 'place')
+- 08:14 Jonas asked the inventory (history barcode=SEN-00003).
+- 08:14 Marco: pipetted 4 µL from ALQ-00011-002 into TP-00048:F1.
+- 08:15 Marco: pipetted 4 µL from ALQ-00011-002 into TP-00048:G1.
+- 08:16 Marco: pipetted 4 µL from ALQ-00011-002 into TP-00048:H1.
+- 08:16 Jonas asked the inventory (how_much material=consumable:bli-sensors).
+- 08:16 Marco recorded it. ALQ-00011-002 moved to Bench B2 at 08:16 (event 161).
+- 08:17 Jonas: sEN-00003 is a box_9x9 with bli-sensors, 384 pieces. It is Shelf S1. Supplier lot on the label: LOT-SENSORS-0.
+- 08:17 Marco recorded it. 4 µL from ALQ-00011-002 to TP-00048:A1 (event 162).
+- 08:18 Priya looked in BOX-00012.
+- 08:18 Priya looked in BOX-00028.
+- 08:18 Jonas: sEN-00018 is a box_9x9 with bli-sensors, 384 pieces. It is Shelf S1. Supplier lot on the label: LOT-SENSORS-0.
+- 08:18 Jonas: sEN-00031 is a box_9x9 with bli-sensors, 384 pieces. It is Shelf S1. Supplier lot on the label: LOT-SENSORS-0.
+- 08:18 Marco recorded it. 4 µL from ALQ-00011-002 to TP-00048:B1 (event 163).
+- 08:19 Priya looked in BOX-00039.
+- 08:19 Priya asked the inventory (history barcode=BUF-00046).
+- 08:19 Jonas: sEN-00043 is a box_9x9 with bli-sensors, 384 pieces. It is Shelf S1. Supplier lot on the label: LOT-SENSORS-0.
+- 08:19 Jonas: sEN-00045 is a box_9x9 with bli-sensors, 384 pieces. It is Shelf S1. Supplier lot on the label: LOT-SENSORS-0.
+- 08:19 Marco recorded it. 4 µL from ALQ-00011-002 to TP-00048:C1 (event 164).
+- 08:20 Jonas told Lena: "Jonas here. I'm checking EGFR and PD-L1 stock before the 12:00 supplier cut-off. We have 12 usable tubes of each (about 35 µL usable per tube, 420 µL total). The inventory has no record of how much a run takes. How many BLI runs per week do you plan on EGFR and PD-L1 over the next 2-3 weeks, and how many tubes does each run take? Also: loading buffer BUF-00046 expires 11 Sep, so please use it first."
+- 08:21 Priya looked in Freezer F80-2.
+- 08:21 Marco recorded it. 4 µL from ALQ-00011-002 to TP-00048:D1 (event 165).
+- 08:22 Marco recorded it. 4 µL from ALQ-00011-002 to TP-00048:E1 (event 166).
+- 08:22 Jonas spend 30 minutes on routine work while waiting for Lena's reply.
+- 08:23 Marco recorded it. 4 µL from ALQ-00011-002 to TP-00048:F1 (event 167).
+- 08:24 Marco recorded it. 4 µL from ALQ-00011-002 to TP-00048:G1 (event 168).
+- 08:25 Priya looked in Freezer F80-3.
+- 08:25 Marco recorded it. 4 µL from ALQ-00011-002 to TP-00048:H1 (event 169).
+- 08:26 Marco looked in Fridge R1.
+- 08:27 Priya looked in Freezer F20-1.
+- 08:30 Priya looked in Bench B1.
+- 08:30 Priya looked in Bench B2.
+- 08:30 Priya looked in Shelf S1.
+- 08:30 Priya looked in Goods-in shelf.
+- 08:30 Marco looked in Shelf S1.
+- 08:30 Marco asked the inventory (flags ).
+- 08:31 Priya looked in KIT-00005.
+- 08:31 Priya asked the inventory (history barcode=TP-00048).
+- 08:32 Marco: ticked off T1.
+- 08:32 Marco take BUF-00047 (bli-running, about 372 mL by eye) out of Fridge R1 and put it on Bench B2.
+- 08:32 Marco take SEN-00003 (a box) out of Shelf S1 and put it on Bench B2.
+- 08:33 Priya looked in BOX-00010.
+- 08:33 Priya looked in BOX-00026.
+- 08:33 Marco: took 40000 µL of bli-running from BUF-00047.
+- 08:33 The lab itself: frosted label on ALQ-00011-001.
+- 08:34 Priya looked in BOX-00037.
+- 08:34 Priya asked the inventory (not_seen_lately days=7).
+- 08:34 Marco: took 32 pieces of bli-sensors from SEN-00003.
+- 08:35 Marco recorded it. used 40000 µL from BUF-00047 (event 170).
+- 08:36 Lena tried record make but couldn't: the inventory doesn't know 'BUF-00049'
+- 08:36 Lena: bUF-00049 is now in Fridge R1.
+- 08:36 Priya asked the inventory (how_much material=plate).
+- 08:36 Marco recorded it. used 32 pieces from SEN-00003 (event 171).
+- 08:36 Marco: ticked off T2.
+- 08:37 Lena take BUF-00046 (loading, about 46 mL by eye) out of Fridge R1 and put it on Bench B1.
+- 08:37 Priya tried ask inventory but couldn't: wrong arguments (AgentLab.t_ask_inventory() got an unexpected keyword argument 'place')
+- 08:37 Priya asked the inventory (where_is_it barcodes=EXP-05).
+- 08:37 Lena recorded it. new bottle BUF-00049 in Fridge R1.
+- 08:37 Marco: aLQ-00011-002 is a tube_matrix with egfr, about 15 µL by eye. It is Bench B2. Supplier lot on the label: S000.
+- 08:37 Marco: aLQ-00011-002 is now in BOX-00010 at slot 2.
+- 08:38 Lena tried record make but couldn't: the inventory doesn't know 'BUF-00049'
+- 08:38 Lena: threw BUF-00046 in the bin (loading, about 50 mL by eye).
+- 08:38 Marco recorded it. ALQ-00011-002 moved to BOX-00010 slot 2 at 08:38 (event 173).
+- 08:39 Priya told Marco: "Priya here, EXP-05 re-run planned for Thu 10 Sep (3 designs, PD-L1). Please prepare: (1) PD-L1 target: lot 19 tubes ALQ-00040-001..003 in BOX-00039 (F80-1). I checked them and they're physically there, at about 45-50 µL by eye. Lots 7 and 13 are spare. Thaw them on the day, not before. (2) Loading buffer BUF-00046 in Fridge R1: about 53 mL, made 4 Sep, expires Fri 11 Sep 11:00. It's fine Thursday, but only just, so use it then or make fresh. (3) BLI running buffer BUF-00047 in R1 (about 382 mL) and sensors from S1 (SEN-00003 etc., 384 each). PROBLEM: I can't find the EXP-05 expression plate. It isn't in the inventory and it isn't in any freezer, fridge, bench or shelf I looked at. It lasts only 2 weeks. Do you know where it is, or when it was made? If it's gone or older than 14 days on Thursday, the re-run needs fresh expression, and that has to start now."
+- 08:39 Lena asked the inventory (where_is_it barcodes=BUF-00049,BUF-00046).
+- 08:39 Marco asked the inventory (shared_target_left protein=PD-L1).
+- 08:40 Lena tried record make but couldn't: the scanner beeps: no read on WAT-00017. Try again, or pass typed=true to type the code by hand.
+- 08:40 Marco looked in BOX-00012.
+- 08:41 Priya spend 30 minutes on routine bench work while waiting for Marco's reply about the expression plate.
+- 08:41 Lena recorded it. BUF-00046 thrown away (event 174).
+- 08:41 Lena: wAT-00017 is a bottle with water, about 456 mL by eye. It is Bench B1. Supplier lot on the label: LOT-WATER-0.
+- 08:41 Marco looked in BOX-00028.
+- 08:41 Marco looked in BOX-00039.
+- 08:41 The lab itself: scanner couldn't read WAT-00017.
+- 08:42 Lena recorded it. made 50000 µL of buffer:loading in BUF-00049 from 3 inputs (lot 28, event 175).
+- 08:42 Marco asked the inventory (history barcode=BUF-00046).
+- 08:43 Marco asked the inventory (not_seen_lately days=7).
+- 08:44 Lena: wAT-00017 is now in Shelf S1.
+- 08:45 Lena: hEP-00002 is now in Shelf S1.
+- 08:45 Lena: nAC-00004 is now in Shelf S1.
+- 08:45 Marco asked the inventory (history barcode=BUF-00049).
+- 08:46 Lena told Jonas: "Hi Jonas, Lena here. I don't have run plans or tubes-per-run, so I can't answer that. Please ask the scientists who run BLI (Marco or the lab manager). BUF-00046 is already binned. I made a fresh loading buffer, BUF-00049, this morning, and it's in Fridge R1."
+- 08:46 Marco told Priya: "PD-L1 (Marco): inventory shows 420 µL usable in 12 tubes (3 lots x 4 tubes, 35 µL usable each after 10 µL dead volume, 1 thaw each). I looked in BOX-00012/28/39 in F80-1: all 12 tubes are there, 40-50 µL by eye, so the counts match. Nothing has been used yet; no PD-L1 run is logged. Your 3 lot-19 tubes (ALQ-00040-001..003) are about 50/40/45 µL by eye, so about 105 µL usable. That's enough for your re-run, and lots 7 and 13 are spare. Two corrections to your message: (1) BUF-00046 was thrown away this morning by Lena and replaced by BUF-00049 (made 7 Sep today, so fresh). Use BUF-00049 on Thursday. (2) I used 40 mL of BUF-00047 and 32 sensors from SEN-00003 today for EXP-07, so BUF-00047 is about 332 mL and SEN-00003 has 352 left. Still plenty. I know nothing about the EXP-05 expression plate and it isn't in the inventory. Please ask whoever ran the expression, and check the Hamilton deck. If it can't be found by today, start fresh expression."
+- 08:48 Lena: ticked off T1.
+- 08:48 Lena looked in Goods-in shelf.
+- 08:48 Marco: ticked off T3.
+- 08:49 Lena spend 20 minutes on routine bench tidying until delivery.
+- 08:49 Marco: ticked off T4.
+- 08:49 Marco spend 120 minutes on routine bench work while run is pending.
+- 08:52 Jonas: ticked off T1.
+- 08:52 Jonas told Lena: "Use loading buffer BUF-00046 (Fridge R1, 50 mL) first. It expires 11 Sep 11:00, which is 7 days after it was made, so make fresh buffer after that. Nothing else expires within 14 days."
+- 08:54 Jonas: ticked off T2.
+- 09:09 Lena looked in Goods-in shelf.
+- 09:09 Lena spend 30 minutes on routine work awaiting delivery.
+- 09:39 Lena looked in Goods-in shelf.
+- 09:39 Lena take TGT-00050 (egfr, about 190 µL by eye) out of Goods-in shelf and put it on Bench B1.
+- 09:39 A delivery landed on the Goods-in shelf: vial TGT-00050: catalog EGFR-100, supplier lot S050, 200 µL; vial TGT-00051: catalog PDL1-200, supplier lot S051, 200 µL.
+- 09:40 Lena take TGT-00051 (pdl1, about 210 µL by eye) out of Goods-in shelf and put it on Bench B1.
+- 09:40 Lena recorded it. received 200 µL of vendorA:EGFR-100 into TGT-00050, supplier lot S050 (lot 29, event 177). New lots wait for QC before they count as usable.
+- 09:41 Lena recorded it. received 200 µL of vendorA:PDL1-200 into TGT-00051, supplier lot S051 (lot 30, event 179). New lots wait for QC before they count as usable.
+- 09:42 Lena: ticked off T2.
+- 09:43 Lena: took a 5 µL sample from TGT-00050 and ran SDS-PAGE and A280 (an hour). Result: PASS, clean band at the right size.
+- 10:43 Lena: took a 5 µL sample from TGT-00051 and ran SDS-PAGE and A280 (an hour). Result: PASS, clean band at the right size.
+- 10:49 Marco told Sara: "Yes, ready. The EXP-07 target plate TP-00048 is filled, and I have the running buffer (BUF-00047) and 32 sensors (SEN-00003) at Bench B2. I can load Gator 1 at 10:45 or any time after."
+- 11:43 Lena tried record use but couldn't: the scanner beeps: no read on TGT-00050. Try again, or pass typed=true to type the code by hand.
+- 11:43 Lena recorded it. used 5 µL from TGT-00051 (event 180).
+- 11:43 The lab itself: scanner couldn't read TGT-00050.
+- 11:44 Lena tried record qc but couldn't: the scanner beeps: no read on TGT-00050. Try again, or pass typed=true to type the code by hand.
+- 11:44 Lena recorded it. QC pass for the lot in TGT-00051 (event 181).
+- 11:44 Lena: took a new box_9x9, printed and stuck on label BOX-00052, and put it on Bench B1.
+- 11:44 The lab itself: scanner couldn't read TGT-00050.
+- 11:46 Lena: took a new box_9x9, printed and stuck on label BOX-00053, and put it on Bench B1.
+- 11:47 Lena: tGT-00050 is a tube_1_5ml with egfr, about 195 µL by eye. It is Bench B1. Supplier lot on the label: S050.
+- 11:48 Lena recorded it. used 5 µL from TGT-00050 (event 182).
+- 11:49 Lena recorded it. QC pass for the lot in TGT-00050 (event 183).
+- 11:50 Lena recorded it. new box_9x9 BOX-00052 in Bench B1.
+- 11:50 Lena recorded it. new box_9x9 BOX-00053 in Bench B1.
+- 11:51 Lena: ticked off T3.
+- 11:51 Lena: printed labels ALQ-00054-001 to ALQ-00054-004 and filled 4 tubes with 45 µL each into BOX-00052, slots 1 to 4. Left in TGT-00050: egfr, about 15 µL by eye.
+- 12:01 Lena: printed labels ALQ-00055-001 to ALQ-00055-004 and filled 4 tubes with 45 µL each into BOX-00053, slots 1 to 4. Left in TGT-00051: pdl1, about 15 µL by eye.
+- 12:11 Lena recorded it. TGT-00050 split into 4 tubes of 45 µL, labels ALQ-00054-001 to ALQ-00054-004, in BOX-00052 (event 190).
+- 12:12 Lena recorded it. TGT-00051 split into 4 tubes of 45 µL, labels ALQ-00055-001 to ALQ-00055-004, in BOX-00053 (event 195).
+- 12:14 Lena: bOX-00052 is now in Freezer F80-1.
+- 12:15 Lena: bOX-00053 is now in Freezer F80-1.
+- 12:16 Lena: threw TGT-00050 in the bin (egfr, about 15 µL by eye).
+- 12:16 Lena: threw TGT-00051 in the bin (pdl1, about 15 µL by eye).
+- 12:17 Lena recorded it. BOX-00052 moved to Freezer F80-1 at 12:17 (event 196).
+- 12:17 Lena recorded it. BOX-00053 moved to Freezer F80-1 at 12:17 (event 197).
+- 12:18 Lena recorded it. TGT-00050 thrown away (event 198).
+- 12:19 Lena recorded it. TGT-00051 thrown away (event 199).
+- 12:19 Lena: ticked off T4.
+- 12:20 Lena told Marco: "New EGFR aliquots (QC passed): ALQ-00054-001 to -004, 45 µL each, in BOX-00052 in Freezer F80-1. None is part-used. New PD-L1 is in BOX-00053 in the same freezer."
+- 13:45 Jonas checked the task list.
+- 13:45 Priya checked the task list.
+- 13:45 Marco checked the task list.
+- 13:45 Priya asked the inventory (flags ).
+- 13:45 Jonas asked the inventory (history barcode=BUF-00046).
+- 13:45 Marco spend 75 minutes on routine work until run finishes at 15:00.
+- 13:45 Lena checked the task list.
+- 13:45 Lena asked the inventory (flags ).
+- 13:46 Jonas asked the inventory (history barcode=BUF-00049).
+- 13:46 Priya asked the inventory (history barcode=BUF-00049).
+- 13:48 Priya asked the inventory (history barcode=BUF-00046).
+- 13:48 Jonas told Marco: "Jonas (procurement) here. We have 12 usable tubes each of EGFR and PD-L1 (about 35 µL usable each) and 1,920 BLI sensors. Lena doesn't know the run plans. How many BLI runs do you expect on each target over the next 2-3 weeks, and how many µL or tubes does a run take? I'll reorder if the stock won't last. The supplier cut-off for today has passed, so the order would go out tomorrow."
+- 13:49 Priya looked in Fridge R1.
+- 13:52 Priya looked in Bench B1.
+- 13:53 Priya told Lena: "Priya here. Do you know where the EXP-05 expression plate is, who ran it, and when? It isn't in the inventory or in any freezer, fridge, bench or shelf. Also, please check the Hamilton deck. I need it for a Thursday re-run of 3 designs. If it's gone or older than 14 days on Thursday, I'll ask for fresh expression today."
+- 13:55 Priya spend 30 minutes on waiting for Lena's answer on the expression plate.
+- 14:25 Priya told Marco: "Thanks, Marco. I checked and you're right: BUF-00046 was discarded and BUF-00049 is in R1, made 7 Sep, so it's good until 14 Sep. I'm using BUF-00049 for Thursday. I haven't heard back from Lena about the EXP-05 plate, and it isn't in the inventory or anywhere I looked. So please plan on FRESH expression for the 3 failed designs, started as soon as possible so it's ready for Thursday. Use PD-L1 lot 19 (ALQ-00040-001..003) and BUF-00049. BUF-00047 isn't in R1 now, so I assume you have it on your bench. If the old plate turns up and is under 14 days old on Thursday, we can use it instead."
+- 14:27 Priya: ticked off T1.
+- 15:00 Marco asked the inventory (shared_target_left protein=PD-L1).
+- 15:01 Marco: threw TP-00048 in the bin (empty).
+- 15:02 Marco recorded it. TP-00048 thrown away (event 200).
+- 15:02 Marco told Priya: "PD-L1 update: usable is now 560 µL in 16 tubes. That's 12 older tubes (35 µL usable each) plus Lena's new lot 30 (ALQ-00055-001..004 in BOX-00053, never thawed, QC passed today). I checked the 12 older tubes this morning. I haven't looked at the new ones. Your lot-19 tubes (ALQ-00040-001..003) still cover Thursday with about 105 µL. Use BUF-00049 for loading buffer, not BUF-00046. The EXP-05 expression plate is still unaccounted for."
+- 15:04 Marco told Jonas: "Marco: I don't know the run schedule for the next 2-3 weeks, so I can't give a real forecast. Sara or Priya would know the bookings. What I do know: an EGFR run like today's EXP-07 uses 32 µL of target (8 wells x 4 µL), which is about one tube of the 35 µL usable, and 32 sensors plus 40 mL of running buffer. Priya's PD-L1 re-run on Thursday has 3 designs, so I expect it needs about 1-3 tubes (I haven't seen her plan yet). Also, your numbers are out of date. Lena added 4 new EGFR tubes (lot ALQ-00054, BOX-00052) and 4 new PD-L1 tubes (lot 30, ALQ-00055, BOX-00053) today. PD-L1 is now 16 tubes (560 µL usable) and EGFR should be about 16 tubes minus the one I used, so roughly 15 usable plus a nearly empty one. Sensors: 1,920 minus the 32 I used today. Reorder only if the bookings add up to more than that. Ask Sara for the bookings."
+- 15:06 Marco: ticked off T5.
+- 15:07 Marco: bUF-00047 is now in Fridge R1.
+- 15:07 Marco: sEN-00003 is now in Shelf S1.
+- 15:08 Marco recorded it. BUF-00047 moved to Fridge R1 at 15:08 (event 201).
+- 15:09 Marco recorded it. SEN-00003 moved to Shelf S1 at 15:09 (event 202).
+
+## Day 2, Tuesday 8 September
+
+- 08:00 Jonas checked the task list.
+- 08:00 Jonas asked the inventory (shared_target_left protein=EGFR).
+- 08:00 Lena spend 60 minutes on routine work until delivery.
+- 08:00 Marco asked the inventory (shared_target_left protein=PD-L1).
+- 08:00 Priya checked the task list.
+- 08:00 Priya asked the inventory (shared_target_left protein=EGFR).
+- 08:01 Marco asked the inventory (shared_target_left protein=EGFR).
+- 08:01 Jonas asked the inventory (shared_target_left protein=PD-L1).
+- 08:01 Priya asked the inventory (expiring days=7).
+- 08:03 Marco asked the inventory (flags ).
+- 08:03 Jonas asked the inventory (how_much material=consumable:bli-sensors).
+- 08:03 Priya asked the inventory (flags ).
+- 08:04 Jonas asked the inventory (expiring days=14).
+- 08:04 Priya looked in Fridge R1.
+- 08:04 Marco looked in BOX-00012.
+- 08:05 Marco take ALQ-00013-002 (pdl1, about 45 µL by eye) out of BOX-00012 slot 2 in Freezer F80-1 and put it on Bench B2.
+- 08:05 Marco: took a new plate_bli, printed and stuck on label TP-00056, and put it on Bench B2.
+- 08:06 Jonas told Sara: "Jonas (procurement) here. Marco says you or Priya know the BLI bookings. Before the 12:00 supplier cut-off, how many EGFR and PD-L1 runs are booked for the next 2-3 weeks? Stock now: EGFR 15 full tubes (35 µL usable each) plus one nearly empty tube, and PD-L1 16 tubes. An EGFR run takes about one tube. If bookings exceed about 14 runs on either target, I'll order a vial."
+- 08:07 Marco recorded it. new plate_bli TP-00056 in Bench B2.
+- 08:07 Marco recorded it. ALQ-00013-002 moved to Bench B2 at 08:07 (event 204).
+- 08:08 Jonas spend 60 minutes on routine work while waiting for Sara's reply.
+- 08:08 Marco: pipetted 4 µL from ALQ-00013-002 into TP-00056:A1.
+- 08:08 Priya looked in BOX-00052.
+- 08:08 Priya looked in BOX-00037.
+- 08:09 Marco: pipetted 4 µL from ALQ-00013-002 into TP-00056:B1.
+- 08:09 Priya looked in Bench B2.
+- 08:09 Priya looked in Freezer F80-3.
+- 08:10 Marco: pipetted 4 µL from ALQ-00013-002 into TP-00056:C1.
+- 08:10 Marco: pipetted 4 µL from ALQ-00013-002 into TP-00056:D1.
+- 08:11 Marco: pipetted 4 µL from ALQ-00013-002 into TP-00056:E1.
+- 08:12 Marco: pipetted 4 µL from ALQ-00013-002 into TP-00056:F1.
+- 08:13 Marco: pipetted 4 µL from ALQ-00013-002 into TP-00056:G1.
+- 08:14 Priya asked the inventory (history barcode=BUF-00047).
+- 08:14 Marco: pipetted 4 µL from ALQ-00013-002 into TP-00056:H1.
+- 08:14 Marco tried record transfer but couldn't: the scanner beeps: no read on ALQ-00013-002, the label is frosted from the freezer. Try again, or pass typed=true to type the code by hand.
+- 08:15 Marco recorded it. 4 µL from ALQ-00013-002 to TP-00056:B1 (event 205).
+- 08:15 Marco recorded it. 4 µL from ALQ-00013-002 to TP-00056:C1 (event 206).
+- 08:15 The lab itself: scanner couldn't read ALQ-00013-002 (frosted).
+- 08:16 Priya asked the inventory (where_is_it barcodes=EXP-06,EXP-05).
+- 08:16 Marco tried record transfer but couldn't: the scanner beeps: no read on ALQ-00013-002, the label is frosted from the freezer. Try again, or pass typed=true to type the code by hand.
+- 08:16 Marco tried record transfer but couldn't: the scanner beeps: no read on ALQ-00013-002, the label is frosted from the freezer. Try again, or pass typed=true to type the code by hand.
+- 08:16 The lab itself: scanner couldn't read ALQ-00013-002 (frosted).
+- 08:17 Priya looked in Freezer F80-2.
+- 08:17 Marco recorded it. 4 µL from ALQ-00013-002 to TP-00056:F1 (event 207).
+- 08:17 Marco tried record transfer but couldn't: the scanner beeps: no read on ALQ-00013-002, the label is frosted from the freezer. Try again, or pass typed=true to type the code by hand.
+- 08:17 The lab itself: scanner couldn't read ALQ-00013-002 (frosted).
+- 08:18 Marco recorded it. 4 µL from ALQ-00013-002 to TP-00056:H1 (event 208).
+- 08:18 Marco: aLQ-00013-002 is a tube_matrix with pdl1, about 10 µL by eye. It is Bench B2. Supplier lot on the label: S010.
+- 08:18 The lab itself: scanner couldn't read ALQ-00013-002 (frosted).
+- 08:19 Marco take BUF-00047 (bli-running, about 363 mL by eye) out of Fridge R1 and put it on Bench B2.
+- 08:19 Marco take SEN-00003 (a box) out of Shelf S1 and put it on Bench B2.
+- 08:20 Marco recorded it. 4 µL from ALQ-00013-002 to TP-00056:A1 (event 213).
+- 08:21 Priya looked in Freezer F20-1.
+- 08:21 Marco recorded it. 4 µL from ALQ-00013-002 to TP-00056:D1 (event 214).
+- 08:21 The lab itself: frosted label on KIT-00014.
+- 08:22 Marco recorded it. 4 µL from ALQ-00013-002 to TP-00056:E1 (event 215).
+- 08:23 Marco recorded it. 4 µL from ALQ-00013-002 to TP-00056:G1 (event 216).
+- 08:24 Marco: took 40000 µL of bli-running from BUF-00047.
+- 08:25 Marco: took 32 pieces of bli-sensors from SEN-00003.
+- 08:26 Priya looked in Bench B1.
+- 08:26 Priya told Marco: "Priya, EXP-06 re-run for Thu 10 Sep (3 designs, EGFR). Please prepare: (1) EGFR: I looked in BOX-00037 and the four lot-18 tubes ALQ-00038-001..003 are there at about 40-45 µL by eye (35 µL usable each, about 105 µL). Lot 29 in BOX-00052 is a spare, never thawed. Thaw on Thursday only. Skip ALQ-00011-002, which has only about 3 µL usable. (2) Loading buffer: BUF-00049 in R1 (made 7 Sep, expires 14 Sep), good for Thursday. Don't use BUF-00046, which was discarded. (3) BLI running buffer BUF-00047 in R1: the inventory says about 360 mL, I see about 396 mL by eye. Sensors are on S1. (4) Expression plate: there's no EXP-06 or EXP-05 plate in the inventory, and I couldn't find one in any freezer, fridge or bench. So I assume fresh expression for the 3 EXP-06 designs, and it needs to start today. Tell me if you find the old plate."
+- 08:26 Marco recorded it. used 40000 µL from BUF-00047 (event 217).
+- 08:27 Marco recorded it. used 32 pieces from SEN-00003 (event 218).
+- 08:28 Priya told Lena: "Priya: still looking for the EXP-05 and EXP-06 expression plates. They aren't in the inventory or any place I've looked. Who ran the expression, and when? Also, F80-2 has a box with a frosted, unreadable label. Do you know what it is?"
+- 08:28 Marco: threw ALQ-00013-002 in the bin (pdl1, about 15 µL by eye).
+- 08:28 Marco recorded it. ALQ-00013-002 thrown away (event 221).
+- 08:29 Marco: ticked off T1.
+- 08:29 Marco: ticked off T2.
+- 08:30 Priya: ticked off T1.
+- 08:30 Marco looked in BOX-00010.
+- 08:30 Marco looked in BOX-00052.
+- 08:31 Marco looked in BOX-00026.
+- 08:31 Marco looked in BOX-00037.
+- 08:31 The lab itself: frosted label on ALQ-00027-004.
+- 08:32 Marco: ticked off T3.
+- 08:32 Marco told Priya: "EGFR (Marco): inventory shows 528 µL usable in 16 tubes. That is 15 full tubes at 35 µL usable each, plus ALQ-00011-002 at 3 µL, which is not usable. So about 525 µL in practice. I checked all 4 boxes in F80-1 this morning (BOX-00010, 26, 37, 52) and all 16 tubes are there at roughly the amounts you describe. One label in BOX-00026 slot 4 is frosted and unreadable, and it should be ALQ-00027-004. Your lot-18 tubes ALQ-00038-001..003 are at about 50/40/50 µL by eye, so about 105 µL usable for Thursday. Lot 29 is a never-thawed spare. Buffers: BUF-00049 is fine until 14 Sep. BUF-00047 is on my bench for today's EXP-08 run and goes back to R1 this afternoon. After my 40 mL today it is about 323 mL by the inventory's count. I took 40 mL yesterday as well, which may be why your by-eye numbers differ. I haven't found any EXP-05 or EXP-06 plate. Fresh expression is not on my list today, so I'm checking with Sara."
+- 08:34 Marco told Sara: "Marco: Priya needs fresh expression for the 3 EXP-06 (EGFR) designs, started today, to be ready Thursday. The old EXP-05/06 plates are not in the inventory or in any freezer, fridge or bench she looked in. Is this something I should schedule on top of the EXP-08 run (Gator 1 at 11:00)? Tell me which designs and plate layout, and I'll fit it in. I can do it after loading Gator 1."
+- 08:36 Marco: ticked off T4.
+- 08:36 Marco spend 120 minutes on routine work while the run goes on.
+- 09:00 Lena looked in Goods-in shelf.
+- 09:00 Lena asked the inventory (history barcode=BUF-00049).
+- 09:01 Lena told Sara: "Yes. Loading buffer BUF-00049 was made Mon 7 Sep (50 mL, lot 28). It's in Fridge R1 and recorded in the inventory. It expires 14 Sep, so it covers Thursday."
+- 09:03 Lena told Priya: "Sorry Priya, I don't know where the EXP-05 plate is, who ran it or when. I haven't handled it and I have no barcode for it. I can't check the Hamilton deck from here, because my tools only cover the freezers, fridge, benches and shelves. Someone at the Hamilton needs to look. If you send me the barcode I'll search the inventory history. I'd request fresh expression to be safe."
+- 09:05 Lena spend 30 minutes on routine work until delivery.
+- 09:08 Jonas checked the task list.
+- 09:08 Jonas spend 120 minutes on routine work, waiting for Sara's bookings.
+- 09:08 A delivery landed on the Goods-in shelf: vial TGT-00057: catalog EGFR-100, supplier lot S057, 200 µL; vial TGT-00058: catalog PDL1-200, supplier lot S058, 200 µL.
+- 09:35 Lena looked in Goods-in shelf.
+- 09:36 Lena take TGT-00057 (egfr, about 200 µL by eye) out of Goods-in shelf and put it on Bench B1.
+- 09:36 Lena take TGT-00058 (pdl1, about 200 µL by eye) out of Goods-in shelf and put it on Bench B1.
+- 09:37 Lena recorded it. received 200 µL of vendorA:EGFR-100 into TGT-00057, supplier lot S057 (lot 31, event 210). New lots wait for QC before they count as usable.
+- 09:38 Lena recorded it. received 200 µL of vendorA:PDL1-200 into TGT-00058, supplier lot S058 (lot 32, event 212). New lots wait for QC before they count as usable.
+- 09:39 Lena: ticked off T1.
+- 09:39 Lena: took a 5 µL sample from TGT-00057 and ran SDS-PAGE and A280 (an hour). Result: PASS, clean band at the right size.
+- 10:36 Marco spend 120 minutes on routine work.
+- 10:39 Lena: took a 5 µL sample from TGT-00058 and ran SDS-PAGE and A280 (an hour). Result: PASS, clean band at the right size.
+- 11:08 Jonas checked the task list.
+- 11:08 Jonas: ticked off T1.
+- 11:09 Jonas told Lena: "Thanks for the new loading buffer. BUF-00049 (Fridge R1) expires 14 Sep at 08:42, so use it before then and make a fresh batch around that date. Nothing else expires within 14 days. Use the older target tubes first: ALQ-00011-xxx, then lots 12 and 18 for EGFR, and lots 7, 13 and 19 for PD-L1."
+- 11:11 Jonas: ticked off T2.
+- 11:39 Lena recorded it. used 5 µL from TGT-00057 (event 219).
+- 11:40 Lena recorded it. used 5 µL from TGT-00058 (event 220).
+- 11:41 Lena recorded it. QC pass for the lot in TGT-00057 (event 222).
+- 11:41 Lena recorded it. QC pass for the lot in TGT-00058 (event 223).
+- 11:42 Lena: took a new box_9x9, printed and stuck on label BOX-00059, and put it on Bench B1.
+- 11:43 Lena: took a new box_9x9, printed and stuck on label BOX-00060, and put it on Bench B1.
+- 11:45 Lena: ticked off T2.
+- 11:45 Lena recorded it. new box_9x9 BOX-00059 in Bench B1.
+- 11:46 Lena recorded it. new box_9x9 BOX-00060 in Bench B1.
+- 11:47 Lena: printed labels ALQ-00061-001 to ALQ-00061-004 and filled 4 tubes with 45 µL each into BOX-00059, slots 1 to 4. Left in TGT-00057: egfr, about 15 µL by eye.
+- 11:57 Lena: printed labels ALQ-00062-001 to ALQ-00062-004 and filled 4 tubes with 45 µL each into BOX-00060, slots 1 to 4. Left in TGT-00058: pdl1, about 15 µL by eye.
+- 12:07 Lena recorded it. TGT-00057 split into 4 tubes of 45 µL, labels ALQ-00061-001 to ALQ-00061-004, in BOX-00059 (event 230).
+- 12:08 Lena recorded it. TGT-00058 split into 4 tubes of 45 µL, labels ALQ-00062-001 to ALQ-00062-004, in BOX-00060 (event 235).
+- 12:09 Lena: bOX-00059 is now in Freezer F80-1.
+- 12:10 Lena: bOX-00060 is now in Freezer F80-1.
+- 12:11 Lena: threw TGT-00057 in the bin (egfr, about 15 µL by eye).
+- 12:11 Lena: threw TGT-00058 in the bin (pdl1, about 15 µL by eye).
+- 12:12 Lena recorded it. BOX-00059 moved to Freezer F80-1 at 12:12 (event 236).
+- 12:13 Lena recorded it. BOX-00060 moved to Freezer F80-1 at 12:13 (event 237).
+- 12:13 Lena recorded it. TGT-00057 thrown away (event 238).
+- 12:14 Lena recorded it. TGT-00058 thrown away (event 239).
+- 12:14 Lena: ticked off T3.
+- 12:15 Lena told Marco: "New PD-L1 aliquots (QC passed) are ALQ-00062-001 to -004 in BOX-00060, Freezer F80-1. New EGFR is ALQ-00061-001 to -004 in BOX-00059. None of them is part-used. Older part-used tubes would be in the older boxes in F80-1."
+- 12:17 Lena told Priya: "I don't know what the frosted box in F80-2 is, and I don't know who ran EXP-05 or EXP-06 or when. I have no record of either plate. Please don't discard the F80-2 box. Sara may know what it is. I'd request fresh expression for Thursday."
+- 13:45 Lena checked the task list.
+- 13:45 Jonas checked the task list.
+- 13:45 Marco checked the task list.
+- 13:45 Priya checked the task list.
+- 13:45 Marco: bUF-00047 is now in Fridge R1.
+- 13:45 Priya told lab manager: "Priya (data reviewer): the EXP-05 and EXP-06 re-runs are planned for Thu 10 Sep, and I can't find either expression plate. Neither is in the inventory, in any freezer, fridge or bench, or known to Lena or Marco. Nobody can check the Hamilton deck from here, so could someone at the Hamilton look? Fresh expression is not on anyone's list for today, and without it Thursday's re-runs won't happen, which would cost the customers another week. Please assign someone to start fresh expression for the 3 EXP-05 and 3 EXP-06 designs today, or tell me who runs it. Target (PD-L1 lot 19, EGFR lot 18) and loading buffer BUF-00049 are ready. Also, a box in F80-2 has a frosted label and nobody knows what it is. Please don't discard it."
+- 13:46 Marco: sEN-00003 is now in Shelf S1.
+- 13:46 Marco recorded it. BUF-00047 moved to Fridge R1 at 13:46 (event 240).
+- 13:47 Marco recorded it. SEN-00003 moved to Shelf S1 at 13:47 (event 241).
+- 13:48 Marco spend 70 minutes on routine work until run ends at 15:00.
+- 14:58 Marco spend 3 minutes on run finishing.
+- 15:01 Marco told Priya: "EGFR update: Lena added lot ALQ-00061-001..004 in BOX-00059 (QC passed, not part-used, not checked by me). So usable is about 525 µL in 15 tubes from this morning, plus about 140 µL in the new lot, roughly 19 full tubes. Your plan still holds: lot-18 tubes ALQ-00038-001..003 (about 105 µL) for Thursday, with lot 29 or the new lot as spare. The old EXP-05/06 plates are still not found, and I'm waiting for Sara on the fresh expression."
+- 15:03 Marco: threw TP-00056 in the bin (empty).
+- 15:03 Marco recorded it. TP-00056 thrown away (event 242).
+- 15:04 Marco: ticked off T5.
+
+## Day 3, Wednesday 9 September
+
+- 08:00 Jonas checked the task list.
+- 08:00 Jonas asked the inventory (shared_target_left protein=EGFR).
+- 08:00 Priya checked the task list.
+- 08:00 Lena spend 90 minutes on routine work until delivery.
+- 08:00 Priya asked the inventory (shared_target_left protein=PD-L1).
+- 08:00 Marco asked the inventory (shared_target_left protein=EGFR).
+- 08:01 Jonas asked the inventory (shared_target_left protein=PD-L1).
+- 08:01 Priya asked the inventory (expiring days=7).
+- 08:01 Marco asked the inventory (shared_target_left protein=PD-L1).
+- 08:03 Jonas asked the inventory (how_much material=consumable:bli-sensors).
+- 08:03 Priya asked the inventory (flags ).
+- 08:03 Marco looked in BOX-00010.
+- 08:03 Marco take ALQ-00011-003 (egfr, about 50 µL by eye) out of BOX-00010 slot 3 in Freezer F80-1 and put it on Bench B2.
+- 08:04 Jonas asked the inventory (expiring days=14).
+- 08:04 Priya looked in Fridge R1.
+- 08:04 Marco: took a new plate_bli, printed and stuck on label TP-00065, and put it on Bench B2.
+- 08:05 Marco recorded it. new plate_bli TP-00065 in Bench B2.
+- 08:06 Jonas: ticked off T1.
+- 08:06 Jonas told Lena: "Loading buffer BUF-00049 (Fridge R1) expires 14 Sep at 08:42, so use it first and make a fresh batch around that date. Nothing else expires within 14 days. Use older target tubes first: EGFR lot 6, 12, 18; PD-L1 lot 7, 13, 19."
+- 08:06 Marco recorded it. ALQ-00011-003 moved to Bench B2 at 08:06 (event 248).
+- 08:06 Marco: pipetted 4 µL from ALQ-00011-003 into TP-00065:A1.
+- 08:07 Marco: pipetted 4 µL from ALQ-00011-003 into TP-00065:B1.
+- 08:08 Priya looked in BOX-00039.
+- 08:08 Priya looked in Bench B2.
+- 08:08 Jonas: ticked off T2.
+- 08:08 Marco: pipetted 4 µL from ALQ-00011-003 into TP-00065:C1.
+- 08:09 Priya looked in Freezer F80-3.
+- 08:09 Marco: pipetted 4 µL from ALQ-00011-003 into TP-00065:D1.
+- 08:10 Marco: pipetted 4 µL from ALQ-00011-003 into TP-00065:E1.
+- 08:10 Marco: pipetted 4 µL from ALQ-00011-003 into TP-00065:F1.
+- 08:11 Marco: pipetted 4 µL from ALQ-00011-003 into TP-00065:G1.
+- 08:12 Priya asked the inventory (where_is_it barcodes=EXP-05,EXP-06,EXP-07).
+- 08:12 Marco: pipetted 4 µL from ALQ-00011-003 into TP-00065:H1.
+- 08:13 Priya asked the inventory (history barcode=ALQ-00013-002).
+- 08:13 Marco tried record transfer but couldn't: the inventory doesn't know 'ALQ-00021-003'
+- 08:13 Marco tried record transfer but couldn't: the inventory doesn't know 'TP-00064'
+- 08:13 The lab itself: typed ALQ-00011-003 by hand and hit 2 instead of 1.
+- 08:14 Marco recorded it. 4 µL from ALQ-00011-003 to TP-00065:C1 (event 253).
+- 08:14 The lab itself: typed TP-00065 by hand and hit 4 instead of 5.
+- 08:15 Priya told Marco: "Priya, EXP-07 re-run for Thu 10 Sep (3 designs, PD-L1). Please prepare: (1) PD-L1: lot 30, ALQ-00055-001..003 in BOX-00053 (never thawed, 35 µL usable each). Also lot 32 in BOX-00060 is a spare, QC passed, never thawed. I looked at BOX-00039 and lot 19 is there. But EXP-05's PD-L1 re-run is also planned for Thursday, so please keep the two sets separate: lot 19 for EXP-05, lot 30 for EXP-07. Thaw on the day only. (2) Loading buffer: BUF-00049 in R1, about 47 mL, good until 14 Sep. (3) BLI running buffer BUF-00047 in R1 (about 300 mL by eye, inventory about 323 mL) and sensors from S1. (4) Expression: there is still no EXP-05, EXP-06 or EXP-07 plate in the inventory or in any place I looked. I need to know whether the fresh expression has started for EXP-05, EXP-06 and EXP-07. If it hasn't, Thursday isn't possible for those designs."
+- 08:15 Marco recorded it. 4 µL from ALQ-00011-003 to TP-00065:D1 (event 254).
+- 08:16 Marco recorded it. 4 µL from ALQ-00011-003 to TP-00065:E1 (event 255).
+- 08:17 Priya told lab manager: "Priya: following up on yesterday. EXP-07 has now failed QC on three designs too, so that's 9 designs (EXP-05, 06 and 07) waiting on expression plates. None of the plates are in the inventory or in any place I can see. Is fresh expression running, and who is doing it? Can someone check the Hamilton deck? Thursday's re-runs depend on this."
+- 08:17 Marco recorded it. 4 µL from ALQ-00011-003 to TP-00065:F1 (event 256).
+- 08:18 Marco recorded it. 4 µL from ALQ-00011-003 to TP-00065:G1 (event 259).
+- 08:19 Priya: ticked off T1.
+- 08:19 Marco recorded it. 4 µL from ALQ-00011-003 to TP-00065:H1 (event 260).
+- 08:20 Marco: aLQ-00011-003 is a tube_matrix with egfr, about 10 µL by eye. It is Bench B2. Supplier lot on the label: S000.
+- 08:21 Marco take BUF-00047 (bli-running, about 307 mL by eye) out of Fridge R1 and put it on Bench B2.
+- 08:21 Marco take SEN-00003 (a box) out of Shelf S1 and put it on Bench B2.
+- 08:22 Marco recorded it. 4 µL from ALQ-00011-003 to TP-00065:A1 (event 266).
+- 08:23 Marco recorded it. 4 µL from ALQ-00011-003 to TP-00065:B1 (event 272).
+- 08:24 Marco: took 40000 µL of bli-running from BUF-00047.
+- 08:25 Marco: took 32 pieces of bli-sensors from SEN-00003.
+- 08:26 Marco recorded it. used 40000 µL from BUF-00047 (event 273).
+- 08:27 Marco recorded it. used 32 pieces from SEN-00003 (event 274).
+- 08:27 Marco: threw ALQ-00011-003 in the bin (egfr, about 10 µL by eye).
+- 08:28 Marco recorded it. ALQ-00011-003 thrown away (event 275).
+- 08:29 Marco: ticked off T1.
+- 08:29 Marco: ticked off T2.
+- 08:29 Marco looked in BOX-00053.
+- 08:30 Marco looked in BOX-00060.
+- 08:30 Marco looked in BOX-00039.
+- 08:31 Marco looked in BOX-00028.
+- 08:31 Marco looked in BOX-00012.
+- 08:32 Marco: ticked off T3.
+- 08:32 Marco told Priya: "PD-L1 (Marco): inventory shows 665 µL usable in 18 tubes. I checked BOX-00012, 28, 39, 53 and 60 in F80-1 this morning: every tube is there and looks full (40-50 µL by eye; BOX-00012 has 3 tubes because I used and binned one on Tuesday for EXP-08). The two sets are separate: EXP-05 uses lot 19, ALQ-00040-001..003 (about 105 µL usable, never more than one thaw). EXP-07 uses lot 30, ALQ-00055-001..003 (about 105 µL usable, never thawed). Spares are lot 32 (ALQ-00062-001..004, never thawed) and ALQ-00055-004, ALQ-00040-004 and lots 7 and 13. There is plenty. Buffers: BUF-00049 is fine until 14 Sep. BUF-00047 is on my bench for today's EXP-09 run and goes back to R1 this afternoon. By the inventory it will be about 243 mL after today's 40 mL. EXPRESSION: I have NOT started fresh expression for EXP-05, 06 or 07. It isn't on my task list and I had no answer from Sara when I asked on Tuesday. I'm not going to claim it's underway. I'm asking Sara now. If it hasn't started, Thursday isn't feasible for those designs."
+- 08:34 Marco told Sara: "Marco, urgent: Priya says there's no expression plate for EXP-05, EXP-06 or EXP-07, and she's asking whether fresh expression has started for the Thursday re-runs. It hasn't, and it isn't on my list. Do you want me to start it? If so, I need the design lists and plate layout today. Please also tell me whether Thursday is realistic given the expression time. I can fit it in after loading Gator 1 at 11:00."
+- 08:36 Marco: ticked off T4.
+- 08:36 Marco spend 120 minutes on routine work; run loading.
+- 09:30 Lena looked in Goods-in shelf.
+- 09:30 Lena take TGT-00063 (egfr, about 190 µL by eye) out of Goods-in shelf and put it on Bench B1.
+- 09:30 Lena take TGT-00064 (pdl1, about 215 µL by eye) out of Goods-in shelf and put it on Bench B1.
+- 09:30 A delivery landed on the Goods-in shelf: vial TGT-00063: catalog EGFR-100, supplier lot S063, 200 µL; vial TGT-00064: catalog PDL1-200, supplier lot S064, 200 µL.
+- 09:31 Lena told Sara: "Yes. BUF-00049 (made Mon 7 Sep, 50 mL) is in Fridge R1 and recorded in the inventory. It's good until 14 Sep, so it covers Thursday."
+- 09:33 Lena recorded it. received 200 µL of vendorA:EGFR-100 into TGT-00063, supplier lot S063 (lot 33, event 244). New lots wait for QC before they count as usable.
+- 09:34 Lena recorded it. received 200 µL of vendorA:PDL1-200 into TGT-00064, supplier lot S064 (lot 34, event 246). New lots wait for QC before they count as usable.
+- 09:35 Lena: ticked off T1.
+- 09:35 Lena: took a 5 µL sample from TGT-00063 and ran SDS-PAGE and A280 (an hour). Result: PASS, clean band at the right size.
+- 10:35 Lena: took a 5 µL sample from TGT-00064 and ran SDS-PAGE and A280 (an hour). Result: PASS, clean band at the right size.
+- 10:36 Marco told Sara: "Yes, I'm ready for Gator 1 at 10:45. Plate TP-00065 (EGFR, A1-H1), 40 mL running buffer and 32 sensors are at my bench. I'm still waiting on my question about the fresh expression for EXP-05/06/07."
+- 10:38 Marco spend 120 minutes on routine work.
+- 11:35 Lena recorded it. used 5 µL from TGT-00063 (event 249).
+- 11:36 Lena recorded it. used 5 µL from TGT-00064 (event 250).
+- 11:37 Lena recorded it. QC pass for the lot in TGT-00063 (event 251).
+- 11:37 Lena recorded it. QC pass for the lot in TGT-00064 (event 252).
+- 11:38 Lena: took a new box_9x9, printed and stuck on label BOX-00066, and put it on Bench B1.
+- 11:40 Lena: took a new box_9x9, printed and stuck on label BOX-00067, and put it on Bench B1.
+- 11:41 Lena: ticked off T2.
+- 11:41 Lena recorded it. new box_9x9 BOX-00066 in Bench B1.
+- 11:42 Lena recorded it. new box_9x9 BOX-00067 in Bench B1.
+- 11:43 Lena: printed labels ALQ-00068-001 to ALQ-00068-004 and filled 4 tubes with 45 µL each into BOX-00066, slots 1 to 4. Left in TGT-00063: egfr, about 15 µL by eye.
+- 11:53 Lena: printed labels ALQ-00069-001 to ALQ-00069-004 and filled 4 tubes with 45 µL each into BOX-00067, slots 1 to 4. Left in TGT-00064: pdl1, about 15 µL by eye.
+- 12:03 Lena recorded it. TGT-00063 split into 4 tubes of 45 µL, labels ALQ-00068-001 to ALQ-00068-004, in BOX-00066 (event 265).
+- 12:04 Lena recorded it. TGT-00064 split into 4 tubes of 45 µL, labels ALQ-00069-001 to ALQ-00069-004, in BOX-00067 (event 271).
+- 12:05 Lena: bOX-00066 is now in Freezer F80-1.
+- 12:06 Lena: bOX-00067 is now in Freezer F80-1.
+- 12:07 Lena: threw TGT-00063 in the bin (egfr, about 15 µL by eye).
+- 12:08 Lena: threw TGT-00064 in the bin (pdl1, about 15 µL by eye).
+- 12:08 Lena recorded it. BOX-00066 moved to Freezer F80-1 at 12:08 (event 276).
+- 12:09 Lena recorded it. BOX-00067 moved to Freezer F80-1 at 12:09 (event 277).
+- 12:09 Lena recorded it. TGT-00063 thrown away (event 278).
+- 12:10 Lena recorded it. TGT-00064 thrown away (event 279).
+- 12:10 Lena: ticked off T3.
+- 12:11 Lena told Marco: "New EGFR aliquots ALQ-00068-001 to -004 are in BOX-00066, Freezer F80-1. New PD-L1 aliquots ALQ-00069-001 to -004 are in BOX-00067, same freezer. These are all unopened. Part-used tubes would be in the older boxes."
+- 13:45 Priya checked the task list.
+- 13:45 Marco checked the task list.
+- 13:45 Marco: bUF-00047 is now in Fridge R1.
+- 13:45 Jonas checked the task list.
+- 13:45 Lena checked the task list.
+- 13:46 Marco: sEN-00003 is now in Shelf S1.
+- 13:46 Marco recorded it. BUF-00047 moved to Fridge R1 at 13:46 (event 280).
+- 13:47 Marco recorded it. SEN-00003 moved to Shelf S1 at 13:47 (event 281).
+- 13:48 Marco spend 70 minutes on routine work until run ends at 15:00.
+- 14:58 Marco spend 3 minutes on routine work around the lab.
+- 15:01 Marco told Priya: "PD-L1 (same as this morning, plus new): 665 µL usable in 18 tubes, plus Lena's new ALQ-00069-001..004 (BOX-00067), which I haven't looked at. That's about 800 µL. It's plenty for EXP-05 (lot 19, ALQ-00040-001..003) and EXP-07 (lot 30, ALQ-00055-001..003) on Thursday, with spares. Expression is still the open issue: I haven't started anything and have had no answer from Sara."
+- 15:03 Marco: threw TP-00065 in the bin (empty).
+- 15:03 Marco recorded it. TP-00065 thrown away (event 282).
+- 15:04 Marco: ticked off T5.
+
+## Day 4, Thursday 10 September
+
+- 08:00 Jonas checked the task list.
+- 08:00 Priya checked the task list.
+- 08:00 Jonas asked the inventory (shared_target_left protein=EGFR).
+- 08:00 Priya asked the inventory (shared_target_left protein=EGFR).
+- 08:00 Marco asked the inventory (shared_target_left protein=PD-L1).
+- 08:00 Lena spend 90 minutes on routine work until delivery.
+- 08:01 Jonas asked the inventory (shared_target_left protein=PD-L1).
+- 08:01 Marco asked the inventory (shared_target_left protein=EGFR).
+- 08:01 Priya asked the inventory (expiring days=7).
+- 08:03 Jonas asked the inventory (how_much material=consumable:bli-sensors).
+- 08:03 Priya looked in Fridge R1.
+- 08:03 Marco looked in BOX-00012.
+- 08:03 Marco take ALQ-00013-001 (pdl1, about 45 µL by eye) out of BOX-00012 slot 1 in Freezer F80-1 and put it on Bench B2.
+- 08:04 Jonas asked the inventory (expiring days=14).
+- 08:04 Marco: took a new plate_bli, printed and stuck on label TP-00072, and put it on Bench B2.
+- 08:05 Marco recorded it. new plate_bli TP-00072 in Bench B2.
+- 08:06 Jonas: ticked off T1.
+- 08:06 Jonas told Lena: "Loading buffer BUF-00049 (Fridge R1) expires 14 Sep at 08:42, so use it first and make a fresh batch around that date. Nothing else expires within 14 days. Use the older target tubes first: EGFR lots 6, 12, 18; PD-L1 lots 7, 13, 19."
+- 08:06 Marco recorded it. ALQ-00013-001 moved to Bench B2 at 08:06 (event 292).
+- 08:06 Marco: pipetted 4 µL from ALQ-00013-001 into TP-00072:A1.
+- 08:07 Marco: pipetted 4 µL from ALQ-00013-001 into TP-00072:B1.
+- 08:08 Priya asked the inventory (where_is_it barcodes=EXP-05,EXP-06,EXP-07,EXP-08).
+- 08:08 Jonas: ticked off T2.
+- 08:08 Marco: pipetted 4 µL from ALQ-00013-001 into TP-00072:C1.
+- 08:09 Priya looked in BOX-00037.
+- 08:09 Marco: pipetted 4 µL from ALQ-00013-001 into TP-00072:D1.
+- 08:10 Priya looked in Freezer F80-1.
+- 08:10 Marco: pipetted 4 µL from ALQ-00013-001 into TP-00072:E1.
+- 08:10 Marco: pipetted 4 µL from ALQ-00013-001 into TP-00072:F1.
+- 08:10 The lab itself: frosted label on ALQ-00038-002.
+- 08:11 Marco: pipetted 4 µL from ALQ-00013-001 into TP-00072:G1.
+- 08:12 Marco: pipetted 4 µL from ALQ-00013-001 into TP-00072:H1.
+- 08:13 Priya looked in Bench B2.
+- 08:13 Priya told Marco: "Priya, EXP-08 re-run (3 designs, EGFR). Please prepare: (1) EGFR: lot 18 slot 2 in BOX-00037 now has a frosted, unreadable label, so I don't want to rely on it. Use the readable ones: ALQ-00038-001, -003 and -004, about 35 µL usable each. Or use lot 29 (ALQ-00054-001..003 in BOX-00052) or lot 33 (BOX-00066), which have never been thawed. Thaw on the day only. Please re-label or rescan the frosted tube. (2) Loading buffer BUF-00049 in R1 (about 48 mL) expires Mon 14 Sep 08:42. It's fine today, but NOT for a re-run on Thu 17 Sep. If the re-run is next week, make fresh loading buffer. (3) BUF-00047 is in R1, about 268 mL by eye, which is enough. Sensors are on S1. (4) Expression: there is still no EXP-08 plate, or any EXP-05/06/07 plate, in the inventory. Has fresh expression started for any of them? Please tell me what has been started and when it will be ready."
+- 08:13 Marco recorded it. 4 µL from ALQ-00013-001 to TP-00072:A1 (event 299).
+- 08:13 The lab itself: frosted label on BOX-00066.
+- 08:14 Marco recorded it. 4 µL from ALQ-00013-001 to TP-00072:B1 (event 300).
+- 08:15 Priya: ticked off T1.
+- 08:15 Marco recorded it. 4 µL from ALQ-00013-001 to TP-00072:C1 (event 303).
+- 08:16 Marco recorded it. 4 µL from ALQ-00013-001 to TP-00072:D1 (event 304).
+- 08:17 Marco recorded it. 4 µL from ALQ-00013-001 to TP-00072:E1 (event 305).
+- 08:18 Marco recorded it. 4 µL from ALQ-00013-001 to TP-00072:F1 (event 306).
+- 08:19 Marco recorded it. 4 µL from ALQ-00013-001 to TP-00072:G1 (event 307).
+- 08:21 Marco recorded it. 4 µL from ALQ-00013-001 to TP-00072:H1 (event 309).
+- 08:22 Marco take BUF-00047 (bli-running, about 295 mL by eye) out of Fridge R1 and put it on Bench B2.
+- 08:22 Marco take SEN-00003 (a box) out of Shelf S1 and put it on Bench B2.
+- 08:23 Marco: aLQ-00013-001 is a tube_matrix with pdl1, about 15 µL by eye. It is Bench B2. Supplier lot on the label: S010.
+- 08:23 Marco: took 40000 µL of bli-running from BUF-00047.
+- 08:24 Marco: took 32 pieces of bli-sensors from SEN-00003.
+- 08:25 Marco recorded it. used 40000 µL from BUF-00047 (event 310).
+- 08:26 Marco recorded it. used 32 pieces from SEN-00003 (event 311).
+- 08:27 Marco: threw ALQ-00013-001 in the bin (pdl1, about 10 µL by eye).
+- 08:27 Marco recorded it. ALQ-00013-001 thrown away (event 312).
+- 08:28 Marco: ticked off T1.
+- 08:28 Marco: ticked off T2.
+- 08:28 Marco: ticked off T3.
+- 08:29 Marco looked in BOX-00037.
+- 08:29 Marco looked in BOX-00052.
+- 08:30 Marco looked in BOX-00066.
+- 08:30 Marco looked in BOX-00059.
+- 08:31 Marco looked in BOX-00026.
+- 08:31 Marco looked in BOX-00010.
+- 08:32 Marco told Priya: "EGFR (Marco): inventory shows 773 µL usable. I looked in all six EGFR boxes in F80-1 (BOX-00010, 26, 37, 52, 59, 66). All 22 tubes are physically there and look full (40-50 µL by eye), except ALQ-00011-002, which has about 3 µL usable and isn't worth using. That is 21 full tubes. In BOX-00037 I could read the label on every tube this morning, slot 2 included: it is ALQ-00038-002 at about 40 µL. The frost clears and comes back, so I can't promise it will be readable when you look. For EXP-08, the cleanest choice is never-thawed lot 29 (ALQ-00054-001..003, BOX-00052), about 45-50 µL each, or lot 33. Lot 18 works too if you prefer. Thaw on the day only. Loading buffer BUF-00049 expires Mon 14 Sep, so for a re-run on 17 Sep we need fresh loading buffer, and I'll make it when it's needed. Expression: NO fresh expression has been started by me for EXP-05, 06, 07 or 08. It isn't on my task list, and Sara hasn't answered my questions since Tuesday. I have no ready date to give you, because nothing has been started. Please escalate to Sara directly."
+- 08:34 Marco told Sara: "Marco, third time asking: Priya is asking whether fresh expression has started for EXP-05, 06, 07 and 08 re-runs. Nothing has been started by me. I have no design lists and no instruction to run it. Please tell me today whether I should start expression, with what designs, or tell Priya the re-runs are on hold. I'm also ready for Gator 1 at 10:45 with the EXP-10 plate TP-00072."
+- 08:36 Marco: ticked off T4.
+- 08:36 Marco spend 120 minutes on routine work; run loading.
+- 09:30 Lena looked in Goods-in shelf.
+- 09:30 Lena told Sara: "Yes. BUF-00049 (made Mon 7 Sep, 50 mL) is in Fridge R1 and recorded in the inventory. It's good until 14 Sep, so it covers today's run."
+- 09:30 A delivery landed on the Goods-in shelf: vial TGT-00070: catalog EGFR-100, supplier lot S070, 200 µL; vial TGT-00071: catalog PDL1-200, supplier lot S071, 200 µL.
+- 09:32 Lena take TGT-00070 (egfr, about 190 µL by eye) out of Goods-in shelf and put it on Bench B1.
+- 09:32 Lena take TGT-00071 (pdl1, about 200 µL by eye) out of Goods-in shelf and put it on Bench B1.
+- 09:33 Lena recorded it. received 200 µL of vendorA:EGFR-100 into TGT-00070, supplier lot S070 (lot 35, event 284). New lots wait for QC before they count as usable.
+- 09:34 Lena recorded it. received 200 µL of vendorA:PDL1-200 into TGT-00071, supplier lot S071 (lot 36, event 286). New lots wait for QC before they count as usable.
+- 09:35 Lena: ticked off T1.
+- 09:35 Lena: took a 5 µL sample from TGT-00070 and ran SDS-PAGE and A280 (an hour). Result: PASS, clean band at the right size.
+- 10:35 Lena: took a 5 µL sample from TGT-00071 and ran SDS-PAGE and A280 (an hour). Result: FAIL, the band is degraded.
+- 10:36 Marco told Sara: "Yes, I'm ready for 10:45. TP-00072 (PD-L1 A1-H1), buffer and 32 sensors are at my bench. Still waiting on your answer about the fresh expression."
+- 10:38 Marco spend 120 minutes on routine work.
+- 11:35 Lena recorded it. used 5 µL from TGT-00070 (event 287).
+- 11:36 Lena recorded it. used 5 µL from TGT-00071 (event 288).
+- 11:37 Lena recorded it. QC pass for the lot in TGT-00070 (event 289).
+- 11:37 Lena recorded it. QC fail for the lot in TGT-00071 (event 290).
+- 11:38 Lena: took a new box_9x9, printed and stuck on label BOX-00073, and put it on Bench B1.
+- 11:40 Lena: ticked off T2.
+- 11:40 Lena recorded it. new box_9x9 BOX-00073 in Bench B1.
+- 11:41 Lena: printed labels ALQ-00074-001 to ALQ-00074-004 and filled 4 tubes with 45 µL each into BOX-00073, slots 1 to 4. Left in TGT-00070: egfr, about 15 µL by eye.
+- 11:51 Lena recorded it. TGT-00070 split into 4 tubes of 45 µL, labels ALQ-00074-001 to ALQ-00074-004, in BOX-00073 (event 298).
+- 11:52 Lena: bOX-00073 is now in Freezer F80-1.
+- 11:53 Lena: threw TGT-00070 in the bin (egfr, about 15 µL by eye).
+- 11:53 Lena recorded it. BOX-00073 moved to Freezer F80-1 at 11:53 (event 301).
+- 11:54 Lena recorded it. TGT-00070 thrown away (event 302).
+- 11:54 Lena: tGT-00071 is now in Fridge R1.
+- 11:55 Lena recorded it. TGT-00071 moved to Fridge R1 at 11:55 (event 308).
+- 11:56 Lena: ticked off T3.
+- 11:56 Lena told Sara: "PD-L1 vial TGT-00071 (lot S071, DN-4020) failed QC today: the band is degraded. I did not aliquot it. It's in Fridge R1, recorded as failed, so you can decide on a supplier claim or replacement. We have no new PD-L1 from this delivery. EGFR TGT-00070 passed and is aliquoted as ALQ-00074-001 to -004 in BOX-00073, Freezer F80-1."
+- 11:58 Lena told Marco: "There is no new PD-L1 today, because lot S071 failed QC. I didn't aliquot it. Use the older PD-L1 aliquots in F80-1. New EGFR is ALQ-00074-001 to -004 in BOX-00073, unopened."
+- 13:45 Jonas checked the task list.
+- 13:45 Priya checked the task list.
+- 13:45 Lena checked the task list.
+- 13:45 Marco checked the task list.
+- 13:45 Marco: bUF-00047 is now in Fridge R1.
+- 13:45 Priya told lab manager: "Priya, escalation. Twelve designs (EXP-05, 06, 07 and 08, three each) failed QC and are waiting on re-runs. The expression plates for all four runs are not in the inventory and not in any freezer, fridge, bench or shelf. Nobody has started fresh expression. Marco has asked Sara since Tuesday and had no answer, and I can't reach her. Target and buffers are ready, and Marco will make fresh loading buffer for a 17 Sep re-run. I need a decision today: who starts fresh expression, and can someone check the Hamilton deck for the old plates? Without it these customers wait another week."
+- 13:46 Marco: sEN-00003 is now in Shelf S1.
+- 13:46 Marco recorded it. BUF-00047 moved to Fridge R1 at 13:46 (event 313).
+- 13:47 Marco recorded it. SEN-00003 moved to Shelf S1 at 13:47 (event 314).
+- 13:48 Marco spend 70 minutes on routine work until run ends at 15:00.
+- 14:58 Marco spend 3 minutes on routine work around the lab.
+- 15:01 Marco told Priya: "EGFR, same as this morning plus new: 773 µL usable, 21 full tubes I verified, plus Lena's new ALQ-00074-001..004 (BOX-00073, unopened, not checked by me). That is plenty for your re-run. For EXP-08, use lot 29 (ALQ-00054-001..003), never thawed. The open item is still fresh expression: nothing has been started, and I have no answer from Sara."
+- 15:03 Marco: threw TP-00072 in the bin (empty).
+- 15:03 Marco recorded it. TP-00072 thrown away (event 315).
+- 15:04 Marco: ticked off T5.
+
+## Day 5, Friday 11 September
+
+- 08:00 Jonas checked the task list.
+- 08:00 Priya checked the task list.
+- 08:00 Jonas asked the inventory (how_much material=target:%).
+- 08:00 Priya asked the inventory (shared_target_left protein=PD-L1).
+- 08:00 Lena spend 90 minutes on routine work until delivery.
+- 08:00 Marco asked the inventory (shared_target_left protein=EGFR).
+- 08:01 Jonas asked the inventory (how_much material=consumable:bli-sensors).
+- 08:01 Priya asked the inventory (expiring days=7).
+- 08:01 Marco asked the inventory (shared_target_left protein=PD-L1).
+- 08:03 Jonas asked the inventory (expiring days=14).
+- 08:03 Priya looked in Fridge R1.
+- 08:03 Marco asked the inventory (flags ).
+- 08:04 Jonas asked the inventory (flags ).
+- 08:04 Marco looked in BOX-00010.
+- 08:05 Marco take ALQ-00011-001 (egfr, about 40 µL by eye) out of BOX-00010 slot 1 in Freezer F80-1 and put it on Bench B2.
+- 08:05 Marco: took a new plate_bli, printed and stuck on label TP-00077, and put it on Bench B2.
+- 08:06 Priya asked the inventory (where_is_it barcodes=EXP-05,EXP-06,EXP-07,EXP-08,EXP-09).
+- 08:06 Jonas asked the inventory (history barcode=TGT-00071).
+- 08:07 Jonas asked the inventory (shared_target_left protein=PD-L1).
+- 08:07 Priya looked in BOX-00067.
+- 08:07 Marco recorded it. new plate_bli TP-00077 in Bench B2.
+- 08:07 Marco recorded it. ALQ-00011-001 moved to Bench B2 at 08:07 (event 326).
+- 08:08 Priya asked the inventory (history barcode=TGT-00071).
+- 08:08 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00077:A1.
+- 08:09 Jonas told lab manager: "Jonas (procurement). PD-L1 vial TGT-00071 (lot 36, supplier lot S071, 195 µL) failed QC on 10 Sep and is in Fridge R1. Please don't bin it yet, because we may be able to get a credit or replacement from the supplier. Also, a new vial of EGFR and one of PD-L1 have arrived every day since 7 Sep, and I haven't ordered any of them. Do you know who is ordering them? We now hold about 27 EGFR tubes and 22 usable PD-L1 tubes. That is well beyond two weeks of use, and each vial costs about 300 CHF. If it's a standing order, please stop it."
+- 08:09 Priya told Marco: "Priya, EXP-09 re-run (3 designs, PD-L1), assuming Thu 17 Sep. Please prepare: (1) PD-L1: lot 34, ALQ-00069-001..003 in BOX-00067. I looked, and they're there at about 40/45/50 µL, never thawed, QC passed. Do NOT use TGT-00071, which is in Fridge R1. It's PD-L1 lot 36 and it FAILED QC on 10 Sep. It shouldn't sit in the fridge looking usable, so please ask Lena whether to bin it. Keep this set apart from the sets for EXP-05 (lot 19) and EXP-07 (lot 30). (2) Loading buffer: BUF-00049 expires Mon 14 Sep, so it is NOT usable on the 17th. Please make fresh loading buffer on 16-17 Sep. (3) BUF-00047 in R1 is about 265 mL by eye, which is enough for one run, but check it if several runs share it. (4) Expression: there is still no plate for EXP-05 to 09 in the inventory, and nothing has been started that I know of. Any news from Sara?"
+- 08:09 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00077:B1.
+- 08:10 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00077:C1.
+- 08:10 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00077:D1.
+- 08:11 Jonas: ticked off T1.
+- 08:11 Jonas told Lena: "Two items for you. First, loading buffer BUF-00049 (Fridge R1) expires Mon 14 Sep at 08:42, so use it first and make a fresh batch. Second, PD-L1 TGT-00071 (Fridge R1) failed QC, so please don't use it. It's flagged, and I've asked the lab manager about returning it to the supplier. Use the older target tubes first: EGFR lots 6, 12, 18; PD-L1 lots 7, 13, 19."
+- 08:11 Priya told lab manager: "Priya: now 15 designs (EXP-05 to 09) are waiting on expression, and none has been started, so the target and buffer prep is wasted until it is. Also, TGT-00071 (PD-L1 lot 36, QC fail on 10 Sep) is sitting in Fridge R1. Please decide whether it gets binned. I haven't touched it."
+- 08:11 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00077:E1.
+- 08:12 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00077:F1.
+- 08:13 Jonas: ticked off T2.
+- 08:13 Priya: ticked off T1.
+- 08:13 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00077:G1.
+- 08:14 Marco: pipetted 4 µL from ALQ-00011-001 into TP-00077:H1.
+- 08:14 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00077:A1 (event 337).
+- 08:15 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00077:B1 (event 338).
+- 08:17 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00077:C1 (event 341).
+- 08:18 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00077:D1 (event 343).
+- 08:19 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00077:E1 (event 345).
+- 08:20 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00077:F1 (event 346).
+- 08:21 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00077:G1 (event 347).
+- 08:22 Marco recorded it. 4 µL from ALQ-00011-001 to TP-00077:H1 (event 348).
+- 08:23 Marco take BUF-00047 (bli-running, about 251 mL by eye) out of Fridge R1 and put it on Bench B2.
+- 08:24 Marco take SEN-00003 (a box) out of Shelf S1 and put it on Bench B2.
+- 08:24 Marco: aLQ-00011-001 is a tube_matrix with egfr, about 15 µL by eye. It is Bench B2. Supplier lot on the label: S000.
+- 08:25 Marco: took 40000 µL of bli-running from BUF-00047.
+- 08:26 Marco: took 32 pieces of bli-sensors from SEN-00003.
+- 08:27 Marco recorded it. used 40000 µL from BUF-00047 (event 349).
+- 08:27 Marco recorded it. used 32 pieces from SEN-00003 (event 350).
+- 08:28 Marco: threw ALQ-00011-001 in the bin (egfr, about 10 µL by eye).
+- 08:29 Marco tried record disposal but couldn't: the inventory doesn't know 'ALQ-00911-001'
+- 08:29 Marco looked in BOX-00012.
+- 08:29 Marco looked in BOX-00067.
+- 08:29 The lab itself: typed ALQ-00011-001 by hand and hit 9 instead of 0.
+- 08:30 Marco looked in BOX-00039.
+- 08:30 Marco looked in BOX-00053.
+- 08:31 Marco looked in BOX-00060.
+- 08:31 Marco looked in BOX-00028.
+- 08:32 Marco recorded it. ALQ-00011-001 thrown away (event 351).
+- 08:33 Marco: ticked off T1.
+- 08:33 Marco: ticked off T2.
+- 08:33 Marco: ticked off T3.
+- 08:34 Marco told Lena: "Marco: vial TGT-00071 (PD-L1 lot 36, failed QC on 10 Sep, 195 µL) is still in Fridge R1 and is flagged "return to supplier or throw away". Should I bin it, or does it go back to the supplier? I won't touch it until you say. It's separate from every PD-L1 tube we're using."
+- 08:36 Marco told Priya: "PD-L1 (Marco): inventory shows 770 µL usable in 22 good tubes. I checked BOX-00012, 28, 39, 53, 60 and 67 in F80-1 this morning and every tube is there at about 40-50 µL by eye. The sets are separate. EXP-05 uses lot 19 (ALQ-00040-001..003: 50/50/40). EXP-07 uses lot 30 (ALQ-00055-001..003: 50/45/45). EXP-09 uses lot 34 (ALQ-00069-001..003: 45/40/50, never thawed). Each is about 105 µL usable, and the spares are ALQ-00040-004, ALQ-00055-004, ALQ-00069-004, lot 32 and lot 13. TGT-00071 (lot 36, failed QC) is in R1, and I've asked Lena what to do with it. It is not counted in the 770 µL. Loading buffer: you're right, BUF-00049 expires 14 Sep. I'll make fresh buffer on 16-17 Sep, once someone confirms the re-run date. BUF-00047: the inventory says about 163 mL after today's run (I take 40 mL each day), and you see more by eye. I'll check it by a count before we run short. Expression: I have not started anything for EXP-05 to 09, and Sara hasn't answered me since Tuesday. I'm chasing her again today."
+- 08:38 Marco told Sara: "Marco: fourth ask. Priya has 5 re-runs (EXP-05 to 09) waiting on fresh expression, and nothing is started. I need a yes or no, plus the design lists, or someone else to own it. Ready for Gator 1 at 10:45 today with EXP-11 plate TP-00077."
+- 08:40 Marco: ticked off T4.
+- 08:40 Marco spend 120 minutes on routine work; run loading.
+- 09:30 Lena looked in Goods-in shelf.
+- 09:30 Lena told Sara: "Yes. BUF-00049 (made Mon 7 Sep) is in Fridge R1 and on record. It's good until 14 Sep 08:42."
+- 09:30 A delivery landed on the Goods-in shelf: vial TGT-00075: catalog EGFR-100, supplier lot S075, 200 µL; vial TGT-00076: catalog PDL1-200, supplier lot S076, 200 µL.
+- 09:30 The lab itself: TGT-00076 holds 150 µL; the slip says 200.
+- 09:32 Lena take TGT-00075 (egfr, about 180 µL by eye) out of Goods-in shelf and put it on Bench B1.
+- 09:32 Lena take TGT-00076 (pdl1, about 145 µL by eye) out of Goods-in shelf and put it on Bench B1.
+- 09:33 Lena recorded it. received 200 µL of vendorA:EGFR-100 into TGT-00075, supplier lot S075 (lot 37, event 317). New lots wait for QC before they count as usable.
+- 09:34 Lena recorded it. received 145 µL of vendorA:PDL1-200 into TGT-00076, supplier lot S076 (lot 38, event 319). New lots wait for QC before they count as usable.
+- 09:35 Lena: ticked off T1.
+- 09:35 Lena: took a 5 µL sample from TGT-00075 and ran SDS-PAGE and A280 (an hour). Result: PASS, clean band at the right size.
+- 10:35 Lena: took a 5 µL sample from TGT-00076 and ran SDS-PAGE and A280 (an hour). Result: PASS, clean band at the right size.
+- 10:40 Marco told Sara: "Yes, ready for 10:45. TP-00077 (EGFR A1-H1), buffer and 32 sensors are at my bench. Please also answer the expression question."
+- 10:42 Marco spend 120 minutes on routine work.
+- 11:35 Lena recorded it. used 5 µL from TGT-00075 (event 320).
+- 11:36 Lena recorded it. used 5 µL from TGT-00076 (event 321).
+- 11:37 Lena recorded it. QC pass for the lot in TGT-00075 (event 322).
+- 11:37 Lena recorded it. QC pass for the lot in TGT-00076 (event 323).
+- 11:38 Lena: took a new box_9x9, printed and stuck on label BOX-00078, and put it on Bench B1.
+- 11:40 Lena: took a new box_9x9, printed and stuck on label BOX-00079, and put it on Bench B1.
+- 11:41 Lena: ticked off T2.
+- 11:41 Lena recorded it. new box_9x9 BOX-00078 in Bench B1.
+- 11:42 Lena recorded it. new box_9x9 BOX-00079 in Bench B1.
+- 11:43 Lena: printed labels ALQ-00080-001 to ALQ-00080-004 and filled 4 tubes with 45 µL each into BOX-00078, slots 1 to 4. Left in TGT-00075: egfr, about 15 µL by eye.
+- 11:53 Lena: printed labels ALQ-00081-001 to ALQ-00081-003 and filled 3 tubes with 45 µL each into BOX-00079, slots 1 to 3. Left in TGT-00076: pdl1, about 10 µL by eye.
+- 12:01 Lena recorded it. TGT-00075 split into 4 tubes of 45 µL, labels ALQ-00080-001 to ALQ-00080-004, in BOX-00078 (event 332).
+- 12:03 Lena recorded it. TGT-00076 split into 3 tubes of 45 µL, labels ALQ-00081-001 to ALQ-00081-003, in BOX-00079 (event 336).
+- 12:04 Lena: bOX-00078 is now in Freezer F80-1.
+- 12:05 Lena: bOX-00079 is now in Freezer F80-1.
+- 12:06 Lena: threw TGT-00075 in the bin (egfr, about 15 µL by eye).
+- 12:06 Lena: threw TGT-00076 in the bin (pdl1, about 10 µL by eye).
+- 12:07 Lena recorded it. BOX-00078 moved to Freezer F80-1 at 12:07 (event 339).
+- 12:07 Lena recorded it. BOX-00079 moved to Freezer F80-1 at 12:07 (event 340).
+- 12:08 Lena recorded it. TGT-00075 thrown away (event 342).
+- 12:09 Lena recorded it. TGT-00076 thrown away (event 344).
+- 12:09 Lena: ticked off T3.
+- 12:09 Lena looked in Freezer F80-1.
+- 12:14 Lena asked the inventory (whats_in place=Freezer F80-1).
+- 12:15 Lena looked in BOX-00010.
+- 12:16 Lena looked in BOX-00012.
+- 12:16 Lena looked in BOX-00026.
+- 12:17 Lena looked in BOX-00028.
+- 12:17 Lena looked in BOX-00037.
+- 12:18 Lena looked in BOX-00039.
+- 12:18 Lena looked in BOX-00052.
+- 12:19 Lena looked in BOX-00053.
+- 12:19 Lena looked in BOX-00059.
+- 12:20 Lena looked in BOX-00060.
+- 12:20 Lena looked in BOX-00066.
+- 12:20 The lab itself: frosted label on ALQ-00062-003.
+- 12:21 Lena looked in BOX-00067.
+- 12:21 Lena looked in BOX-00073.
+- 12:21 The lab itself: frosted label on ALQ-00069-002.
+- 12:22 Lena looked in BOX-00078.
+- 12:22 Lena looked in BOX-00079.
+- 12:23 Lena looked in BOX-INBOX.
+- 12:23 Lena tried inspect but couldn't: you can't find anything labelled 'BOX-00060:3'
+- 12:23 Lena: aLQ-00062-003 is a tube_matrix with pdl1, about 45 µL by eye. It is BOX-00060 slot 3 in Freezer F80-1. Supplier lot on the label: S058.
+- 12:24 Lena: aLQ-00069-002 is a tube_matrix with pdl1, about 40 µL by eye. It is BOX-00067 slot 2 in Freezer F80-1. Supplier lot on the label: S064.
+- 12:24 Lena asked the inventory (whats_in place=BOX-00010).
+- 12:26 Lena recorded it. the count of Freezer F80-1: 55 expected, 55 found (event 352). You listed BOX-00059, BOX-00028, BOX-00067, BOX-00078, BOX-00039, BOX-INBOX, BOX-00010, BOX-00053, BOX-00060, BOX-00079, BOX-00012, BOX-00037, BOX-00073, BOX-00052, BOX-00066, BOX-00026, which the inventory didn't expect there; record a move for those.
+- 12:32 Lena: ticked off T4.
+- 12:32 Lena told Marco: "Please don't bin TGT-00071 yet. Leave it in Fridge R1 until Sara decides on returning it to the supplier. New EGFR aliquots are ALQ-00080-001 to -004 in BOX-00078. New PD-L1 aliquots are ALQ-00081-001 to -003 in BOX-00079. That vial was only about 145 µL, so there are 3 aliquots, not 4."
+- 12:34 Lena told Sara: "Friday count of F80-1 is done: 55 expected, 55 found. Two aliquot labels are frosted over, ALQ-00062-003 in BOX-00060 and ALQ-00069-002 in BOX-00067. I identified them by slot and lot, but they should be relabelled. Today's PD-L1 vial TGT-00076 (lot S076, DN-4025) held only about 145 µL against 200 on the slip. I booked it at 145 and made 3 aliquots, so you may want to raise it with the supplier. Failed PD-L1 TGT-00071 is still in Fridge R1 waiting for your return-or-bin decision."
+- 13:45 Jonas checked the task list.
+- 13:45 Lena checked the task list.
+- 13:45 Marco checked the task list.
+- 13:45 Marco: bUF-00047 is now in Fridge R1.
+- 13:45 Priya checked the task list.
+- 13:46 Marco: sEN-00003 is now in Shelf S1.
+- 13:46 Marco recorded it. BUF-00047 moved to Fridge R1 at 13:46 (event 353).
+- 13:47 Marco recorded it. SEN-00003 moved to Shelf S1 at 13:47 (event 354).
+- 13:48 Marco spend 70 minutes on routine work until run ends at 15:00.
+- 14:58 Marco spend 3 minutes on routine work around the lab.
+- 15:01 Marco told Priya: "PD-L1 update: 770 µL usable in 22 good tubes (checked this morning), plus Lena's new ALQ-00081-001..003 (BOX-00079; she says only 3 aliquots; I haven't looked at it), so about 875 µL. Your three sets (lots 19, 30, 34) are untouched. TGT-00071 stays in R1 for now: Lena says Sara has to decide on returning it to the supplier, and it is not in the usable figure. Expression is unchanged: nothing is started, and I still have no answer from Sara."
+- 15:03 Marco: threw TP-00077 in the bin (empty).
+- 15:03 Marco recorded it. TP-00077 thrown away (event 355).
+- 15:04 Marco: ticked off T5.

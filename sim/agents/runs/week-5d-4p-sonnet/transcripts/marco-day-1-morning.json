@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 71324,
+ "stop_reason": "end_turn",
+ "session_id": "805c2e01-d261-45f9-b23e-7b30f2b5b40a",
+ "total_cost_usd": 0.2280826,
+ "usage": {
+  "input_tokens": 40,
+  "cache_creation_input_tokens": 29618,
+  "cache_read_input_tokens": 371706,
+  "output_tokens": 7236,
+  "output_tokens_details": {
+   "thinking_tokens": 855
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 29618,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 725,
+    "cache_read_input_tokens": 29369,
+    "cache_creation_input_tokens": 249,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 249
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-sonnet-5-5": {
+   "inputTokens": 40,
+   "outputTokens": 7236,
+   "cacheReadInputTokens": 371706,
+   "cacheCreationInputTokens": 29618,
+   "webSearchRequests": 0,
+   "costUSD": 0.2280826,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 855,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 56,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "Morning block is done except T5, which can't happen before the run ends at 15:00.\n\n**Done**\n- **T1:** I made target plate TP-00048 and put 4 \u00b5L of EGFR in each of A1\u2013H1, all from tube ALQ-00011-002. The inventory showed every EGFR tube as full and unused, so I found no part-used tube. I took the one that looked lowest by eye. All 8 transfers are recorded.\n- **T2:** I took 40 mL of running buffer from BUF-00047 and 32 sensors from SEN-00003. SEN-00003 now has 352 sensors, and both uses are recorded. The buffer and sensors are on Bench B2.\n- **T3:** ALQ-00011-002 still held about 15 \u00b5L, so I did not bin it. I put it back in BOX-00010 slot 2 and recorded the move. It has now thawed twice, so use it last.\n- **T4:** I told Priya that PD-L1 has 420 \u00b5L usable across 12 tubes. I checked the three boxes in F80-1, and all 12 tubes are there at 40\u201350 \u00b5L by eye.\n  - Her three lot-19 tubes (ALQ-00040-001 to -003) hold about 105 \u00b5L usable.\n  - I also told her Lena binned BUF-00046 this morning and replaced it with BUF-00049, so she should use BUF-00049 on Thursday.\n\n**Still open**\n- **T5:** After the run ends at 15:00, bin TP-00048 and record the disposal.\n- **Gator 1 slot:** Sara asked whether I can be ready at 10:45 because the slot may move up 15 minutes. I told her yes.\n\n**Odd things**\n- **EXP-05 expression plate:** Priya can't find it and it isn't in the inventory. I don't know when it was made or where it is. It lasts 2 weeks, so if it isn't found today the re-run needs fresh expression, and that has to start now.\n- **Scanner:** The scanner couldn't read ALQ-00011-002 because the label was frosted, so I typed the barcode to record its move.\n- **Old sensor counts:** SEN-00003 and other items were last confirmed about 20 days ago.",
+ "ttft_ms": 1800,
+ "type": "result",
+ "duration_ms": 72147,
+ "uuid": "34865da8-d8ec-49e7-b32f-edc136445fc0",
+ "ttft_stream_ms": 1468,
+ "time_to_request_ms": 95,
+ "first_content_frame_ms": 1468,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 74.4,
+ "exit_code": 0
+}

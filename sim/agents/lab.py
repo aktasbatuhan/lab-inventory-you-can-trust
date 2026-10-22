@@ -63,6 +63,7 @@ QUERIES = {   # ask_inventory name -> (file, allowed settings, numeric settings)
     "flags": ("q6_flags.sql", {"qc_wait_days"}, {"qc_wait_days"}),
     "waste": ("q7_waste.sql", {"from"}, set()),
     "whats_in": ("q8_whats_in_this_place.sql", {"place"}, set()),
+    "usage_rate": ("q9_usage_rate.sql", {"material", "weeks"}, {"weeks"}),
 }
 
 
@@ -769,7 +770,7 @@ class AgentLab:
         seen = {x.strip() for x in found.split(",") if x.strip()}
         rows = self.sql("select l.container_id || '|' || coalesce((select string_agg(ll.barcode, ',') from live_labels(%s, 'infinity') ll "
                         "where ll.container_id = l.container_id), '') from location(%s, 'infinity') l join container c on c.id = l.container_id "
-                        "join container_type ct on ct.id = c.type_id where l.top_place_id = %d and ct.category in ('tube', 'plate') "
+                        "join container_type ct on ct.id = c.type_id where l.top_place_id = %d and ct.category in ('tube', 'plate', 'holder') "
                         "and l.status not in ('discarded', 'shipped', 'fixed place', 'not placed')" % (ts(t), ts(t), pid)).splitlines()
         lines, missing = [], []
         for r in rows:

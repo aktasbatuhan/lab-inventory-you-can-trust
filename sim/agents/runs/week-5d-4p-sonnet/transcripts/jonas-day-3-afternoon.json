@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 114786,
+ "stop_reason": "end_turn",
+ "session_id": "40517792-53e1-43cc-ba42-4768456b4d3d",
+ "total_cost_usd": 0.2963419,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 912,
+  "cache_read_input_tokens": 74279,
+  "output_tokens": 414,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 912,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 379,
+    "cache_read_input_tokens": 37490,
+    "cache_creation_input_tokens": 211,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 211
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-sonnet-5-5": {
+   "inputTokens": 52,
+   "outputTokens": 8812,
+   "thinkingTokens": 839,
+   "cacheReadInputTokens": 573139,
+   "cacheCreationInputTokens": 37701,
+   "webSearchRequests": 0,
+   "costUSD": 0.2963419,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 2,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "Afternoon handover (Wed 9 Sep): Nothing new came in after lunch, and T1 and T2 stay done. I placed no orders.\n\n- **Stock (this morning's inventory figures):** EGFR has 19 full tubes plus one nearly empty one, and PD-L1 has 19 tubes. There are 1,856 BLI sensors. Use has been about one tube per run, so this should cover at least two weeks.\n- **Open question:** Sara hasn't given me the run bookings. If she sends a total above about 18 runs on either target, I'll order a vial before tomorrow's 12:00 cut-off.\n- **Expiry:** Loading buffer BUF-00049 expires on 14 Sep at 08:42. Lena knows, and she should make fresh buffer around then. Nothing else expires within 14 days.\n- **Unexplained deliveries:** Extra target lots arrived on 7 and 8 Sep that I didn't order. Someone should say who ordered them, so we don't pay twice.\n- **Missing usage records:** The inventory still lacks per-run usage figures for both targets, so I can't give a real run rate.",
+ "ttft_ms": 3094,
+ "type": "result",
+ "duration_ms": 6389,
+ "uuid": "722bdd73-b36b-4ba3-bc36-523f3040d64f",
+ "ttft_stream_ms": 3046,
+ "time_to_request_ms": 151,
+ "first_content_frame_ms": 3047,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 8.2,
+ "exit_code": 0
+}

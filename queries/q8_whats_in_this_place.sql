@@ -36,9 +36,16 @@ here as (
   join container c on c.id = ps.container_id and c.plate_id is null
   where ps.from_at <= :'t' and :'t' < ps.to_at
 ),
+-- The place can be named by barcode or by name ("Freezer F80-1"). Found by the
+-- agent lab: asking by name used to return nothing, which read as an empty freezer.
+start as (
+  select ll.container_id from live_labels(:'t', :'k') ll where ll.barcode = :'place'
+  union
+  select c.id from container c where lower(c.name) = lower(:'place')
+),
 tree (id, depth, sort_key, slot) as (
-  select ll.container_id, 0, container_label(ll.container_id), null::text
-  from live_labels(:'t', :'k') ll where ll.barcode = :'place'
+  select s.container_id, 0, container_label(s.container_id), null::text
+  from start s
   union all
   select h.container_id, tree.depth + 1,
          tree.sort_key || ' > ' || coalesce(lpad(substring(h.slot from '\d+$'), 3, '0'), '') || container_label(h.container_id),
@@ -78,3 +85,8 @@ left join contents ct on ct.vessel_id = t.id
 left join bc on bc.container_id = t.id
 left join location(:'t', :'k') loc on loc.container_id = t.id
 order by t.sort_key;
+
+\echo
+select 'No place or container has the barcode or name ' || :'place' || '. Nothing above means "not found", not "empty".' as "note"
+where not exists (select 1 from live_labels(:'t', :'k') ll where ll.barcode = :'place')
+  and not exists (select 1 from container c where lower(c.name) = lower(:'place'));

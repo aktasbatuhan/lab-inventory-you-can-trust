@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 116244,
+ "stop_reason": "end_turn",
+ "session_id": "19f946e9-12f1-4811-a1b1-58e3d71ac479",
+ "total_cost_usd": 0.2342103,
+ "usage": {
+  "input_tokens": 6,
+  "cache_creation_input_tokens": 1555,
+  "cache_read_input_tokens": 75323,
+  "output_tokens": 641,
+  "output_tokens_details": {
+   "thinking_tokens": 36
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1555,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 511,
+    "cache_read_input_tokens": 25662,
+    "cache_creation_input_tokens": 236,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 236
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-sonnet-5-5": {
+   "inputTokens": 62,
+   "outputTokens": 8069,
+   "thinkingTokens": 514,
+   "cacheReadInputTokens": 498043,
+   "cacheCreationInputTokens": 25898,
+   "webSearchRequests": 0,
+   "costUSD": 0.2342103,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 3,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "Nothing is open this afternoon. All four tasks (T1\u2013T4) were finished this morning, and the inventory shows no open flags.\n\n**Handover**\n- **Buffer:** BUF-00049, the new loading buffer, is in Fridge R1. It expires 14 Sep at about 08:36. I binned BUF-00046 and recorded the disposal.\n- **Delivery DN-4005:** I booked in TGT-00050 (EGFR) and TGT-00051 (PD-L1). Both passed QC.\n- **Aliquots:** The EGFR aliquots are ALQ-00054-001 to -004 in BOX-00052. The PD-L1 aliquots are ALQ-00055-001 to -004 in BOX-00053. Both boxes are in Freezer F80-1, and I binned the empty vials.\n- **Open question:** Jonas asked about BLI run plans (runs per week and tubes per run for EGFR and PD-L1) before the 12:00 supplier cut-off. I couldn't answer, so I pointed him to Marco or the lab manager. Nobody has confirmed an answer, so check whether it was sorted out or whether more target needs ordering.\n- **Jonas and BUF-00046:** He asked twice for BUF-00046 to be used first. My list said to bin it, so I did, even though it was still in date until 11 Sep. He may want to know it's gone.\n- **Scanner:** It failed to read a few labels. In each case I checked the physical label against the barcode and retried with the barcode typed by hand.",
+ "ttft_ms": 9221,
+ "type": "result",
+ "duration_ms": 15455,
+ "uuid": "fa23c561-e00b-4f71-8fe5-e3ce45df867f",
+ "ttft_stream_ms": 9182,
+ "time_to_request_ms": 162,
+ "first_content_frame_ms": 9182,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 17.1,
+ "exit_code": 0
+}

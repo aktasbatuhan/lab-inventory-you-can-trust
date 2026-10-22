@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 215947,
+ "stop_reason": "end_turn",
+ "session_id": "bef141eb-8c75-4f05-bf31-0110f35febc5",
+ "total_cost_usd": 0.5843126,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 1440,
+  "cache_read_input_tokens": 125266,
+  "output_tokens": 664,
+  "output_tokens_details": {
+   "thinking_tokens": 47
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 1440,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 629,
+    "cache_read_input_tokens": 63016,
+    "cache_creation_input_tokens": 674,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 674
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-sonnet-5-5": {
+   "inputTokens": 86,
+   "outputTokens": 18128,
+   "thinkingTokens": 1853,
+   "cacheReadInputTokens": 1481006,
+   "cacheCreationInputTokens": 63690,
+   "webSearchRequests": 0,
+   "costUSD": 0.5843126,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 2,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "**Handover (Fri 11 Sep, afternoon).** My list is empty, and the main blocker is unchanged: nothing has been started on fresh expression.\n\n**Confirmed**\n- Marco physically checked the PD-L1 boxes this morning and every tube is there. The three re-run sets are separate: EXP-05 uses lot 19, EXP-07 uses lot 30 and EXP-09 uses lot 34. Each has about 105 \u00b5L usable, with spares.\n- TGT-00071 (the QC-failed PD-L1) is not counted in the 770 \u00b5L usable. Marco has asked Lena what to do with it.\n- Marco will make fresh loading buffer on 16\u201317 Sep once the re-run date is confirmed.\n\n**Still open**\n- **Expression:** nothing has been started for EXP-05 to EXP-09, and there are no plates in the inventory. Sara hasn't answered Marco since Tuesday, and the lab manager hasn't answered me. I have no more routes to try today. This needs a person to ask in the room, on Monday morning at the latest.\n- **Re-run date:** it still needs confirming with the lab manager. Marco is assuming 17 Sep.\n- **TGT-00071:** the QC-failed tube is still in Fridge R1 until someone decides to bin it.\n\n**Odd things**\n- **Running buffer:** the BUF-00047 numbers disagree. The inventory says about 163 mL after Marco's runs, but I saw about 265 mL by eye this morning. Marco will do a count. That matters because he uses 40 mL a day, so the real volume decides when it runs short.\n- The frosted-label boxes in F80-1 and F80-2 are still unidentified.\n- I ran no counts and changed no records.",
+ "ttft_ms": 7750,
+ "type": "result",
+ "duration_ms": 14523,
+ "uuid": "72dd3c9a-b178-4431-a4e1-78cd928c385e",
+ "ttft_stream_ms": 7706,
+ "time_to_request_ms": 181,
+ "first_content_frame_ms": 7706,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 16.3,
+ "exit_code": 0
+}

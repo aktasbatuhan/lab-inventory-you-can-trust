@@ -26,7 +26,8 @@ there is the output of the query against the demo lab in
 | Brief 5: what did the record say before the change? | `q5b_as_we_knew_it.sql` | The same moment read twice: as the record stood then and as we know it now, plus the late entries that made the difference. |
 | What needs a person today? | `q6_flags.sql` | Negative balances, missing robot steps, tubes a count couldn't find, possible duplicate deliveries, and expired or failed material still on a shelf. |
 | What did we throw away, and what was it worth? | `q7_waste.sql` | Containers thrown away with material in them, by rule or by hand, with amounts and value where the price is known. |
-| What's in this freezer or box? | `q8_whats_in_this_place.sql` | Everything inside a place at any depth, as a tree, with contents, usability and last confirmation. |
+| What's in this freezer or box? | `q8_whats_in_this_place.sql` | Everything inside a place at any depth, as a tree, with contents, usability and last confirmation. Takes a barcode or a name, and says so when neither matches. |
+| How fast are we using it, and how long will it last? | `q9_usage_rate.sql` | What left the stock tubes each week, the average, usable stock now, and how many weeks it covers. Added after the agent lab's procurement agent kept asking. |
 
 ## Running them
 

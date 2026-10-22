@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 224421,
+ "stop_reason": "end_turn",
+ "session_id": "19f946e9-12f1-4811-a1b1-58e3d71ac479",
+ "total_cost_usd": 0.48847560000000007,
+ "usage": {
+  "input_tokens": 20,
+  "cache_creation_input_tokens": 8492,
+  "cache_read_input_tokens": 402709,
+  "output_tokens": 3777,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 8492,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 497,
+    "cache_read_input_tokens": 44671,
+    "cache_creation_input_tokens": 1225,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1225
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-sonnet-5-5": {
+   "inputTokens": 112,
+   "outputTokens": 16809,
+   "thinkingTokens": 635,
+   "cacheReadInputTokens": 1365776,
+   "cacheCreationInputTokens": 45896,
+   "webSearchRequests": 0,
+   "costUSD": 0.48847560000000007,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 34,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "All three tasks (T1\u2013T3) are done and recorded in the inventory, before their deadlines. Nothing on my list is open.\n\n- **Delivery DN-4015:** I booked in TGT-00063 (EGFR, lot S063) and TGT-00064 (PD-L1, lot S064) at 200 \u00b5L each.\n- **QC:** Both vials passed. I recorded the results and the 5 \u00b5L QC sample used from each.\n- **Aliquots:** I split each vial into 4 aliquots of 45 \u00b5L. The EGFR aliquots are ALQ-00068-001 to -004 in BOX-00066. The PD-L1 aliquots are ALQ-00069-001 to -004 in BOX-00067. Both boxes are in Freezer F80-1. I binned the empty vials and recorded the disposals.\n- **Marco and Sara:** I told Marco where the new aliquots are. He asked for part-used EGFR aliquots, and none of these are part-used. I told Sara again that loading buffer BUF-00049 is in Fridge R1 and on record, and covers Thursday.\n\n**Still open from before**\n- **Missing expression plates:** The EXP-05 and EXP-06 plates are still unlocated. Priya needs someone to check the Hamilton deck.\n- **Frosted box:** The unreadable box in F80-2 still needs identifying.\n- **Loading buffer:** BUF-00049 expires 14 Sep at about 08:42, so a fresh batch is due around then.",
+ "ttft_ms": 2764,
+ "type": "result",
+ "duration_ms": 45442,
+ "uuid": "58734fb9-1024-4d26-873c-d75a93c43464",
+ "ttft_stream_ms": 2498,
+ "time_to_request_ms": 221,
+ "first_content_frame_ms": 2499,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 46.9,
+ "exit_code": 0
+}

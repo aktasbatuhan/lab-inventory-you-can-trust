@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 230239,
+ "stop_reason": "end_turn",
+ "session_id": "19f946e9-12f1-4811-a1b1-58e3d71ac479",
+ "total_cost_usd": 0.5050823000000001,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 945,
+  "cache_read_input_tokens": 92487,
+  "output_tokens": 357,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 945,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 322,
+    "cache_read_input_tokens": 46591,
+    "cache_creation_input_tokens": 250,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 250
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-sonnet-5-5": {
+   "inputTokens": 116,
+   "outputTokens": 17166,
+   "thinkingTokens": 635,
+   "cacheReadInputTokens": 1458263,
+   "cacheCreationInputTokens": 46841,
+   "webSearchRequests": 0,
+   "costUSD": 0.5050823000000001,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 2,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "My list is clear this afternoon. T1\u2013T3 were finished this morning, and nothing new has come in or been assigned.\n\n**Handover**\n- **Delivery DN-4015:** TGT-00063 (EGFR) and TGT-00064 (PD-L1) were booked in, QC'd (both passed), split and binned, with all records made.\n- **Aliquots:** The EGFR aliquots are ALQ-00068-001 to -004 in BOX-00066. The PD-L1 aliquots are ALQ-00069-001 to -004 in BOX-00067. Both boxes are in Freezer F80-1.\n- **Still open, not mine to close:**\n  - The EXP-05 and EXP-06 plates are unlocated. Someone needs to check the Hamilton deck.\n  - The frosted, unreadable box in F80-2 needs identifying.\n- **Next up:** Make a fresh loading buffer around 14 Sep, when BUF-00049 expires.",
+ "ttft_ms": 2968,
+ "type": "result",
+ "duration_ms": 5962,
+ "uuid": "aae7fbcd-1beb-47ae-8f25-cc5652bbd88b",
+ "ttft_stream_ms": 2925,
+ "time_to_request_ms": 123,
+ "first_content_frame_ms": 2925,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 8.1,
+ "exit_code": 0
+}

@@ -9,6 +9,12 @@ Barcodes EGFR-L4471-009,BOX-0012,BLI-S-0457, as of 2026-10-21 17:00, as recorded
 (3 rows)
 
 
+Anything asked for that is not a barcode we know, and what it might mean instead
+ you asked for | what we know | it may be 
+---------------+--------------+-----------
+(0 rows)
+
+
 The trail: every place each one has been, and how the move was recorded
     barcode     |          from          |         until          |            in             |     recorded how      
 ----------------+------------------------+------------------------+---------------------------+-----------------------

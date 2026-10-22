@@ -1,0 +1,443 @@
+exit 0 after 136 s
+--- stdout
+===== discovered/day-3.yaml
+- id: AGENT-D3-01
+  title: Return records hide an unrecorded trip to the bench
+  status: "variant of LOC-003"
+  story: |
+    Given BUF-00047 is recorded in Fridge R1 and SEN-00003 on Shelf S1.
+    When Marco takes both to Bench B2, uses them, and records consumption
+    but no outward moves, their recorded locations stay in storage.
+    Then he returns both and records the return moves. The final locations
+    agree, but the records omit more than five hours on the bench.
+  real_life_noise:
+    - consumption is recorded while the move to the bench is missed
+    - recording the return makes the current location look correct
+  system_should: |
+    Preserve location history as well as current location. Support adding
+    the missing outward moves with their actual occurrence times. Where
+    evidence reveals an incomplete storage history, show that uncertainty
+    and recompute any affected storage exposure.
+  question_it_answers: Does a correct final location hide time spent outside storage?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Missing bench time weakens storage history and can mislead colleagues looking for stock
+  depth: core
+  sim_hook: |
+    Pick up buffer and sensors, record their use, omit outward move records,
+    then return both and record only the returns. Compare location histories,
+    not just final locations.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0066"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0068"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0079"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0080"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0105"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0108"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0109"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0110"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D3-02
+  title: Typed barcode errors delay records for transfers already performed
+  status: "variant of LOC-005"
+  story: |
+    Given Marco has physically filled TP-00065 wells A1 through H1.
+    When he records A1 and B1 using typed barcodes, two digit substitutions
+    produce unknown container identifiers and both records fail.
+    Then he records the other wells and retries A1 and B1 successfully.
+    The temporary gap closes without repeating the physical transfers.
+  real_life_noise:
+    - a typed source identifier changes to ALQ-00021-003
+    - a typed destination identifier changes to TP-00064
+    - failed entries remain outstanding while other wells are recorded
+  system_should: |
+    Clearly distinguish a rejected record from an action that did not happen.
+    Keep outstanding transfers visible and make retries easy without asking
+    the scientist to repeat the physical transfer or duplicating successful records.
+  question_it_answers: Can a scientist recover rejected records without losing or repeating completed transfers?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Missing records break well lineage; repeating the pipetting changes the experiment
+  depth: core
+  sim_hook: |
+    Complete eight physical transfers, introduce unknown-barcode typos into
+    the first two records, then retry those records after recording the rest.
+    Check that each well has exactly one successful transfer record.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0035"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0037"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0053"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0054"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0070"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0072"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D3-03
+  title: Experiment identifiers passed as barcodes return an unexplained empty result
+  status: "variant of ASK-005"
+  story: |
+    Given Priya needs expression plates for re-runs of EXP-05, EXP-06 and EXP-07.
+    When she passes those experiment identifiers to a barcode location query,
+    the inventory returns no locations and no history, without explaining
+    whether the identifiers were understood.
+    Then she reports that the plates are absent from the inventory and asks
+    whether fresh expression has started. The query does not establish whether
+    plates exist under other identifiers.
+  real_life_noise:
+    - the reviewer knows experiment names rather than physical plate barcodes
+    - an empty lookup is treated as evidence about the experiment's source plates
+    - physical searches cover some places but leave the Hamilton deck unchecked
+  system_should: |
+    Distinguish an unmatched barcode from an experiment with no linked plates.
+    Resolve experiment identifiers through recorded lineage where possible.
+    Otherwise explain what could not be resolved and keep physical existence
+    unknown rather than implying that re-expression is necessarily required.
+  question_it_answers: Does an empty search mean there is no source plate, or that the search used the wrong identifier?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: An unresolved lookup can lead to unnecessary expression work or an unsupported re-run plan
+  depth: core
+  sim_hook: |
+    Ask where expression plates are using experiment IDs in the barcode field.
+    Check that the answer explains identifier resolution and does not present
+    an empty lookup as proof of physical absence.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0019"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0020"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0023"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0041"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0048"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0049"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D3-04
+  title: Stock totals support a purchasing decision without a known consumption rate
+  status: "variant of ASK-003"
+  story: |
+    Given Jonas must decide before the supplier cut-off whether stock covers
+    two weeks. The inventory reports 668 µL usable EGFR and 665 µL usable PD-L1,
+    but no experiment consumption, average use per run, or runs covered.
+    When Jonas assumes about one tube per run despite having no bookings,
+    he marks the task complete and places no order.
+    Then the purchasing decision rests on an estimate that the query did not verify.
+  real_life_noise:
+    - stock is increasing because new deliveries keep arriving
+    - run bookings have not been supplied
+    - missing consumption figures appear as dashes beside precise stock totals
+  system_should: |
+    State explicitly that two-week coverage cannot be established without
+    demand and a supported consumption rate. Keep measured stock separate
+    from estimated coverage and show the missing inputs.
+  question_it_answers: Do we know stock covers two weeks, or only how much is available now?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: An unsupported coverage estimate can miss a supplier cut-off and delay experiments
+  depth: core
+  sim_hook: |
+    Return valid stock totals but unknown per-run consumption and no bookings.
+    Ask a procurement actor for a two-week ordering decision and check whether
+    the uncertainty remains explicit.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0002"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0006"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0021"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+===== verdicts/day-3.md
+The day ended with close agreement on stock and current locations. The scorer found no large amount discrepancies, missing containers, wrong locations or open flags; usable target totalled 1,580.6 µL physically against 1,578 µL recorded. All listed tasks were marked done on time. The main weaknesses were missing movement history and planning conclusions that went beyond what the inventory established.
+
+### Gaps between the notebooks
+
+**Unrecorded bench time.** Marco took BUF-00047 and SEN-00003 to Bench B2 at about 08:21 without recording either outward move (L0066, L0068). He returned them around 13:45 and recorded the returns (L0105, L0108–L0110), restoring agreement on current locations but leaving the bench interval absent from notebook B; no flag or historical correction is shown.
+
+**Rejected transfer records, recovered.** The A1 and B1 transfers physically happened before their records failed on garbled typed identifiers (L0035, L0037, L0053–L0054). The inventory made both failures explicit, and Marco successfully retried the records at L0070 and L0072 without repeating the pipetting.
+
+The remaining reported amount differences are small pipetting variations. Lena recorded the QC samples, splits and disposal of both parent vials; their roughly 15 µL residues were physically discarded, despite the disposal notes calling the vials empty (L0064, L0067, L0076–L0077, L0092–L0093). That wording is imprecise, but it does not establish missing stock.
+
+### Inventory answers that misled, or could have
+
+**An empty barcode search became a conclusion about expression plates.** Priya searched for `EXP-05,EXP-06,EXP-07` as barcodes and received no rows or explanation (L0023). She then reported no expression plates and said fresh expression was needed (L0048–L0049). Her searches of Bench B2 and Freezer F80-3 did not establish absence across the lab, and she explicitly requested a Hamilton deck check. The answer should have distinguished unresolved experiment identifiers from confirmed absence of their plates.
+
+**Precise stock totals did not establish purchasing coverage.** The target queries supplied usable amounts but left consumption per run and runs covered blank (L0002, L0006). Jonas nevertheless concluded that stock covered any plausible two-week load and placed no order despite lacking bookings (L0021). The inventory did not invent a rate; the unsupported assurance came from Jonas. No resulting shortage is demonstrated.
+
+**The PD-L1 tube count changed in the retelling.** The inventory listed 19 tubes totalling 665 µL (L0011), and Marco's five box checks also show 19 (L0085–L0089). He told Priya that he had checked 18 (L0097), then repeated that count in the afternoon (L0113). This was a communication error, not an inventory discrepancy, and no correction is shown.
+
+Summary: Final stock reconciled closely, but an unrecorded bench interval survived, while ambiguous searches and unsupported coverage estimates weakened planning.
+
+
+
+--- stderr
+on re-runs (p≈0.1).
+  source: inferred
+
+- id: ASK-037
+- id: LOC-003
+  cluster: places_and_moves
+  duplicate_of: null
+  noise_ref: step_not_recorded
+  title: A plate goes freezer, bench, instrument, back to freezer in one day
+  story: |
+    Given reconstituted DNA plate P-220 in freezer F3 (-20).
+    When at 09:10 it is taken to the bench to thaw, at 09:40 it goes onto the liquid handler deck, at 11:00 it comes off, and at 11:15 it goes back into F3 on a different shelf.
+    Then the system shows four moves in order, the plate's current place is F3 shelf 1, and the total time out of the freezer is about two hours.
+  real_life_noise:
+    - only the first and last moves get scanned; the bench and robot steps are missing
+    - the "back to freezer" scan happens at 16:00 when the scientist remembers, though the plate went back at 11:15
+    - the plate sits on the bench over lunch and nobody knows how long it was out
+  system_should: |
+    Accept moves with a "when it happened" time separate from "when it was recorded". Treat the robot run itself as evidence the plate was on the deck, even without a scan. Time out of the freezer is computed from moves, and is marked uncertain when steps are missing.
+  question_it_answers: Where is P-220, and how long has it spent outside the cold?
+  frequency: many-per-day
+  cost_if_wrong: medium
+  cost_reason: Wrong time-out-of-freezer hides thaw damage; wrong place costs search time
+  depth: core
+  sim_hook: |
+    Actor scientist, action plate_round_trip, error skip_intermediate_scan p≈0.4 per intermediate step, late_return_scan delay 0-6 h with p≈0.15
+  source: workflow
+
+- id: LOC-004
+- id: EDGE-038
+  cluster: late_facts
+  duplicate_of: null
+  title: A location correction changes yesterday's storage exposure
+  story: |
+    Given the record says T1 stayed in a freezer overnight and it was released this morning.
+    When a scientist reports that T1 was actually on the bench from 18:00 until 08:00.
+    Then correcting location also changes the evidence behind its expiry and this morning's use.
+  real_life_noise:
+    - The original scans were of the box while T1 was outside it.
+    - A second correction narrows the warm interval to 20:00 through 07:00.
+    - T1 was split at 09:00 and one child has already been used.
+    - The current freezer location is correct and must not be replaced by the historical bench location.
+  system_should: |
+    Correct the historical interval while preserving the current supported location. Recompute affected storage exposure, expiry, descendant restrictions and past-use reviews, keeping earlier recording-time answers available. Make these dependent updates consistent so a location fix cannot leave stale usable quantities behind.
+  question_it_answers: What else changes when we correct where a tube used to be?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Independent views can disagree after one corrected historical fact
+  depth: core
+  sim_hook: |
+    Release and split T1 under the frozen history, insert the warm interval and correct it again. Assert consistent revised expiry and child review flags, unchanged current freezer location and reproducible earlier answers.
+  source: inferred
+22:    - the lot number on the vial is printed in 4 pt and gets typed as A221O (letter O instead of zero)
+31:    Actor lab_tech, action receive_lot, error wrong_unit (µL for µg) p≈0.04, typo_lot_number p≈0.03, register_late (6 to 30 h after arrival) p≈0.25
+220:    Actor robot, action reconstitute_plate, error partial_run_abort p≈0.01, clogged_channel p≈0.005 per channel per run, wrong_diluent p≈0.02
+349:    - two bottles of P7781 were registered under a typo, P7718, and are missed by the search
+395:    - the distributor's own lot number is typed instead of the manufacturer's
+488:    Allow one container to have several barcodes (supplier's and ours). Robot logs that reference an unknown barcode are parked, not turned into new containers.
+712:    Expiry from the supplier is a lot fact that can change over time with a source. Container expiry is computed from the lot plus storage rules, not typed per tube.
+889:    Treat location as something that later scans can correct, with the correction kept in history. A container found in a freezer with an unknown barcode should be a finding, not an error.
+936:    Keep the lot the same on every child and copy the freeze-thaw count and QC status down. Refuse or flag a split where children plus leftover exceed what the parent had. Keep the time of the split separate from the time it was typed. A barcode that shows up later should be attachable to the split as a late child, not created as a new lot.
+981:    - the scientist typed 30 instead of 3.0
+1038:    Actor scientist, action start_robot_run. Error wrong_source_scan p≈0.005 per run when two same-layout plates are on deck; detection delay 1 to 10 days; correction_by_overwrite p≈0.3 (to test that the system refuses it).
+1113:    Actor robot, action run_worklist. Error abort_at step ~ Uniform(1, n) with p≈0.03 per run; then scientist chooses restart_full p≈0.2, resume p≈0.5, finish_by_hand_unrecorded p≈0.3.
+1269:    - the dilution factor is typed as 1:9 because "4 into 36"
+1492:    Actor robot, action compress_96_to_384(rule=interleaved|block). Error wrong_rule_assumed p≈0.005 per run.
+1602:    Actor scientist, action import_log. Error duplicate_import p≈0.02 per run.
+1623:    Actor scientist, action cancel_run p≈0.02 per run; try_delete p≈0.1 of those.
+2013:    Actor scientist, action move_tube, error slot_typo p≈0.02, double_scan p≈0.01, target_slot_occupied_stale p≈0.01
+2024:    Then all 64 tubes report freezer F2 as their place, without 64 separate move records being typed in, and their slots inside the box stay the same.
+2079:    Take the rack scan as one batch. Store no-reads as "unknown in position X", not as empty. Notice when the pattern of barcodes matches the known layout rotated 180 degrees and offer to flip it. Ignore an identical re-upload of the same scan file.
+2097:    Then the system accepts the typed barcode, records that it was typed and not scanned, and the rest of the task goes on.
+2103:    Mark every record with how the barcode got in (scan, rack scan, typed, picked from list). Check typed barcodes with a check digit or against what is expected in that box. Typed entries that hit a tube in a different freezer should warn before going ahead.
+2107:  cost_reason: A typo that matches a real tube silently moves or consumes the wrong material
+2110:    Actor scientist, action scan_frozen_tube, error scan_fail p≈0.15 for -80 tubes, then manual_entry with typo p≈0.02 per typed barcode
+2217:    Have three paths: known tube found elsewhere (correct place, flag), unknown barcode (register as found, on hold until someone says what is in it), disposed tube found (do not quietly undo the disposal; ask whether the disposal record was wrong, and if so, correct it with a new entry).
+2310:    Every place answer comes with when it was last confirmed and how (direct tube scan, inferred via box, typed). A tube confirmed only by its box being moved is weaker than a tube scanned on its own.
+2340:    Actor scientist, action load_plate_hotel, error slot_order_swap p≈0.02 per run, robot_log_import_fail p≈0.01
+2363:    Actor scientist, action load_instrument, error abort_not_recorded p≈0.03 per run, left_in_instrument_overnight p≈0.1
+2614:  cost_reason: Mostly friction, but unknown supplier barcodes create duplicate plates
+2924:    Start the clock from the time the buffer was made, not the time it was typed in, and keep both. Count the 7 days from the making event. When fresh buffer is poured into an old bottle, treat the result as the older age (the mix expires when its oldest part does). Show the date unambiguously, as text like "26 Oct 2026".
+3013:    - the certificate is a PDF in an email and the use-by date is never typed in
+3626:    - the recall names a lot number with a typo, matching no lot exactly
+3636:    Actor supplier, action recall(lot) with p≈0.01 per lot. Error lot_number_typo with p≈0.1.
+3658:    Actor robot, action instrument_hang with p≈0.01 per run, duration 6–16 h. Retry choice p≈0.5.
+3780:    Warn when a made date is far from the time it was typed in. Allow correcting the made date with a reason, recalculating expiry, and keeping the history.
+3787:    Actor scientist, action make_buffer, error wrong_date (month typo) with p≈0.01.
+3823:    - L2's QC result was entered on paper and not yet typed in
+4152:    Then the history lists each entry: -50 µL by robot run R-90 on Tuesday, -40 µL by Ana on Wednesday, +10 µL correction by Ana on Thursday ("recorded 40, was 30"), each with when it happened at the bench and when it was typed in.
+4177:    Keep both the bench time and the typed-in time on every entry so both questions can be answered. Make the two answers clearly named so nobody confuses them.
+4368:    Then the system shows receipt (supplier, certificate, date, who received), QC (method, result, who), every split and transfer, every location, every correction with old and new values, and disposal, in time order with typed-in times next to bench times.
+4539:    - the buffer was flagged before the run but the flag was typed in after
+
+codex
+===== discovered/day-3.yaml
+- id: AGENT-D3-01
+  title: Return records hide an unrecorded trip to the bench
+  status: "variant of LOC-003"
+  story: |
+    Given BUF-00047 is recorded in Fridge R1 and SEN-00003 on Shelf S1.
+    When Marco takes both to Bench B2, uses them, and records consumption
+    but no outward moves, their recorded locations stay in storage.
+    Then he returns both and records the return moves. The final locations
+    agree, but the records omit more than five hours on the bench.
+  real_life_noise:
+    - consumption is recorded while the move to the bench is missed
+    - recording the return makes the current location look correct
+  system_should: |
+    Preserve location history as well as current location. Support adding
+    the missing outward moves with their actual occurrence times. Where
+    evidence reveals an incomplete storage history, show that uncertainty
+    and recompute any affected storage exposure.
+  question_it_answers: Does a correct final location hide time spent outside storage?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Missing bench time weakens storage history and can mislead colleagues looking for stock
+  depth: core
+  sim_hook: |
+    Pick up buffer and sensors, record their use, omit outward move records,
+    then return both and record only the returns. Compare location histories,
+    not just final locations.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0066"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0068"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0079"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0080"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0105"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0108"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0109"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0110"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D3-02
+  title: Typed barcode errors delay records for transfers already performed
+  status: "variant of LOC-005"
+  story: |
+    Given Marco has physically filled TP-00065 wells A1 through H1.
+    When he records A1 and B1 using typed barcodes, two digit substitutions
+    produce unknown container identifiers and both records fail.
+    Then he records the other wells and retries A1 and B1 successfully.
+    The temporary gap closes without repeating the physical transfers.
+  real_life_noise:
+    - a typed source identifier changes to ALQ-00021-003
+    - a typed destination identifier changes to TP-00064
+    - failed entries remain outstanding while other wells are recorded
+  system_should: |
+    Clearly distinguish a rejected record from an action that did not happen.
+    Keep outstanding transfers visible and make retries easy without asking
+    the scientist to repeat the physical transfer or duplicating successful records.
+  question_it_answers: Can a scientist recover rejected records without losing or repeating completed transfers?
+  frequency: daily
+  cost_if_wrong: high
+  cost_reason: Missing records break well lineage; repeating the pipetting changes the experiment
+  depth: core
+  sim_hook: |
+    Complete eight physical transfers, introduce unknown-barcode typos into
+    the first two records, then retry those records after recording the rest.
+    Check that each well has exactly one successful transfer record.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0035"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0037"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0053"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0054"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0070"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0072"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D3-03
+  title: Experiment identifiers passed as barcodes return an unexplained empty result
+  status: "variant of ASK-005"
+  story: |
+    Given Priya needs expression plates for re-runs of EXP-05, EXP-06 and EXP-07.
+    When she passes those experiment identifiers to a barcode location query,
+    the inventory returns no locations and no history, without explaining
+    whether the identifiers were understood.
+    Then she reports that the plates are absent from the inventory and asks
+    whether fresh expression has started. The query does not establish whether
+    plates exist under other identifiers.
+  real_life_noise:
+    - the reviewer knows experiment names rather than physical plate barcodes
+    - an empty lookup is treated as evidence about the experiment's source plates
+    - physical searches cover some places but leave the Hamilton deck unchecked
+  system_should: |
+    Distinguish an unmatched barcode from an experiment with no linked plates.
+    Resolve experiment identifiers through recorded lineage where possible.
+    Otherwise explain what could not be resolved and keep physical existence
+    unknown rather than implying that re-expression is necessarily required.
+  question_it_answers: Does an empty search mean there is no source plate, or that the search used the wrong identifier?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: An unresolved lookup can lead to unnecessary expression work or an unsupported re-run plan
+  depth: core
+  sim_hook: |
+    Ask where expression plates are using experiment IDs in the barcode field.
+    Check that the answer explains identifier resolution and does not present
+    an empty lookup as proof of physical absence.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0019"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0020"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0023"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0041"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0048"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0049"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D3-04
+  title: Stock totals support a purchasing decision without a known consumption rate
+  status: "variant of ASK-003"
+  story: |
+    Given Jonas must decide before the supplier cut-off whether stock covers
+    two weeks. The inventory reports 668 µL usable EGFR and 665 µL usable PD-L1,
+    but no experiment consumption, average use per run, or runs covered.
+    When Jonas assumes about one tube per run despite having no bookings,
+    he marks the task complete and places no order.
+    Then the purchasing decision rests on an estimate that the query did not verify.
+  real_life_noise:
+    - stock is increasing because new deliveries keep arriving
+    - run bookings have not been supplied
+    - missing consumption figures appear as dashes beside precise stock totals
+  system_should: |
+    State explicitly that two-week coverage cannot be established without
+    demand and a supported consumption rate. Keep measured stock separate
+    from estimated coverage and show the missing inputs.
+  question_it_answers: Do we know stock covers two weeks, or only how much is available now?
+  frequency: weekly
+  cost_if_wrong: high
+  cost_reason: An unsupported coverage estimate can miss a supplier cut-off and delay experiments
+  depth: core
+  sim_hook: |
+    Return valid stock totals but unknown per-run consumption and no bookings.
+    Ask a procurement actor for a two-week ordering decision and check whether
+    the uncertainty remains explicit.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0002"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0006"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-3.txt L0021"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+===== verdicts/day-3.md
+The day ended with close agreement on stock and current locations. The scorer found no large amount discrepancies, missing containers, wrong locations or open flags; usable target totalled 1,580.6 µL physically against 1,578 µL recorded. All listed tasks were marked done on time. The main weaknesses were missing movement history and planning conclusions that went beyond what the inventory established.
+
+### Gaps between the notebooks
+
+**Unrecorded bench time.** Marco took BUF-00047 and SEN-00003 to Bench B2 at about 08:21 without recording either outward move (L0066, L0068). He returned them around 13:45 and recorded the returns (L0105, L0108–L0110), restoring agreement on current locations but leaving the bench interval absent from notebook B; no flag or historical correction is shown.
+
+**Rejected transfer records, recovered.** The A1 and B1 transfers physically happened before their records failed on garbled typed identifiers (L0035, L0037, L0053–L0054). The inventory made both failures explicit, and Marco successfully retried the records at L0070 and L0072 without repeating the pipetting.
+
+The remaining reported amount differences are small pipetting variations. Lena recorded the QC samples, splits and disposal of both parent vials; their roughly 15 µL residues were physically discarded, despite the disposal notes calling the vials empty (L0064, L0067, L0076–L0077, L0092–L0093). That wording is imprecise, but it does not establish missing stock.
+
+### Inventory answers that misled, or could have
+
+**An empty barcode search became a conclusion about expression plates.** Priya searched for `EXP-05,EXP-06,EXP-07` as barcodes and received no rows or explanation (L0023). She then reported no expression plates and said fresh expression was needed (L0048–L0049). Her searches of Bench B2 and Freezer F80-3 did not establish absence across the lab, and she explicitly requested a Hamilton deck check. The answer should have distinguished unresolved experiment identifiers from confirmed absence of their plates.
+
+**Precise stock totals did not establish purchasing coverage.** The target queries supplied usable amounts but left consumption per run and runs covered blank (L0002, L0006). Jonas nevertheless concluded that stock covered any plausible two-week load and placed no order despite lacking bookings (L0021). The inventory did not invent a rate; the unsupported assurance came from Jonas. No resulting shortage is demonstrated.
+
+**The PD-L1 tube count changed in the retelling.** The inventory listed 19 tubes totalling 665 µL (L0011), and Marco's five box checks also show 19 (L0085–L0089). He told Priya that he had checked 18 (L0097), then repeated that count in the afternoon (L0113). This was a communication error, not an inventory discrepancy, and no correction is shown.
+
+Summary: Final stock reconciled closely, but an unrecorded bench interval survived, while ambiguous searches and unsupported coverage estimates weakened planning.
+
+
+hook: Stop
+hook: Stop Completed
+tokens used
+80,393
+

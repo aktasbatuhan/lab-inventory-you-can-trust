@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 280307,
+ "stop_reason": "end_turn",
+ "session_id": "19f946e9-12f1-4811-a1b1-58e3d71ac479",
+ "total_cost_usd": 0.6464077,
+ "usage": {
+  "input_tokens": 4,
+  "cache_creation_input_tokens": 957,
+  "cache_read_input_tokens": 109787,
+  "output_tokens": 415,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 957,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 380,
+    "cache_read_input_tokens": 55247,
+    "cache_creation_input_tokens": 250,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 250
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-sonnet-5-5": {
+   "inputTokens": 142,
+   "outputTokens": 21243,
+   "thinkingTokens": 840,
+   "cacheReadInputTokens": 2117057,
+   "cacheCreationInputTokens": 55497,
+   "webSearchRequests": 0,
+   "costUSD": 0.6464077,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 2,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "My list is clear this afternoon. T1\u2013T3 were finished this morning and nothing new has been assigned.\n\n**Handover**\n- **EGFR:** Lot S070 (TGT-00070) passed QC. I aliquoted it as ALQ-00074-001 to -004 in BOX-00073 in Freezer F80-1. All records are made.\n- **PD-L1 failure:** Lot S071 (TGT-00071) failed QC with a degraded band, so I did not aliquot it. It's recorded as failed and sits in Fridge R1. It needs a decision from Sara: a supplier claim, a replacement order, and what to do with the vial. I told Sara and Marco. We have no new PD-L1 from this delivery, so the older aliquots in F80-1 are the only stock.\n- **Still open, not mine to close:**\n  - The EXP-05 and EXP-06 plates are unlocated. Priya needs someone to check the Hamilton deck.\n  - The frosted, unreadable box in F80-2 needs identifying.\n- **Next up:** Make a fresh loading buffer around 14 Sep, when BUF-00049 expires.",
+ "ttft_ms": 4504,
+ "type": "result",
+ "duration_ms": 10009,
+ "uuid": "a97c269d-8b29-4b13-8840-a43630e43a49",
+ "ttft_stream_ms": 4460,
+ "time_to_request_ms": 176,
+ "first_content_frame_ms": 4460,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 11.9,
+ "exit_code": 0
+}

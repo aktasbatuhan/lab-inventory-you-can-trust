@@ -1,0 +1,349 @@
+{
+ "drift": [
+  {
+   "what": "amount",
+   "container": "ALQ-00011-002",
+   "material": "target:egfr",
+   "really": 12.66,
+   "inventory_says": 13.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00027-003",
+   "material": "target:egfr",
+   "really": 45.47,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "BUF-00047",
+   "material": "buffer:bli-running",
+   "really": 202079.12,
+   "inventory_says": 200000.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00054-004",
+   "material": "target:egfr",
+   "really": 44.49,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00055-001",
+   "material": "target:pdl1",
+   "really": 44.16,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00055-003",
+   "material": "target:pdl1",
+   "really": 45.59,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00061-003",
+   "material": "target:egfr",
+   "really": 45.34,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00061-004",
+   "material": "target:egfr",
+   "really": 45.27,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00062-001",
+   "material": "target:pdl1",
+   "really": 44.58,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00062-002",
+   "material": "target:pdl1",
+   "really": 45.5,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00062-003",
+   "material": "target:pdl1",
+   "really": 44.44,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00069-001",
+   "material": "target:pdl1",
+   "really": 45.59,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00069-003",
+   "material": "target:pdl1",
+   "really": 45.47,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00074-003",
+   "material": "target:egfr",
+   "really": 45.34,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00074-004",
+   "material": "target:egfr",
+   "really": 45.33,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00080-001",
+   "material": "target:egfr",
+   "really": 45.24,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00081-001",
+   "material": "target:pdl1",
+   "really": 44.44,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  }
+ ],
+ "flags": [],
+ "friction": [
+  {
+   "at": "2026-09-07T08:10:35.069354+02:00",
+   "who": "marco",
+   "what": "scanner couldn't read ALQ-00011-002 (frosted)"
+  },
+  {
+   "at": "2026-09-07T08:33:42.797987+02:00",
+   "who": "priya",
+   "what": "frosted label on ALQ-00011-001"
+  },
+  {
+   "at": "2026-09-07T08:41:08+02:00",
+   "who": "lena",
+   "what": "scanner couldn't read WAT-00017"
+  },
+  {
+   "at": "2026-09-07T11:43:26+02:00",
+   "who": "lena",
+   "what": "scanner couldn't read TGT-00050"
+  },
+  {
+   "at": "2026-09-07T11:44:16+02:00",
+   "who": "lena",
+   "what": "scanner couldn't read TGT-00050"
+  },
+  {
+   "at": "2026-09-08T08:21:50.517123+02:00",
+   "who": "priya",
+   "what": "frosted label on KIT-00014"
+  },
+  {
+   "at": "2026-09-08T08:15:02+02:00",
+   "who": "marco",
+   "what": "scanner couldn't read ALQ-00013-002 (frosted)"
+  },
+  {
+   "at": "2026-09-08T08:16:52+02:00",
+   "who": "marco",
+   "what": "scanner couldn't read ALQ-00013-002 (frosted)"
+  },
+  {
+   "at": "2026-09-08T08:17:02+02:00",
+   "who": "marco",
+   "what": "scanner couldn't read ALQ-00013-002 (frosted)"
+  },
+  {
+   "at": "2026-09-08T08:18:02+02:00",
+   "who": "marco",
+   "what": "scanner couldn't read ALQ-00013-002 (frosted)"
+  },
+  {
+   "at": "2026-09-08T08:31:30+02:00",
+   "who": "marco",
+   "what": "frosted label on ALQ-00027-004"
+  },
+  {
+   "at": "2026-09-09T08:13:40+02:00",
+   "who": "marco",
+   "what": "typed ALQ-00011-003 by hand and hit 2 instead of 1"
+  },
+  {
+   "at": "2026-09-09T08:14:16+02:00",
+   "who": "marco",
+   "what": "typed TP-00065 by hand and hit 4 instead of 5"
+  },
+  {
+   "at": "2026-09-10T08:10:25.140142+02:00",
+   "who": "priya",
+   "what": "frosted label on ALQ-00038-002"
+  },
+  {
+   "at": "2026-09-10T08:13:21.034385+02:00",
+   "who": "priya",
+   "what": "frosted label on BOX-00066"
+  },
+  {
+   "at": "2026-09-11T09:30:00+02:00",
+   "who": "supplier",
+   "what": "TGT-00076 holds 150 \u00b5L; the slip says 200"
+  },
+  {
+   "at": "2026-09-11T08:29:18+02:00",
+   "who": "marco",
+   "what": "typed ALQ-00011-001 by hand and hit 9 instead of 0"
+  },
+  {
+   "at": "2026-09-11T12:20:58.367050+02:00",
+   "who": "lena",
+   "what": "frosted label on ALQ-00062-003"
+  },
+  {
+   "at": "2026-09-11T12:21:58.367050+02:00",
+   "who": "lena",
+   "what": "frosted label on ALQ-00069-002"
+  }
+ ],
+ "tasks": {
+  "tech": [
+   {
+    "id": "T1",
+    "text": "A target delivery is due around 09:00 on the Goods-in shelf. Book every vial in as soon as it arrives.",
+    "due": "10:30",
+    "done_at": "09:35",
+    "note": ""
+   },
+   {
+    "id": "T2",
+    "text": "QC each new target vial (qc_check) and record the result.",
+    "due": "13:00",
+    "done_at": "11:41",
+    "note": ""
+   },
+   {
+    "id": "T3",
+    "text": "Split every vial that passed QC into 45 \u00b5L aliquots in a new box in Freezer F80-1, then bin the empty vial.",
+    "due": "16:00",
+    "done_at": "12:09",
+    "note": ""
+   },
+   {
+    "id": "T4",
+    "text": "Friday count: count Freezer F80-1 and record it.",
+    "due": "17:00",
+    "done_at": "12:32",
+    "note": "55 expected, 55 found. Two tube labels frosted but identified by slot and lot."
+   }
+  ],
+  "scientist": [
+   {
+    "id": "T1",
+    "text": "BLI run for experiment EXP-11 (EGFR) is booked on Gator 1 at 11:00. Prepare the target plate: a new BLI plate with 4 \u00b5L of EGFR target in each of wells A1 to H1, from the EGFR aliquots in Freezer F80-1. Use part-used aliquots first.",
+    "due": "10:45",
+    "done_at": "08:33",
+    "note": "TP-00077 A1-H1 4 \u00b5L EGFR from ALQ-00011-001"
+   },
+   {
+    "id": "T2",
+    "text": "For the same run, take 40 mL of BLI running buffer from Fridge R1 and 32 sensors from a sensor box on Shelf S1.",
+    "due": "11:00",
+    "done_at": "08:33",
+    "note": ""
+   },
+   {
+    "id": "T3",
+    "text": "Put the EGFR aliquots you used back in their box in the -80, or bin any that are empty.",
+    "due": "11:30",
+    "done_at": "08:34",
+    "note": "ALQ-00011-001 dead volume only, binned and recorded"
+   },
+   {
+    "id": "T4",
+    "text": "Priya (data reviewer) is planning a PD-L1 re-run for Thursday and needs to know how much PD-L1 target is usable. Find out and tell her.",
+    "due": "14:00",
+    "done_at": "08:40",
+    "note": "Told Priya PD-L1 770 \u00b5L usable, 22 good tubes verified; TGT-00071 failed vial excluded"
+   },
+   {
+    "id": "T5",
+    "text": "The run ends at 15:00. The target plate is single use: bin it.",
+    "due": "16:00",
+    "done_at": "15:04",
+    "note": ""
+   }
+  ],
+  "procurement": [
+   {
+    "id": "T1",
+    "text": "Check stock of EGFR and PD-L1 target and of BLI sensors; order what will run out within two weeks. The supplier cut-off is 12:00.",
+    "due": "12:00",
+    "done_at": "08:11",
+    "note": "No order placed. EGFR has 27 tubes (913 \u00b5L usable). PD-L1 has 22 usable tubes (770 \u00b5L) plus a failed-QC vial, TGT-00071, which is excluded from the count. Sensors: 1,792, which is about 56 runs. Stock is far beyond 2 weeks of use at about 1 tube per day. Raised the failed vial and the unexplained daily deliveries with the lab manager."
+   },
+   {
+    "id": "T2",
+    "text": "Check what expires in the next 14 days and tell Lena what to use first.",
+    "due": "16:00",
+    "done_at": "08:13",
+    "note": "Expiring: BUF-00049 on 14 Sep, and TGT-00071 (failed QC, thawed, 7-day clock) on 17 Sep. Told Lena and the lab manager."
+   }
+  ],
+  "reviewer": [
+   {
+    "id": "T1",
+    "text": "Run EXP-09 failed QC on three designs. Plan a re-run for Thursday: check the expression plate, PD-L1 target and loading buffer are still usable then, and tell Marco what to prepare.",
+    "due": "15:00",
+    "done_at": "08:14",
+    "note": "PD-L1 lot 34 verified. BUF-00049 will have expired by 17 Sep, so fresh buffer is needed. No expression plate, and nothing started. A QC-failed PD-L1 tube is in the fridge."
+   }
+  ]
+ }
+}

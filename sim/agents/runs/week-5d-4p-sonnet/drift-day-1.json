@@ -1,0 +1,171 @@
+{
+ "drift": [
+  {
+   "what": "amount",
+   "container": "ALQ-00011-002",
+   "material": "target:egfr",
+   "really": 12.66,
+   "inventory_says": 13.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00027-003",
+   "material": "target:egfr",
+   "really": 45.47,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00054-004",
+   "material": "target:egfr",
+   "really": 44.49,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00055-001",
+   "material": "target:pdl1",
+   "really": 44.16,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  },
+  {
+   "what": "amount",
+   "container": "ALQ-00055-003",
+   "material": "target:pdl1",
+   "really": 45.59,
+   "inventory_says": 45.0,
+   "class": "within 10%",
+   "unit": "volume"
+  }
+ ],
+ "flags": [],
+ "friction": [
+  {
+   "at": "2026-09-07T08:10:35.069354+02:00",
+   "who": "marco",
+   "what": "scanner couldn't read ALQ-00011-002 (frosted)"
+  },
+  {
+   "at": "2026-09-07T08:33:42.797987+02:00",
+   "who": "priya",
+   "what": "frosted label on ALQ-00011-001"
+  },
+  {
+   "at": "2026-09-07T08:41:08+02:00",
+   "who": "lena",
+   "what": "scanner couldn't read WAT-00017"
+  },
+  {
+   "at": "2026-09-07T11:43:26+02:00",
+   "who": "lena",
+   "what": "scanner couldn't read TGT-00050"
+  },
+  {
+   "at": "2026-09-07T11:44:16+02:00",
+   "who": "lena",
+   "what": "scanner couldn't read TGT-00050"
+  }
+ ],
+ "tasks": {
+  "tech": [
+   {
+    "id": "T1",
+    "text": "Make this week's loading buffer (recipe buffer:loading) in a new bottle from the water, HEPES and NaCl on Shelf S1, and put it in Fridge R1. Last week's bottle (BUF-00046) goes in the bin.",
+    "due": "10:00",
+    "done_at": "08:48",
+    "note": ""
+   },
+   {
+    "id": "T2",
+    "text": "A target delivery is due around 09:00 on the Goods-in shelf. Book every vial in as soon as it arrives.",
+    "due": "10:30",
+    "done_at": "09:43",
+    "note": ""
+   },
+   {
+    "id": "T3",
+    "text": "QC each new target vial (qc_check) and record the result.",
+    "due": "13:00",
+    "done_at": "11:51",
+    "note": ""
+   },
+   {
+    "id": "T4",
+    "text": "Split every vial that passed QC into 45 \u00b5L aliquots in a new box in Freezer F80-1, then bin the empty vial.",
+    "due": "16:00",
+    "done_at": "12:20",
+    "note": ""
+   }
+  ],
+  "scientist": [
+   {
+    "id": "T1",
+    "text": "BLI run for experiment EXP-07 (EGFR) is booked on Gator 1 at 11:00. Prepare the target plate: a new BLI plate with 4 \u00b5L of EGFR target in each of wells A1 to H1, from the EGFR aliquots in Freezer F80-1. Use part-used aliquots first.",
+    "due": "10:45",
+    "done_at": "08:32",
+    "note": "TP-00048 A1-H1 4 \u00b5L EGFR from ALQ-00011-002"
+   },
+   {
+    "id": "T2",
+    "text": "For the same run, take 40 mL of BLI running buffer from Fridge R1 and 32 sensors from a sensor box on Shelf S1.",
+    "due": "11:00",
+    "done_at": "08:37",
+    "note": ""
+   },
+   {
+    "id": "T3",
+    "text": "Put the EGFR aliquots you used back in their box in the -80, or bin any that are empty.",
+    "due": "11:30",
+    "done_at": "08:49",
+    "note": "ALQ-00011-002 (~15 \u00b5L left, 2nd thaw) returned to BOX-00010 slot 2"
+   },
+   {
+    "id": "T4",
+    "text": "Priya (data reviewer) is planning a PD-L1 re-run for Thursday and needs to know how much PD-L1 target is usable. Find out and tell her.",
+    "due": "14:00",
+    "done_at": "08:49",
+    "note": "Told Priya: 420 \u00b5L usable, 12 tubes verified physically"
+   },
+   {
+    "id": "T5",
+    "text": "The run ends at 15:00. The target plate is single use: bin it.",
+    "due": "16:00",
+    "done_at": "15:07",
+    "note": "TP-00048 binned and recorded 15:02"
+   }
+  ],
+  "procurement": [
+   {
+    "id": "T1",
+    "text": "Check stock of EGFR and PD-L1 target and of BLI sensors; order what will run out within two weeks. The supplier cut-off is 12:00.",
+    "due": "12:00",
+    "done_at": "08:52",
+    "note": "No order placed. EGFR and PD-L1: 12 usable tubes each (420 \u00b5L), and the F80-1 boxes match the inventory (4 tubes per box). BLI sensors: 5 boxes x 384 = 1920, all unopened. The inventory has no run-usage history, so I can't calculate a run rate. I asked Lena for her planned runs and had no reply by 08:52. Reorder if she plans more than about 10 runs on either target in the next 2 weeks."
+   },
+   {
+    "id": "T2",
+    "text": "Check what expires in the next 14 days and tell Lena what to use first.",
+    "due": "16:00",
+    "done_at": "08:54",
+    "note": "The only item expiring within 14 days is BUF-00046 (loading buffer), which expires 11 Sep. Told Lena."
+   }
+  ],
+  "reviewer": [
+   {
+    "id": "T1",
+    "text": "Run EXP-05 failed QC on three designs. Plan a re-run for Thursday: check the expression plate, PD-L1 target and loading buffer are still usable then, and tell Marco what to prepare.",
+    "due": "15:00",
+    "done_at": "14:27",
+    "note": "Re-run planned. PD-L1 lot 19 and BUF-00049 verified. The EXP-05 expression plate can't be found (not in inventory or any location), so Marco was told to start fresh expression. Waiting on Lena's reply."
+   }
+  ]
+ }
+}

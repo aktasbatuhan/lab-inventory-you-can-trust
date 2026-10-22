@@ -44,6 +44,32 @@ join location(:'t', :'k') loc on loc.container_id = w.container_id
 order by w.barcode;
 
 \echo
+\echo Anything asked for that is not a barcode we know, and what it might mean instead
+
+-- An empty answer must never read as "it isn't registered". Found by the agent
+-- lab: a reviewer looked up experiment names as barcodes, got nothing back, and
+-- concluded the plates were missing.
+with asked as (
+  select trim(x) as q from unnest(string_to_array(:'barcodes', ',')) x
+),
+unknown as (
+  select a.q from asked a
+  where not exists (select 1 from label l where l.barcode = a.q and l.action = 'attach')
+)
+select u.q as "you asked for",
+       'no container has ever had this barcode' as "what we know",
+       coalesce(
+         (select 'it is an experiment: ' || count(distinct coalesce(c.plate_id, c.id)) || ' containers used in its runs, for example '
+                 || string_agg(distinct container_label(coalesce(c.plate_id, c.id)), ', ')
+          from run r join event e on e.run_id = r.id join quantity_entry q on q.event_id = e.id
+          join container c on c.id = q.container_id
+          where r.experiment_ref = u.q),
+         (select 'it is the name of ' || string_agg(container_label(c.id), ', ') from container c where lower(c.name) = lower(u.q)),
+         (select 'did you mean ' || string_agg(l.barcode, ', ') from (select distinct barcode from label where barcode ilike '%' || u.q || '%' limit 5) l),
+         'nothing similar either; check the label') as "it may be"
+from unknown u;
+
+\echo
 \echo The trail: every place each one has been, and how the move was recorded
 
 with wanted as (

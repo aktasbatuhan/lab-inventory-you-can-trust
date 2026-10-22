@@ -1,0 +1,1 @@
+{"mcpServers": {"lab": {"command": "/opt/miniconda3/bin/python3", "args": ["/Users/batuhanaktas/Development/personal/adaptvy/.claude/worktrees/case-study/sim/agents/lab_mcp.py"], "env": {"LAB_URL": "http://127.0.0.1:60620", "LAB_AGENT": "marco"}}}}

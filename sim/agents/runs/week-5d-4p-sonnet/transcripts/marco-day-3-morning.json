@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 225341,
+ "stop_reason": "end_turn",
+ "session_id": "805c2e01-d261-45f9-b23e-7b30f2b5b40a",
+ "total_cost_usd": 0.7624998,
+ "usage": {
+  "input_tokens": 22,
+  "cache_creation_input_tokens": 18183,
+  "cache_read_input_tokens": 738150,
+  "output_tokens": 6691,
+  "output_tokens_details": {
+   "thinking_tokens": 469
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 18183,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 880,
+    "cache_read_input_tokens": 75141,
+    "cache_creation_input_tokens": 582,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 582
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-sonnet-5-5": {
+   "inputTokens": 108,
+   "outputTokens": 24804,
+   "thinkingTokens": 1955,
+   "cacheReadInputTokens": 2113518,
+   "cacheCreationInputTokens": 75723,
+   "webSearchRequests": 0,
+   "costUSD": 0.7624998,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 49,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "Morning block is nearly over, so here is the handover.\n\n**Done**\n- **T1:** I made target plate TP-00065 with 4 \u00b5L of EGFR in each of A1\u2013H1, all from ALQ-00011-003 (lot 6). I used that tube rather than the only part-used one, ALQ-00011-002, which has about 3 \u00b5L usable and can't cover the 32 \u00b5L needed. I also kept clear of Priya's reserved lot-18 tubes.\n- **T2:** I took 40 mL of BUF-00047 and 32 sensors from SEN-00003, and recorded both.\n- **T3:** ALQ-00011-003 held about 10 \u00b5L, which is dead volume. I binned it and recorded the disposal.\n- **T4:** I told Priya the PD-L1 stock: 665 \u00b5L usable in 18 tubes, all physically checked.\n  - **EXP-05 and EXP-07 sets:** I kept the two sets separate. EXP-05 uses lot 19 (ALQ-00040-001 to -003). EXP-07 uses lot 30 (ALQ-00055-001 to -003). Lot 32 and the rest are spares.\n- **Recording:** Two transfer records (A1, B1) failed on garbled barcodes at first. I retried them, and all eight wells are now recorded.\n- **Sara's Gator question:** She asked at 10:35 whether I could be ready for 10:45, and I said yes.\n\n**Open**\n- **T5:** After the run ends at 15:00, bin TP-00065 and record the disposal.\n- **Return items:** BUF-00047 and SEN-00003 are still on Bench B2. Put them back in Fridge R1 and Shelf S1 and record the moves. By the inventory, BUF-00047 is about 243 mL and SEN-00003 has 288 sensors.\n- **Fresh expression for EXP-05, 06 and 07 (the main risk):** I have not started it, and I told Priya so. It isn't on my list, and Sara hasn't answered my questions from Tuesday or this morning. If the plates don't exist, Thursday isn't feasible for those designs. I need a decision from Sara now.\n\n**Odd**\n- **New aliquots:** Lena added 4 more EGFR tubes (ALQ-00068, BOX-00066) and 4 more PD-L1 tubes (ALQ-00069, BOX-00067) today. I haven't checked either box.\n- **Old plates:** The EXP-05, 06 and 07 expression plates are still not in the inventory.\n- **Part-used EGFR tube:** ALQ-00011-002 is nearly empty and could be binned.",
+ "ttft_ms": 3122,
+ "type": "result",
+ "duration_ms": 61460,
+ "uuid": "199449f5-82b6-46f9-a7b8-9b26eae68bfa",
+ "ttft_stream_ms": 2297,
+ "time_to_request_ms": 142,
+ "first_content_frame_ms": 2298,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 63.1,
+ "exit_code": 0
+}

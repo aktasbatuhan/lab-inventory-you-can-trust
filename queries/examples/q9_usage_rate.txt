@@ -1,0 +1,16 @@
+SET
+Null display is "-".
+Use of target:% over the last 4 weeks, as of 2026-10-21 17:00, as recorded by now
+  material   | used, µL | runs | per week, µL | usable now, µL |                     covers                     
+-------------+----------+------+--------------+----------------+------------------------------------------------
+ target:egfr |     30.0 |    1 |          7.5 |          225.0 | 30.0 weeks at this rate
+ target:pdl1 |      0.0 |    0 |          0.0 |          315.0 | no use recorded in this window, so no rate yet
+(2 rows)
+
+
+Week by week
+  material   |  week of   | used, µL | runs 
+-------------+------------+----------+------
+ target:egfr | 2026-10-19 |     30.0 |    1
+(1 row)
+

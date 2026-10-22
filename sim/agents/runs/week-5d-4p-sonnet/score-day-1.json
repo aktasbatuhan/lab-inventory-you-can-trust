@@ -1,0 +1,78 @@
+{
+ "headline": {
+  "amounts_compared": 73,
+  "amounts_off": 0,
+  "amounts_within_10pct": 37,
+  "wrong_place_or_spot": 0,
+  "ghosts": 0,
+  "lost": 0,
+  "never_recorded": 0,
+  "only_in_inventory": 0,
+  "flags": 0,
+  "target_usable_really_ul": 1089.4,
+  "target_usable_inventory_ul": 1088.0
+ },
+ "checkpoint": {
+  "label": "day 1",
+  "t": "2026-09-07T16:30:00Z",
+  "amounts": {
+   "reagent": {
+    "exact": 16,
+    "within 10%": 17,
+    "off": 0
+   },
+   "consumable": {
+    "exact": 5,
+    "within 10%": 0,
+    "off": 0
+   },
+   "target": {
+    "exact": 12,
+    "within 10%": 20,
+    "off": 0
+   },
+   "buffer": {
+    "exact": 3,
+    "within 10%": 0,
+    "off": 0
+   }
+  },
+  "ghosts": [],
+  "lost": [],
+  "location": {
+   "right spot": 87,
+   "right place, wrong spot": 0,
+   "wrong place": 0,
+   "not placed": 0
+  },
+  "usable": {
+   "buffer": [
+    438209.7,
+    437000.0
+   ],
+   "consumable": [
+    1888.0,
+    1888.0
+   ],
+   "reagent": [
+    2391098.0,
+    2390880.0
+   ],
+   "target:egfr": [
+    526.4,
+    528.0
+   ],
+   "target:pdl1": [
+    563.0,
+    560.0
+   ]
+  },
+  "flags": {},
+  "timings": {
+   "balances": 0.02,
+   "containers": 0.02,
+   "usable": 0.05,
+   "flags": 0.05
+  }
+ }
+}

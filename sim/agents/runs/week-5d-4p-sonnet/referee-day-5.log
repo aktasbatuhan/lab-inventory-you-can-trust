@@ -1,0 +1,458 @@
+exit 0 after 154 s
+--- stdout
+===== discovered/day-5.yaml
+- id: AGENT-D5-01
+  title: Freezer queries omit contents and then report known boxes as unexpected
+  status: "variant of LOC-020"
+  story: |
+    Given Lena physically put BOX-00078 and BOX-00079 into Freezer F80-1 and recorded both moves.
+    When she queried the freezer contents, the inventory returned no rows.
+    Then her later count reported 55 expected and 55 found, but also called all 16 boxes unexpected and told her to record moves, including the two moves already recorded.
+  real_life_noise:
+    - The freezer contains tubes nested inside boxes.
+    - The count lists both boxes and individual tubes.
+    - A matching tube total appears beside warnings about every box.
+  system_should: |
+    Resolve freezer contents through containment. Distinguish boxes from tubes in count totals. Check existing moves before recommending more moves, and explain any difference in query scope.
+  question_it_answers: Does this freezer count show a real location discrepancy?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: False warnings waste reconciliation work and can encourage unsupported move records.
+  depth: core
+  sim_hook: |
+    Put and record two filled boxes into a freezer. Query freezer contents, then count boxes and tubes together. Check that known boxes are included and are not reported as unexpected.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0061"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0062"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0067"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0068"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0074"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0082"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0126"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D5-02
+  title: Recording only the return hides hours on the bench
+  status: "variant of LOC-009"
+  story: |
+    Given BUF-00047 was in Fridge R1 and SEN-00003 was on Shelf S1.
+    When Marco took both to Bench B2, used material and recorded consumption, he recorded neither outbound move.
+    Then he returned both after lunch and recorded their destinations, leaving correct final locations but no move records for their time on the bench.
+  real_life_noise:
+    - Consumption is recorded while movement is omitted.
+    - Returning an item to its original place makes the final location look correct.
+  system_should: |
+    Preserve intermediate location evidence and separate happened time from recording time. Offer reconciliation when use suggests a missing movement. Do not invent an exact bench interval from consumption alone; show unresolved exposure as uncertain.
+  question_it_answers: Did correct final locations conceal an unrecorded storage interval?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Missing warm exposure can make storage history and expiry calculations too reassuring.
+  depth: core
+  sim_hook: |
+    Pick up buffer and sensors, record their consumption without outbound moves, then return them and record only the returns. Check both final location and historical uncertainty.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0079"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0080"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0083"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0084"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0085"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0086"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0133"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0134"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0135"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0136"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D5-03
+  title: A typed barcode error leaves a binned tube live until a retry
+  status: "variant of LOC-005"
+  story: |
+    Given Marco had physically binned ALQ-00011-001 with only residual liquid left.
+    When he typed its disposal record, the barcode became ALQ-00911-001 and the inventory rejected the unknown identifier.
+    Then the real tube remained undisposed in the records until Marco retried successfully several minutes later.
+  real_life_noise:
+    - A single mistyped digit produces an unknown barcode.
+    - Other work happens between rejection and retry.
+  system_should: |
+    Keep the failed attempt visible and make retrying against the confirmed tube easy. Never treat rejection as completed disposal or apply the event to a guessed barcode.
+  question_it_answers: Was the physical disposal eventually recorded against the right tube?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: An abandoned retry leaves ghost stock and an incomplete disposal history.
+  depth: core
+  sim_hook: |
+    Bin a known tube, corrupt one digit in a typed disposal attempt, then retry with the correct barcode. Check that exactly one disposal is recorded.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0087"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0088"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0101"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D5-04
+  title: A visibly short delivery produces fewer aliquots than the slip implies
+  status: "variant of RCV-029"
+  story: |
+    Given the delivery slip described TGT-00076 as containing 200 µL.
+    When Lena saw substantially less liquid, she registered 145 µL from a visual estimate rather than copying the slip.
+    Then she took the QC sample, made three 45 µL aliquots, recorded those actions and told Sara about the short delivery.
+  real_life_noise:
+    - The first visual estimate was 135 µL and the pickup estimate was 145 µL.
+    - The packing slip still said 200 µL.
+    - Visual estimates are less precise than their entered numeric values suggest.
+  system_should: |
+    Preserve the declared amount separately from the observed estimate and its method. Carry the estimated receipt through consumption and splitting, and retain the supplier discrepancy without advertising the missing volume as stock.
+  question_it_answers: Was available stock based on the observed delivery or the packing slip?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Copying the slip would promise an aliquot the delivery could not supply.
+  depth: supported
+  sim_hook: |
+    Deliver a short-filled vial with a 200 µL slip. Let the receiver inspect it, register an estimate, sample it for QC and split three aliquots. Check quantity provenance and the supplier discrepancy.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0011"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0019"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0024"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0032"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0035"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0037"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0051"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0060"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0129"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+===== verdicts/day-5.md
+The day ended with close agreement on amounts and locations. The scorer found no major amount errors, missing containers or wrong final locations; remaining numeric differences were small. That clean finish hides two unrecorded trips to the bench, a disposal repaired after rejection, and misleading freezer responses. All assigned tasks were marked done on time, and the log does not show deadline pressure causing omissions.
+
+All line references below are to `sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt`.
+
+Marco took BUF-00047 and SEN-00003 to Bench B2 without recording their outbound moves (L0079–L0080). Consumption was recorded and the afternoon returns restored agreement on final locations, but the intervening bench history remained absent; no response shown flagged that gap (L0083–L0086, L0133–L0136).
+
+ALQ-00011-001 was physically binned before a typing error caused its disposal record to fail (L0087–L0088). The rejection was explicit, and Marco fixed the temporary ghost by retrying with the correct barcode at 08:32–08:33 (L0101).
+
+Lena caught the short PD-L1 delivery instead of copying the slip’s 200 µL. She registered an estimated 145 µL, recorded QC consumption and three aliquots, and told Sara; this avoided a large stock overstatement, although the receipt was still an estimate (L0019, L0024, L0032, L0037, L0051, L0060, L0129).
+
+Two frosted labels interrupted the freezer count. A slot-based inspection failed, but inspections using the expected tube barcodes returned locations and supplier lots; Lena included both tubes in the count and requested relabelling (L0105, L0107, L0115–L0116, L0121, L0126, L0129). No wrong identity is demonstrated.
+
+## Inventory answers that misled or could mislead
+
+The freezer contents query returned zero rows despite Lena seeing 16 boxes there, including two whose moves she had just recorded (L0067–L0068, L0074, L0082). The count then said “55 expected, 55 found” while calling all 16 boxes unexpected and recommending moves, including those already recorded (L0126). These were misleading responses rather than demonstrated physical location errors; Lena’s handover left the box warning for Sara to investigate.
+
+Priya queried experiment names as barcodes and received empty location and history tables (L0010). She subsequently described the expression plates as absent from inventory (L0026). The response established no matching barcodes, not the absence of every plate linked to those experiments; that distinction should have been explicit.
+
+Marco twice said BUF-00047’s inventory balance was about 163 mL, but no query shown returned that figure (L0118, L0139). Priya’s earlier visual estimate was 265 mL before the day’s 40 mL draw (L0009, L0083). The final comparison was about 202 mL physically versus 200 mL recorded, so the claimed large discrepancy was not supported by the closing evidence, and the promised count was not performed.
+
+The target queries correctly excluded the failed-QC vial and separated dead volume from usable stock (L0003–L0004). The flags query also explicitly reported the failed vial, despite the closing score and drift files listing zero flags; those closing numbers do not mean nobody saw a warning during the day (L0007).
+
+Summary: Final stock was close, but missing movement history and misleading query responses remained unresolved after the disposal error was repaired.
+
+
+
+--- stderr
+h plates were on the reader in this run?
+  frequency: daily
+    Given a 200 µL tube of an expensive target sits on the bench with a "done" pile of empty tubes.
+    When a cleaner or colleague clears the bench at 18:00 and it goes to the biohazard bin unscanned.
+    Then the system still shows the tube as on the bench. Days later a scientist searches for it, cannot find it, and marks it lost, then later "disposed (likely)".
+  real_life_noise:
+    - nobody knows for sure it was thrown away; it might be in another fridge
+    - planning already counted the 200 µL as available for a re-run next week
+  system_should: |
+    Keep "lost" separate from "disposed" and from "usable". A lost container should stop counting as usable right away but stay findable if it turns up. Flag containers on the bench that haven't been scanned in more than a day.
+  question_it_answers: Is this target really available, or is it just in the record?
+  frequency: monthly
+  cost_if_wrong: high
+  cost_reason: Expensive target; a planned run fails on the day
+  depth: core
+  sim_hook: |
+    Actor other_person, action clear_bench, error dispose_unscanned with p≈0.005 per bench container per day. Finder marks lost after search with p≈0.8.
+  source: brief
+
+- id: LIFE-020
+  cluster: disposal_with_contents
+  duplicate_of: null
+  noise_ref: step_not_recorded
+  title: Empty-looking tube thrown away still has 6 µL
+  story: |
+    Given a target tube whose record says 6 µL left, below the 10 µL a pipette can get out reliably (Assumption).
+    When a scientist throws it away as empty.
+    Then the 6 µL is recorded as dead volume discarded, and the tube's record closes at zero.
+  real_life_noise:
+    - the scientist records it as "empty" and the 6 µL disappears from the books
+    - the record actually said 30 µL because earlier draws were not recorded
+  system_should: |
+    On disposal, close the container's balance with an explicit "discarded" entry equal to what the record said was left. If that is large, ask for a reason, since it often means earlier use was never recorded.
+  question_it_answers: Where did the missing target go?
+  frequency: daily
+  cost_if_wrong: low
+  cost_reason: Small amounts each, but a pattern hints at missing records
+  depth: core
+  sim_hook: |
+    Actor scientist, action dispose(remaining=record). Error unrecorded_draw earlier with p≈0.05 per use, showing up here as a large discarded amount.
+  source: inferred
+
+- id: LIFE-021
+  cluster: leaves_the_lab
+  duplicate_of: null
+  title: Target tubes sent to a partner lab
+  story: |
+    Given Target X lot L1 with 20 tubes in our freezer.
+# Task Group: Adaptvy lab-inventory adversarial scenario catalog
+
+scope: create and structurally validate adversarial edge cases for the append-only lab-inventory data model
+applies_to: cwd=/Users/batuhanaktas/Development/personal/adaptvy; reuse_rule=scenario themes and validation procedure are reusable for this inventory model; file scope, field schema, counts, and design state require revalidation against the current brief
+
+## Task 1: create and validate adversarial inventory scenarios, success
+
+### rollout_summary_files
+
+- rollout_summaries/2026-10-21T21-27-17-SeXo-adaptvy_inventory_edge_scenarios.md (cwd=/Users/batuhanaktas/Development/personal/adaptvy, rollout_path=/Users/batuhanaktas/.codex/sessions/2026/10/21/rollout-2026-10-21T22-27-20-01a1605c-80a4-7112-84ae-ba1c8400223a.jsonl, updated_at=2026-10-21T21:33:25+00:00, thread_id=01a1605c-80a4-7112-84ae-ba1c8400223a, 38 validated scenarios)
+
+### keywords
+
+- Adaptvy, lab-inventory, scenarios/raw/EDGE.yaml, journal/agent-runs/EDGE.md, EDGE-001, EDGE-038, append-only-ledger, lineage, containment, QC, expiry, units, concurrency, offline-sync
+
+## User preferences
+
+- when requesting the catalog, the user required “Create or modify only scenarios/raw/EDGE.yaml and journal/agent-runs/EDGE.md” -> preserve exact file scope in similar repository tasks [Task 1]
+- the user required parsing, sequential IDs, required-field checks, a 30–40 scenario count, and an under-300-word journal -> run explicit structural checks before claiming completion and keep the final report short [Task 1]
+
+## Reusable knowledge
+
+- Read `CLAUDE.md`, `case/brief.md`, `scenarios/README.md`, and the current journal before drafting. The completed catalog contains `EDGE-001` through `EDGE-038`; validation found unique sequential IDs, exact required fields/types/enums, Given/When/Then stories, 152 noise cases, and a 278-word journal. [Task 1]
+- An append-only ledger alone does not protect derived balances: model concurrent withdrawals, partial/uncertain robot execution, duplicate/retried imports, late corrections, and recomputation of dependent views. [Task 1]
+- Keep material, lot, container, and time-scoped contents distinct. Mixed wells and reused tubes/barcodes cannot safely inherit one lot field or history across unrelated contents. [Task 1]
+- Derive usability from independent scoped reasons, not one mutable status. QC/release needs scope, method, sample coverage, authority, and independent holds; units require dimensions and conversion evidence. [Task 1]
+
+## Failures and how to do differently
+
+- symptom: Git validation starts with `fatal: not a git repository`; cause: the working directory was not confirmed; fix: establish repository location before using Git as a validation signal. This did not affect the requested-file validation. [Task 1]
+
+codex
+The main issues are clearer now: freezer queries omit contents or warn about boxes whose moves were already recorded; two trips to the bench have no outbound move records; and a disposal typo briefly left a binned tube in inventory before Marco retried. Lena also caught the short-filled delivery and made three aliquots instead of four. The log does not show time pressure causing any of these.
+exec
+/bin/zsh -lc "sed -n '2179,2205p' scenarios/catalog.yaml; sed -n '2010,2045p' scenarios/catalog.yaml" in /Users/batuhanaktas/Development/personal/adaptvy/.claude/worktrees/case-study
+ succeeded in 0ms:
+  source: inferred
+
+- id: LOC-009
+  cluster: location_confidence
+  duplicate_of: null
+  noise_ref: [step_not_recorded, wrong_position_selected]
+  title: Tube moved without anyone scanning it
+  story: |
+    Given the system says tube T-1500 is in freezer F1, box B3, slot D2.
+    When a colleague borrows it, uses it, and puts it back in F2 box B9 slot E5 without scanning.
+    Then the system still says F1 / B3 / D2. The next person to look for it finds the slot empty.
+  real_life_noise:
+    - the tube is put back into B3 but in slot D3, so it looks like it is in place at a glance
+    - it ends up in another person's box because the slot was free there
+  system_should: |
+    Not pretend to know. When someone records "slot empty" or a later scan finds the tube elsewhere, record the new place, mark the gap between the last known and found as unknown, and keep the fact that the record was wrong for a while. Report "last confirmed" next to "where".
+  question_it_answers: Where is T-1500 really, and when did we last know for sure?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Search time, and sometimes a needless reorder when the tube looks lost
+  depth: core
+  sim_hook: |
+    Actor scientist, action borrow_and_return, error no_scan_on_return p≈0.10, wrong_slot_on_return p≈0.05
+  source: brief
+
+- id: LOC-010
+  cluster: physical_count
+  cost_reason: A wrong slot means ten minutes of searching with the freezer door open
+  depth: core
+  sim_hook: |
+    Actor scientist, action move_tube, error slot_typo p≈0.02, double_scan p≈0.01, target_slot_occupied_stale p≈0.01
+  source: brief
+
+- id: LOC-002
+  cluster: places_and_moves
+  duplicate_of: null
+  noise_ref: step_not_recorded
+  title: A whole box moves, and everything in it moves with it
+  story: |
+    Given box B12 holds 64 tubes in freezer F1, rack R3, shelf 2.
+    When a technician moves the box to freezer F2, rack R1, shelf 4 and scans only the box barcode.
+    Then all 64 tubes report freezer F2 as their place, without 64 separate move records being typed in, and their slots inside the box stay the same.
+  real_life_noise:
+    - two tubes were taken out of the box an hour earlier and are on the bench, but nobody scanned them out, so they "move" to F2 on paper
+    - the box label is on the lid, and the lid was swapped with another box's lid
+    - the box is put in the right freezer but on a different shelf than scanned
+  system_should: |
+    Store each tube's place as "inside box B12" and the box's place as "F2 / R1 / shelf 4", so one scan moves everything. Asking "where is tube X" walks up the nesting. Keep the box move as one event so the history is readable.
+  question_it_answers: Where is every tube that was in box B12?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: If tubes are stored with flat freezer locations, one box move leaves 64 stale records
+  depth: core
+  sim_hook: |
+    Actor technician, action move_box, error untracked_tube_removed_before_move p≈0.05 per box move, lid_swap p≈0.005
+  source: brief
+
+- id: LOC-003
+  cluster: places_and_moves
+  duplicate_of: null
+  noise_ref: step_not_recorded
+  title: A plate goes freezer, bench, instrument, back to freezer in one day
+  story: |
+
+codex
+===== discovered/day-5.yaml
+- id: AGENT-D5-01
+  title: Freezer queries omit contents and then report known boxes as unexpected
+  status: "variant of LOC-020"
+  story: |
+    Given Lena physically put BOX-00078 and BOX-00079 into Freezer F80-1 and recorded both moves.
+    When she queried the freezer contents, the inventory returned no rows.
+    Then her later count reported 55 expected and 55 found, but also called all 16 boxes unexpected and told her to record moves, including the two moves already recorded.
+  real_life_noise:
+    - The freezer contains tubes nested inside boxes.
+    - The count lists both boxes and individual tubes.
+    - A matching tube total appears beside warnings about every box.
+  system_should: |
+    Resolve freezer contents through containment. Distinguish boxes from tubes in count totals. Check existing moves before recommending more moves, and explain any difference in query scope.
+  question_it_answers: Does this freezer count show a real location discrepancy?
+  frequency: weekly
+  cost_if_wrong: medium
+  cost_reason: False warnings waste reconciliation work and can encourage unsupported move records.
+  depth: core
+  sim_hook: |
+    Put and record two filled boxes into a freezer. Query freezer contents, then count boxes and tubes together. Check that known boxes are included and are not reported as unexpected.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0061"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0062"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0067"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0068"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0074"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0082"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0126"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D5-02
+  title: Recording only the return hides hours on the bench
+  status: "variant of LOC-009"
+  story: |
+    Given BUF-00047 was in Fridge R1 and SEN-00003 was on Shelf S1.
+    When Marco took both to Bench B2, used material and recorded consumption, he recorded neither outbound move.
+    Then he returned both after lunch and recorded their destinations, leaving correct final locations but no move records for their time on the bench.
+  real_life_noise:
+    - Consumption is recorded while movement is omitted.
+    - Returning an item to its original place makes the final location look correct.
+  system_should: |
+    Preserve intermediate location evidence and separate happened time from recording time. Offer reconciliation when use suggests a missing movement. Do not invent an exact bench interval from consumption alone; show unresolved exposure as uncertain.
+  question_it_answers: Did correct final locations conceal an unrecorded storage interval?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: Missing warm exposure can make storage history and expiry calculations too reassuring.
+  depth: core
+  sim_hook: |
+    Pick up buffer and sensors, record their consumption without outbound moves, then return them and record only the returns. Check both final location and historical uncertainty.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0079"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0080"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0083"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0084"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0085"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0086"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0133"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0134"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0135"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0136"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D5-03
+  title: A typed barcode error leaves a binned tube live until a retry
+  status: "variant of LOC-005"
+  story: |
+    Given Marco had physically binned ALQ-00011-001 with only residual liquid left.
+    When he typed its disposal record, the barcode became ALQ-00911-001 and the inventory rejected the unknown identifier.
+    Then the real tube remained undisposed in the records until Marco retried successfully several minutes later.
+  real_life_noise:
+    - A single mistyped digit produces an unknown barcode.
+    - Other work happens between rejection and retry.
+  system_should: |
+    Keep the failed attempt visible and make retrying against the confirmed tube easy. Never treat rejection as completed disposal or apply the event to a guessed barcode.
+  question_it_answers: Was the physical disposal eventually recorded against the right tube?
+  frequency: daily
+  cost_if_wrong: medium
+  cost_reason: An abandoned retry leaves ghost stock and an incomplete disposal history.
+  depth: core
+  sim_hook: |
+    Bin a known tube, corrupt one digit in a typed disposal attempt, then retry with the correct barcode. Check that exactly one disposal is recorded.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0087"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0088"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0101"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+- id: AGENT-D5-04
+  title: A visibly short delivery produces fewer aliquots than the slip implies
+  status: "variant of RCV-029"
+  story: |
+    Given the delivery slip described TGT-00076 as containing 200 µL.
+    When Lena saw substantially less liquid, she registered 145 µL from a visual estimate rather than copying the slip.
+    Then she took the QC sample, made three 45 µL aliquots, recorded those actions and told Sara about the short delivery.
+  real_life_noise:
+    - The first visual estimate was 135 µL and the pickup estimate was 145 µL.
+    - The packing slip still said 200 µL.
+    - Visual estimates are less precise than their entered numeric values suggest.
+  system_should: |
+    Preserve the declared amount separately from the observed estimate and its method. Carry the estimated receipt through consumption and splitting, and retain the supplier discrepancy without advertising the missing volume as stock.
+  question_it_answers: Was available stock based on the observed delivery or the packing slip?
+  frequency: monthly
+  cost_if_wrong: medium
+  cost_reason: Copying the slip would promise an aliquot the delivery could not supply.
+  depth: supported
+  sim_hook: |
+    Deliver a short-filled vial with a 200 µL slip. Let the receiver inspect it, register an estimate, sample it for QC and split three aliquots. Check quantity provenance and the supplier discrepancy.
+  evidence:
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0011"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0019"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0024"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0032"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0035"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0037"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0051"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0060"
+    - "sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt L0129"
+  source: agent-sim
+  run: week-5d-4p-sonnet
+
+===== verdicts/day-5.md
+The day ended with close agreement on amounts and locations. The scorer found no major amount errors, missing containers or wrong final locations; remaining numeric differences were small. That clean finish hides two unrecorded trips to the bench, a disposal repaired after rejection, and misleading freezer responses. All assigned tasks were marked done on time, and the log does not show deadline pressure causing omissions.
+
+All line references below are to `sim/agents/runs/week-5d-4p-sonnet/log/day-5.txt`.
+
+Marco took BUF-00047 and SEN-00003 to Bench B2 without recording their outbound moves (L0079–L0080). Consumption was recorded and the afternoon returns restored agreement on final locations, but the intervening bench history remained absent; no response shown flagged that gap (L0083–L0086, L0133–L0136).
+
+ALQ-00011-001 was physically binned before a typing error caused its disposal record to fail (L0087–L0088). The rejection was explicit, and Marco fixed the temporary ghost by retrying with the correct barcode at 08:32–08:33 (L0101).
+
+Lena caught the short PD-L1 delivery instead of copying the slip’s 200 µL. She registered an estimated 145 µL, recorded QC consumption and three aliquots, and told Sara; this avoided a large stock overstatement, although the receipt was still an estimate (L0019, L0024, L0032, L0037, L0051, L0060, L0129).
+
+Two frosted labels interrupted the freezer count. A slot-based inspection failed, but inspections using the expected tube barcodes returned locations and supplier lots; Lena included both tubes in the count and requested relabelling (L0105, L0107, L0115–L0116, L0121, L0126, L0129). No wrong identity is demonstrated.
+
+## Inventory answers that misled or could mislead
+
+The freezer contents query returned zero rows despite Lena seeing 16 boxes there, including two whose moves she had just recorded (L0067–L0068, L0074, L0082). The count then said “55 expected, 55 found” while calling all 16 boxes unexpected and recommending moves, including those already recorded (L0126). These were misleading responses rather than demonstrated physical location errors; Lena’s handover left the box warning for Sara to investigate.
+
+Priya queried experiment names as barcodes and received empty location and history tables (L0010). She subsequently described the expression plates as absent from inventory (L0026). The response established no matching barcodes, not the absence of every plate linked to those experiments; that distinction should have been explicit.
+
+Marco twice said BUF-00047’s inventory balance was about 163 mL, but no query shown returned that figure (L0118, L0139). Priya’s earlier visual estimate was 265 mL before the day’s 40 mL draw (L0009, L0083). The final comparison was about 202 mL physically versus 200 mL recorded, so the claimed large discrepancy was not supported by the closing evidence, and the promised count was not performed.
+
+The target queries correctly excluded the failed-QC vial and separated dead volume from usable stock (L0003–L0004). The flags query also explicitly reported the failed vial, despite the closing score and drift files listing zero flags; those closing numbers do not mean nobody saw a warning during the day (L0007).
+
+Summary: Final stock was close, but missing movement history and misleading query responses remained unresolved after the disposal error was repaired.
+
+
+hook: Stop
+hook: Stop Completed
+tokens used
+94,773
+

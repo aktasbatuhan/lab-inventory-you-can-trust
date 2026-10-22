@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 31112,
+ "stop_reason": "end_turn",
+ "session_id": "40517792-53e1-43cc-ba42-4768456b4d3d",
+ "total_cost_usd": 0.11122680000000001,
+ "usage": {
+  "input_tokens": 16,
+  "cache_creation_input_tokens": 17658,
+  "cache_read_input_tokens": 93228,
+  "output_tokens": 3124,
+  "output_tokens_details": {
+   "thinking_tokens": 421
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 17658,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 620,
+    "cache_read_input_tokens": 16741,
+    "cache_creation_input_tokens": 917,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 917
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-sonnet-5-5": {
+   "inputTokens": 16,
+   "outputTokens": 3124,
+   "cacheReadInputTokens": 93228,
+   "cacheCreationInputTokens": 17658,
+   "webSearchRequests": 0,
+   "costUSD": 0.11122680000000001,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "thinkingTokens": 421,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 23,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "I placed no orders this morning, and both tasks are ticked off. The inventory has no record of how much target a run uses, so I couldn't work out when stock would run out.\n\n**Stock**\n- **EGFR:** 12 usable tubes, about 35 \u00b5L usable each (420 \u00b5L total). They are in 3 lots, all passed QC.\n- **PD-L1:** 12 usable tubes, 420 \u00b5L, also in 3 lots, all passed QC.\n- **Physical check:** I looked in Freezer F80-1. All 6 target boxes are there with 4 tubes each, so the freezer matches the inventory. I didn't open the individual boxes. The inventory's \"last confirmed\" dates for the tubes are 19 Aug to 27 Aug.\n- **BLI sensors:** 5 sealed boxes of 384, 1,920 in total. I inspected each box on Shelf S1 and the labels match the inventory.\n\n**Ordering decision**\n- I asked Lena for her planned runs on each target and had no reply by 08:52.\n- Twelve tubes of each is probably enough for two weeks. I can't confirm that without a run rate.\n- If Lena says she plans more than about 10 runs on either target over the next two weeks, order that target before the 12:00 cut-off. A vial takes 1\u20132 weeks to arrive, so waiting past today matters.\n- The cut-off is 12:00, still in the morning block. I'm watching for her answer and will order if the numbers call for it.\n\n**Expiry**\n- **BUF-00046:** The only item expiring within 14 days is this loading buffer (50 mL, Fridge R1). It expires 11 Sep at 11:00, and it is 7 days from when it was made. I told Lena to use it first and to make fresh buffer after that.\n- **Flags:** The inventory shows none open, and nothing has been thrown away since 1 Sep.",
+ "ttft_ms": 1789,
+ "type": "result",
+ "duration_ms": 31764,
+ "uuid": "b2a24cc0-d0ae-4eba-a71d-be724291cc83",
+ "ttft_stream_ms": 1400,
+ "time_to_request_ms": 130,
+ "first_content_frame_ms": 1400,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 34.0,
+ "exit_code": 0
+}

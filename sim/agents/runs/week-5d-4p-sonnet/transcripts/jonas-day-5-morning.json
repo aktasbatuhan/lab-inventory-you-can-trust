@@ -1,0 +1,101 @@
+{
+ "duration_api_ms": 148549,
+ "stop_reason": "end_turn",
+ "session_id": "40517792-53e1-43cc-ba42-4768456b4d3d",
+ "total_cost_usd": 0.442924,
+ "usage": {
+  "input_tokens": 8,
+  "cache_creation_input_tokens": 7672,
+  "cache_read_input_tokens": 194607,
+  "output_tokens": 2303,
+  "output_tokens_details": {
+   "thinking_tokens": 285
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 7672,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 612,
+    "cache_read_input_tokens": 52462,
+    "cache_creation_input_tokens": 1437,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 1437
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "modelUsage": {
+  "claude-sonnet-5-5": {
+   "inputTokens": 70,
+   "outputTokens": 12922,
+   "thinkingTokens": 1191,
+   "cacheReadInputTokens": 979680,
+   "cacheCreationInputTokens": 53899,
+   "webSearchRequests": 0,
+   "costUSD": 0.442924,
+   "contextWindow": 1000000,
+   "maxOutputTokens": 128000,
+   "canonicalModel": "claude-sonnet-5-5",
+   "provider": "firstParty",
+   "costBasis": "list"
+  }
+ },
+ "permission_denials": [],
+ "terminal_reason": "completed",
+ "fast_mode_state": "off",
+ "fast_mode_disabled_reason": "sdk_opt_in_required",
+ "subagent_stats": {
+  "spawned": 0,
+  "requested": {
+   "background": 0,
+   "foreground": 0,
+   "unset": 0
+  },
+  "started_in_background": 0,
+  "max_depth": 0,
+  "spawned_by_subagents": 0,
+  "completed": 0,
+  "failed": 0,
+  "killed": {
+   "parent": 0,
+   "user": 0,
+   "system": 0
+  },
+  "refused": {
+   "depth_limit": 0,
+   "concurrency_limit": 0,
+   "budget": 0
+  },
+  "by_type": {}
+ },
+ "safety_stops": 0,
+ "is_error": false,
+ "num_turns": 12,
+ "subtype": "success",
+ "api_error_status": null,
+ "result": "Morning handover (Fri 11 Sep): T1 and T2 are both ticked off. I placed no orders.\n\n**Stock (inventory figures; I didn't open the freezer today):**\n- **EGFR:** 27 tubes, 913 \u00b5L usable.\n- **PD-L1:** 22 usable tubes, 770 \u00b5L. A further 195 \u00b5L vial failed QC and is excluded from that count.\n- **BLI sensors:** 1,792 left, about 56 runs at 32 per run.\n- **Why no order:** Use is about one tube a day per target, so both targets are far beyond two weeks of cover.\n\n**Needs attention:**\n- **Failed PD-L1 vial:** TGT-00071 (lot 36, supplier lot S071, 195 \u00b5L) failed SDS-PAGE and A280 QC on 10 Sep. It is in Fridge R1 and flagged in the inventory. Per its history, Lena received it on 10 Sep and moved it to the fridge, and it has a 7-day thawed clock ending 17 Sep. I told the lab manager not to bin it yet, since we may get a credit or replacement. Nobody has contacted the supplier about this yet.\n- **Unexplained deliveries:** A vial of each target has arrived every day since 7 Sep (lots 29\u201336), and I didn't order any of them. I asked the lab manager whether it's a standing order. If it is, it needs stopping, since each vial costs about 300 CHF.\n\n**Expiry:** Loading buffer BUF-00049 expires Mon 14 Sep at 08:42. Lena should make a fresh batch before then. TGT-00071 is the other item on the 14-day list, and it shouldn't be used. I told Lena about both.\n\n**Still open:** Sara hasn't replied about run bookings, and the inventory still has no \u00b5L-per-run records.",
+ "ttft_ms": 1618,
+ "type": "result",
+ "duration_ms": 18821,
+ "uuid": "6a8813f0-9a7c-4d35-b489-5b2f64041ce1",
+ "ttft_stream_ms": 1488,
+ "time_to_request_ms": 166,
+ "first_content_frame_ms": 1488,
+ "queued_turn_count": 0,
+ "result_index": 0,
+ "wall_seconds": 20.2,
+ "exit_code": 0
+}
