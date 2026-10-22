@@ -590,9 +590,16 @@ class Lab:
             exp.dna_plates.append(pl)
         self.at(self.workday(t, 9), self.reconstitute, exp)
 
-    def reconstitute(self, exp):
+    def reconstitute(self, exp, tries=0):
         """Dried DNA dissolved in water, well by well (multichannel by hand)."""
         t = self.now
+        wells = sum(1 for pl in exp.dna_plates for w in self.C[pl].wells.values() if self.main_lot(w.id))
+        water = sum(self.acc(c) for c in self.pools["water"] if not self.C[c].exited and self.main_lot(c))
+        if water < wells * DNA_WELL_UL and tries < 8:
+            # Not enough water on the shelf at this throughput: order it and come back.
+            self.order_reagent("water")
+            self.at(self.workday(t, 9, plus=1), self.reconstitute, exp, tries + 1)
+            return
         for pl in exp.dna_plates:
             self.move(pl, self.P["Bench B1"], None, t, exp.sci)
             vol, e = self.typed(DNA_WELL_UL, exp.sci, "water per well for " + self.label(pl), [pl], [])
@@ -601,6 +608,8 @@ class Lab:
                 if lot is None:
                     continue
                 src = self.pick("water", DNA_WELL_UL)
+                if src is None:
+                    continue
                 slot = self.main_lot(src)
                 mass = self.C[w.id].contents[lot]
                 self.w.reconstitute(w.id, lot, DNA_WELL_UL, src, slot)

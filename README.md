@@ -37,9 +37,9 @@ Filled in as they're finished.
 | Scenario catalog (244 stories, 29 themes) | [`scenarios/`](scenarios/) |
 | Scenario tests (20, all passing) | [`tests/`](tests/), run with `./run.sh` |
 | Demo lab walking the Binding workflow | [`seed/02_demo_lab.sql`](seed/02_demo_lab.sql), open with `./run.sh demo` |
-| Simulation | [`sim/`](sim/) (in progress) |
-| What we cut and why | [`scenarios/shortlist.md`](scenarios/shortlist.md) for now |
-| Assumptions | not yet |
+| Simulations: dice lab and AI-agent lab | [`sim/`](sim/), results in [`sim/results/`](sim/results/), agent runs in [`sim/agents/runs/`](sim/agents/runs/) |
+| What we cut and why | [`docs/cuts.md`](docs/cuts.md) |
+| Assumptions | [`docs/assumptions.md`](docs/assumptions.md) |
 
 ## How this was made
 
