@@ -41,6 +41,16 @@ Filled in as they're finished.
 | What we cut and why | [`docs/cuts.md`](docs/cuts.md) |
 | Assumptions | [`docs/assumptions.md`](docs/assumptions.md) |
 
+## Shared online
+
+The landing page, deck and review console are deployed at https://lab-inventory-batuhan.vercel.app (not indexed by search engines). To rebuild and redeploy after a change:
+
+```
+python3 share/build_site.py && cd site && vercel deploy --prod
+```
+
+Each page view, and each slide shown in the deck, is logged by `site/api/view.js` to the Vercel project's logs. Vercel Web Analytics gives longer-term view counts once it's switched on in the project's Analytics tab.
+
 ## How this was made
 
 Batuhan Aktas did this with heavy use of AI tools (Claude Code, with Codex as a second opinion), which the brief allows. The `journal/` folder shows where agents did the work and where the decisions were made.

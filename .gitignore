@@ -12,3 +12,5 @@ sim/out/
 sim/out/
 sim/__pycache__/
 .playwright-mcp/
+site/.vercel/
+site/
