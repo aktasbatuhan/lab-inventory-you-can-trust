@@ -4,149 +4,207 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a clean, white lab tool in Adaptyv's own visual language. Sticky
-   header with three views; the test view is a list on the left and the
-   ledger of one test on the right. */
+/* Layout: a clean, white lab tool in Adaptyv's visual language. Three views:
+   scenario tests as a timeline feed, simulations as pictures of what happened,
+   and the scenario catalog. */
 :root {
   --paper: #fafbfd;
   --sheet: #ffffff;
-  --ink: #142933;        /* navy, never black */
+  --ink: #142933;
   --muted: #546874;
+  --faint: #8396a1;
   --line: #e1e8ed;
-  --accent: #2091c9;     /* links and current state */
-  --accent-soft: #e9f2f7;/* dusty blue fills */
-  --ok: #1e7a50;
-  --ok-soft: #e4f3ea;
-  --bad: #b3402a;
-  --bad-soft: #f8e6e1;
-  --warn: #8a5d00;
-  --warn-soft: #fbf1d9;
-  --rule: #5b4fc4;       /* things the system assumed by rule */
-  --rule-soft: #eeecfb;
+  --accent: #2091c9;
+  --accent-soft: #e9f2f7;
+  /* chart categories, validated (hands, pen, questions, scanner) */
+  --c1: #2091c9; --c2: #d4702a; --c3: #7a5cd6; --c4: #1a9a85; --c0: #b3c1ca;
+  /* status */
+  --ok: #1e7a50; --ok-soft: #e4f3ea;
+  --warn: #8a5d00; --warn-mark: #d49a1c; --warn-soft: #fbf1d9;
+  --bad: #b3402a; --bad-soft: #f8e6e1;
+  --rule: #5b4fc4; --rule-soft: #eeecfb;
   --display: "Geist", "Helvetica Neue", Arial, sans-serif;
   --body: "Geist", "Helvetica Neue", Arial, sans-serif;
   --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #0d1c24; --sheet: #142933; --ink: #eaf1f5; --muted: #93a8b4; --line: #25414f;
-    --accent: #36b7f6; --accent-soft: #183a4b; --ok: #5fcf96; --ok-soft: #173a2b;
-    --bad: #f08c76; --bad-soft: #3e231d; --warn: #e6b65c; --warn-soft: #3a2d12; --rule: #aaa1f5; --rule-soft: #2a2752; color-scheme: dark;
+    --paper: #0d1c24; --sheet: #142933; --ink: #eaf1f5; --muted: #93a8b4; --faint: #6d8592; --line: #25414f;
+    --accent: #36b7f6; --accent-soft: #183a4b;
+    --c1: #2e98d6; --c2: #cc7a3a; --c3: #8c78de; --c4: #2fa98f; --c0: #3d5867;
+    --ok: #5fcf96; --ok-soft: #173a2b; --warn: #e6b65c; --warn-mark: #c9952a; --warn-soft: #3a2d12;
+    --bad: #f08c76; --bad-soft: #3e231d; --rule: #aaa1f5; --rule-soft: #2a2752; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --paper: #0d1c24; --sheet: #142933; --ink: #eaf1f5; --muted: #93a8b4; --line: #25414f;
-  --accent: #36b7f6; --accent-soft: #183a4b; --ok: #5fcf96; --ok-soft: #173a2b;
-  --bad: #f08c76; --bad-soft: #3e231d; --warn: #e6b65c; --warn-soft: #3a2d12; --rule: #aaa1f5; --rule-soft: #2a2752; color-scheme: dark;
+  --paper: #0d1c24; --sheet: #142933; --ink: #eaf1f5; --muted: #93a8b4; --faint: #6d8592; --line: #25414f;
+  --accent: #36b7f6; --accent-soft: #183a4b;
+  --c1: #2e98d6; --c2: #cc7a3a; --c3: #8c78de; --c4: #2fa98f; --c0: #3d5867;
+  --ok: #5fcf96; --ok-soft: #173a2b; --warn: #e6b65c; --warn-mark: #c9952a; --warn-soft: #3a2d12;
+  --bad: #f08c76; --bad-soft: #3e231d; --rule: #aaa1f5; --rule-soft: #2a2752; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sheet); }
-.wrap { max-width: 1240px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 1280px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--sheet); border-bottom: 1px solid var(--line); }
-header .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; padding-block: 14px; }
-h1 { font-family: var(--display); font-weight: 500; font-size: 22px; margin: 0; letter-spacing: -0.04em; }
-h2 { font-family: var(--display); font-weight: 500; font-size: 28px; line-height: 1.15; margin: 0; text-wrap: balance; letter-spacing: -0.04em; }
-h3 { font-family: var(--display); font-weight: 500; font-size: 17px; margin: 0; text-wrap: balance; letter-spacing: -0.02em; }
-nav { display: flex; gap: 4px; flex-wrap: wrap; }
-nav button { font: 500 14px var(--body); color: var(--muted); background: none; border: 1px solid transparent; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
-nav button[aria-current="true"] { color: var(--sheet); background: var(--ink); border-color: var(--ink); }
-nav button:focus-visible, button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+header .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; padding-block: 12px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 500; margin: 0; text-wrap: balance; }
+h1 { font-size: 21px; letter-spacing: -0.04em; }
+h2 { font-size: 28px; line-height: 1.15; letter-spacing: -0.04em; }
+h3 { font-size: 17px; letter-spacing: -0.02em; }
 .brand { display: grid; }
 .by { font-size: 12.5px; color: var(--muted); }
+nav { display: flex; gap: 4px; flex-wrap: wrap; }
+nav button { font: 500 14px var(--body); color: var(--muted); background: none; border: 1px solid transparent; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+nav button[aria-current="true"] { color: var(--sheet); background: var(--ink); }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .tally { margin-left: auto; font: 13px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
-main { padding-block: 24px 64px; }
-
-/* Tests view */
-.split { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; }
-@media (max-width: 860px) { .split { grid-template-columns: minmax(0, 1fr); } }
-.list { display: grid; gap: 2px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); max-height: calc(100vh - 100px); overflow: auto; }
-@media (max-width: 860px) { .list { position: static; max-height: 320px; } }
-.item { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; text-align: left; font: inherit; color: inherit; background: none; border: 1px solid transparent; border-radius: 8px; padding: 8px 10px; cursor: pointer; }
-.item:hover { background: var(--sheet); }
-.item[aria-current="true"] { background: var(--sheet); border-color: var(--line); }
-.item .n { font: 12px var(--mono); color: var(--muted); }
-.item .t { font-weight: 500; text-transform: capitalize; }
-.pill { display: inline-flex; align-items: center; gap: 4px; font: 500 12px var(--mono); padding: 1px 8px; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+main { padding-block: 24px 80px; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); font-size: 0.92em; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font: 500 12px var(--mono); padding: 2px 9px; border-radius: 999px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .pill.ok { color: var(--ok); background: var(--ok-soft); }
 .pill.bad { color: var(--bad); background: var(--bad-soft); }
-.detail { display: grid; gap: 24px; min-width: 0; }
-.head { display: grid; gap: 10px; }
-.summary { color: var(--muted); max-width: 72ch; white-space: pre-line; margin: 0; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { font: 12px var(--mono); padding: 3px 9px; border-radius: 6px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; }
-.chip.decision { cursor: default; color: var(--muted); }
-.block { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 16px; min-width: 0; }
-.story { white-space: pre-line; max-width: 75ch; margin: 0; }
-.cols { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; }
-@media (max-width: 1080px) { .cols { grid-template-columns: minmax(0, 1fr); } }
-.label { font: 500 13px var(--body); color: var(--muted); margin: 0 0 8px; }
+.chip { font: 12px var(--mono); padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; }
+.chip.static { cursor: default; color: var(--muted); }
+.panel { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 20px; min-width: 0; }
+.stack { display: grid; gap: 20px; min-width: 0; }
 
-.events { display: grid; gap: 6px; }
-.ev { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); }
-.ev.voided { opacity: 0.6; }
-.ev.voided .what { text-decoration: line-through; text-decoration-color: var(--bad); }
-.ev.correction { background: var(--warn-soft); border-color: transparent; }
-.ev.byrule { background: var(--rule-soft); border-color: transparent; }
-.when { font: 12px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; line-height: 1.4; }
-.what { display: grid; gap: 2px; min-width: 0; }
-.evtop { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; }
-.kind { font-weight: 600; }
-.who { font-size: 13px; color: var(--muted); }
-.src { font: 11px var(--mono); padding: 0 6px; border-radius: 4px; background: var(--paper); color: var(--muted); }
-.src.rule { background: var(--rule); color: var(--sheet); }
-.src.robot_log { background: var(--accent-soft); color: var(--accent); }
-.late { font: 11px var(--mono); color: var(--warn); }
-.ln { font-size: 13.5px; overflow-wrap: anywhere; }
-.ln .amt { font-family: var(--mono); font-variant-numeric: tabular-nums; }
-.ln .amt.neg { color: var(--bad); }
-.ln .amt.pos { color: var(--ok); }
-.note { font-size: 13px; color: var(--muted); font-style: italic; }
-code, .mono { font-family: var(--mono); font-size: 0.92em; }
+/* Tests view */
+.split { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 900px) { .split { grid-template-columns: minmax(0, 1fr); } }
+.list { display: grid; gap: 2px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 72px); max-height: calc(100vh - 96px); overflow: auto; }
+@media (max-width: 900px) { .list { position: static; max-height: 300px; } }
+.item { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; gap: 8px; align-items: center; text-align: left; font: inherit; color: inherit; background: none; border: 1px solid transparent; border-radius: 10px; padding: 7px 10px; cursor: pointer; }
+.item:hover { background: var(--sheet); }
+.item[aria-current="true"] { background: var(--sheet); border-color: var(--line); }
+.item .n { font: 12px var(--mono); color: var(--faint); }
+.item .t { font-weight: 500; font-size: 14px; }
+.ring { width: 14px; height: 14px; border-radius: 50%; }
+.thead { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: end; justify-content: space-between; }
+.score { display: flex; align-items: center; gap: 14px; }
+.score svg { flex: none; }
+.score .big { font: 500 28px var(--display); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.story { background: var(--accent-soft); border-radius: 12px; padding: 16px 18px; white-space: pre-line; max-width: 80ch; margin: 0; }
+.blockgrid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
+@media (max-width: 1100px) { .blockgrid { grid-template-columns: minmax(0, 1fr); } }
 
-.checks { display: grid; gap: 6px; }
-.ck { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; font-size: 13.5px; padding: 6px 8px; border-radius: 6px; }
-.ck.no { background: var(--bad-soft); }
-.mark { font-weight: 700; }
-.ck.yes .mark { color: var(--ok); }
-.ck.no .mark { color: var(--bad); }
+.feed { position: relative; display: grid; gap: 0; }
+.day { display: grid; grid-template-columns: 64px 36px minmax(0, 1fr); align-items: center; padding: 14px 0 6px; }
+.day span { grid-column: 3; font: 500 13px var(--body); color: var(--muted); }
+.ev { display: grid; grid-template-columns: 64px 36px minmax(0, 1fr); gap: 0; position: relative; }
+.ev .time { font: 12px var(--mono); color: var(--faint); text-align: right; padding: 12px 10px 0 0; font-variant-numeric: tabular-nums; }
+.ev .rail { position: relative; display: flex; justify-content: center; }
+.ev .rail::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; margin-left: -1px; background: var(--line); }
+.av { position: relative; z-index: 1; margin-top: 8px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font: 600 11px var(--body); color: #fff; }
+.av.robot { border-radius: 7px; }
+.av.rule { border-radius: 7px; transform: rotate(45deg) scale(0.86); }
+.av.rule span { transform: rotate(-45deg); }
+.card { margin: 4px 0 8px 6px; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--sheet); display: grid; gap: 6px; min-width: 0; }
+.card.voided { background: transparent; border-style: dashed; }
+.card.voided .say { text-decoration: line-through; text-decoration-color: var(--bad); color: var(--muted); }
+.card.correction { background: var(--warn-soft); border-color: transparent; }
+.card.byrule { background: var(--rule-soft); border-color: transparent; }
+.say { font-size: 14.5px; overflow-wrap: anywhere; }
+.say b { font-weight: 600; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 12.5px; color: var(--muted); }
+.tag { font: 11.5px var(--mono); padding: 1px 8px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.tag.rule { background: var(--rule); border-color: var(--rule); color: var(--sheet); }
+.tag.late { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
+.tag.robot_log { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+.lines { display: flex; flex-wrap: wrap; gap: 6px; }
+.ln { font: 12.5px var(--mono); padding: 3px 9px; border-radius: 8px; background: var(--paper); border: 1px solid var(--line); overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.ln .neg { color: var(--bad); } .ln .pos { color: var(--ok); }
+.note { font-size: 13px; color: var(--muted); }
+.more { font: 12.5px var(--body); color: var(--accent); background: none; border: 0; padding: 0; cursor: pointer; justify-self: start; }
+
+.checks { display: grid; gap: 6px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 80px); }
+.ck { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; font-size: 13.5px; padding: 8px 10px; border-radius: 10px; background: var(--sheet); border: 1px solid var(--line); }
+.ck.no { background: var(--bad-soft); border-color: transparent; }
+.ck .mk { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font: 700 11px var(--body); color: var(--sheet); background: var(--ok); margin-top: 1px; }
+.ck.no .mk { background: var(--bad); }
 .ck .val { font: 12px var(--mono); color: var(--muted); overflow-wrap: anywhere; }
-.err { color: var(--bad); font: 13px var(--mono); }
 details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
-pre.sql { margin: 10px 0 0; padding: 14px; background: var(--paper); border-radius: 8px; overflow-x: auto; font: 12px/1.55 var(--mono); }
+pre.sql { margin: 10px 0 0; padding: 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; font: 12px/1.55 var(--mono); }
 
-/* Scenarios view */
+/* Simulation view */
+.runbar { display: flex; flex-wrap: wrap; gap: 20px; align-items: start; margin-bottom: 22px; }
+.runbar .grp { display: grid; gap: 6px; }
+.runbar .grp > span { font-size: 13px; color: var(--muted); }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 500 13px var(--body); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
+.how { display: grid; gap: 14px; }
+.flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; }
+.node { flex: 1 1 170px; min-width: 0; border-radius: 12px; padding: 12px 14px; background: var(--accent-soft); display: grid; gap: 4px; align-content: start; }
+.node.dark { background: var(--ink); color: var(--sheet); }
+.node.dark .muted { color: var(--c0); }
+.node b { font-weight: 600; }
+.node p { margin: 0; font-size: 13px; }
+.arrow { flex: 0 0 18px; align-self: center; height: 2px; background: var(--faint); position: relative; }
+.arrow::after { content: ""; position: absolute; right: -1px; top: -4px; border: 5px solid transparent; border-left: 7px solid var(--faint); border-right: 0; }
+@media (max-width: 700px) { .arrow { display: none; } }
+.lede { font-size: 17px; line-height: 1.55; max-width: 78ch; margin: 0; }
+.lede b { font-weight: 600; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 12px; }
+.stat { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 2px; }
+.stat .v { font: 500 26px var(--display); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.stat .k { font-size: 13px; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); align-items: center; }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.scroller { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--sheet); }
+svg text { font-family: var(--body); }
+.tip { position: fixed; z-index: 30; pointer-events: none; max-width: 340px; background: var(--ink); color: var(--sheet); border-radius: 10px; padding: 8px 10px; font-size: 12.5px; line-height: 1.4; box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); }
+.tip b { font-weight: 600; }
+.detail { display: grid; gap: 8px; }
+.detail .res { font: 12.5px/1.5 var(--mono); background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 900px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.sc { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.sc:hover, .sc[aria-pressed="true"] { border-color: var(--accent); }
+.sc p { margin: 0; font-size: 13.5px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.status { font: 11.5px var(--mono); padding: 1px 8px; border-radius: 999px; }
+.status.new { background: var(--accent); color: var(--sheet); }
+.status.variant { background: var(--accent-soft); color: var(--accent); }
+.status.covered { background: var(--paper); color: var(--muted); border: 1px solid var(--line); }
+.md { font-size: 14px; max-width: 82ch; }
+.md h4 { font: 600 14.5px var(--body); margin: 14px 0 4px; }
+.md p, .md ul { margin: 6px 0; }
+.md ul { padding-left: 18px; }
+.fatebar { display: flex; height: 26px; border-radius: 6px; overflow: hidden; gap: 2px; background: var(--sheet); }
+.fatebar div { min-width: 2px; }
+.ftable { display: grid; gap: 8px; }
+.frow { display: grid; grid-template-columns: 170px minmax(0, 1fr) 48px; gap: 12px; align-items: center; font-size: 13.5px; }
+.frow .bar { display: flex; height: 14px; gap: 2px; }
+.frow .bar div { border-radius: 2px; min-width: 2px; }
+.frow .n { font: 12.5px var(--mono); color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 600px) { .frow { grid-template-columns: 110px minmax(0, 1fr) 36px; } }
+.mlog { display: grid; gap: 6px; }
+.mrow { display: grid; grid-template-columns: 130px 120px minmax(0, 1fr); gap: 12px; padding: 8px 12px; border-radius: 10px; background: var(--sheet); border: 1px solid var(--line); font-size: 13.5px; align-items: baseline; }
+@media (max-width: 700px) { .mrow { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+.fate { font: 11.5px var(--mono); padding: 1px 8px; border-radius: 999px; justify-self: start; }
+table.cmp { border-collapse: collapse; font-size: 13.5px; width: 100%; }
+table.cmp th, table.cmp td { text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+table.cmp th:first-child, table.cmp td:first-child { text-align: left; }
+table.cmp th { font-weight: 500; color: var(--muted); }
+
+/* Scenario catalog */
 .filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 18px; }
-.filters input[type=search], .filters select { font: inherit; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--sheet); color: var(--ink); min-width: 0; }
+.filters input[type=search], .filters select { font: inherit; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--sheet); color: var(--ink); min-width: 0; }
 .filters input[type=search] { flex: 1 1 260px; }
 .filters label { font-size: 14px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
 .count { font: 13px var(--mono); color: var(--muted); }
-.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 12px; }
-.card { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; align-content: start; text-align: left; font: inherit; color: inherit; cursor: pointer; }
-.card:hover { border-color: var(--muted); }
-.card .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.tag { font: 11px var(--mono); padding: 1px 7px; border-radius: 4px; background: var(--paper); color: var(--muted); }
-.tag.core { background: var(--accent-soft); color: var(--accent); }
-.tag.tested { background: var(--ok-soft); color: var(--ok); }
-.card p { margin: 0; font-size: 13.5px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-
-/* Scenario drawer */
+.card2 p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .scrim { position: fixed; inset: 0; background: rgb(0 0 0 / 0.35); z-index: 20; }
 .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 100%); background: var(--sheet); z-index: 21; overflow-y: auto; padding: calc(24px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) calc(32px + env(safe-area-inset-bottom, 0px)) 24px; display: grid; gap: 16px; align-content: start; border-left: 1px solid var(--line); }
-.drawer .close { justify-self: end; font: inherit; background: none; border: 1px solid var(--line); border-radius: 8px; padding: 4px 12px; color: var(--ink); cursor: pointer; }
+.drawer .close { justify-self: end; font: inherit; background: none; border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px; color: var(--ink); cursor: pointer; }
 .drawer section p { margin: 0; white-space: pre-line; }
 .drawer ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
-
-/* Simulation view */
-.empty { background: var(--sheet); border: 1px dashed var(--line); border-radius: 12px; padding: 28px; display: grid; gap: 12px; max-width: 760px; }
-.empty p { margin: 0; color: var(--muted); max-width: 70ch; }
-.runs { display: grid; gap: 14px; }
-.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 10px; }
-.stat { display: grid; gap: 2px; }
-.stat .k { font-size: 12.5px; color: var(--muted); }
-.stat .v { font: 500 20px var(--mono); font-variant-numeric: tabular-nums; }
-
-@media (prefers-reduced-motion: no-preference) { .item, .card, nav button { transition: background-color .15s, border-color .15s; } }
+.sublabel { font: 500 13px var(--body); color: var(--muted); margin: 0 0 8px; }
+@media (prefers-reduced-motion: no-preference) { .item, .sc, nav button, .seg button { transition: background-color .15s, border-color .15s; } }
 </style>
 
 <header>
@@ -154,7 +212,7 @@ pre.sql { margin: 10px 0 0; padding: 14px; background: var(--paper); border-radi
     <div class="brand"><h1>Lab Ledger Review</h1><span class="by">Take-home by Batuhan Aktas for Adaptyv Bio</span></div>
     <nav aria-label="Views">
       <button id="nav-tests" data-view="tests">Scenario tests</button>
-      <button id="nav-sim" data-view="sim">Simulation</button>
+      <button id="nav-sim" data-view="sim">Simulations</button>
       <button id="nav-scenarios" data-view="scenarios">Scenario catalog</button>
     </nav>
     <span class="tally" id="tally">Loading…</span>
@@ -164,13 +222,9 @@ pre.sql { margin: 10px 0 0; padding: 14px; background: var(--paper); border-radi
 <main class="wrap">
   <section id="view-tests" class="split" aria-label="Scenario tests">
     <div class="list" id="test-list" role="list"></div>
-    <div class="detail" id="test-detail"><p class="summary">Loading the test traces…</p></div>
+    <div class="stack" id="test-detail"><p class="muted">Loading the test traces…</p></div>
   </section>
-
-  <section id="view-sim" hidden aria-label="Simulation runs">
-    <div id="sim-body"></div>
-  </section>
-
+  <section id="view-sim" hidden aria-label="Simulations"><div class="stack" id="sim-body"></div></section>
   <section id="view-scenarios" hidden aria-label="Scenario catalog">
     <div class="filters">
       <input type="search" id="sc-q" placeholder="Search stories, noise, ids" aria-label="Search scenarios">
@@ -182,236 +236,433 @@ pre.sql { margin: 10px 0 0; padding: 14px; background: var(--paper); border-radi
     <div class="cards" id="sc-cards"></div>
   </section>
 </main>
-
 <div id="drawer-root"></div>
+<div class="tip" id="tip" hidden></div>
 
 <script>
 const UNIT = { volume: "µL", mass: "µg", count: "pcs", activity: "U" };
-const KIND = {
-  receive: "Delivery received", register: "Registered", move: "Moved", transfer: "Transfer", split: "Split",
-  make: "Made", consume: "Used", loss: "Lost", scan: "Scanned", discard: "Thrown away", ship: "Shipped",
-  qc: "QC result", hold: "Put on hold", release: "Hold released", count: "Physical count",
-  "count approved": "Count approved", correction: "Correction", label: "Barcode", "run started": "Run started",
-  "run finished": "Run finished", "run aborted": "Run aborted", reconstitute: "Dissolved", measure: "Measured"
-};
-const state = { tests: [], scenarios: [], sim: [], byId: {}, tested: new Set(), view: "tests", test: 0 };
-
+const state = { tests: [], scenarios: [], sim: [], byId: {}, tested: new Set(), view: "tests", test: 0, run: null, sel: null, hl: null, fateFilter: null };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const num = v => { const n = Number(v); return Number.isInteger(n) ? String(n) : String(+n.toFixed(3)); };
-const when = iso => {
-  if (!iso) return "";
-  const d = new Date(iso.slice(0, 10) + "T00:00:00Z");
-  const day = d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
-  return `${day}<br>${iso.slice(11, 16)}`;
-};
-const lag = (a, b) => {
-  const ms = new Date(b) - new Date(a);
-  if (!(ms > 60000)) return "";
-  const h = ms / 3600000;
-  const txt = h < 1 ? `${Math.round(h * 60)} min` : h < 48 ? `${Math.round(h)} h` : `${Math.round(h / 24)} days`;
-  return `written down ${txt} later`;
-};
-const who = id => id ? id.replace(/^p:/, "").replace(/^robot:/, "robot ").replace(/^instrument:/, "").replace(/^rule:protocol-defaults/, "protocol rule") : "";
-const mat = m => m ? m.replace(/^[a-z_]+:/, "") : "";
+const num = v => { const n = Number(v); if (!isFinite(n)) return String(v); return Number.isInteger(n) ? n.toLocaleString("en-GB") : (+n.toFixed(1)).toLocaleString("en-GB"); };
+const mat = m => !m ? "" : m.startsWith("target:") ? m.slice(7).toUpperCase() : m.replace(/^[a-z_]+:/, "").replace(/-/g, " ");
+const nice = s => { const t = s.replace(/\bqc\b/gi, "QC").replace(/\bsim\b/gi, "simulation"); return t.charAt(0).toUpperCase() + t.slice(1); };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const dayOf = iso => iso.slice(0, 10);
+const hm = iso => iso.slice(11, 16);
+const dayName = d => new Date(d + "T12:00:00Z").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" });
+const tip = document.getElementById("tip");
+function showTip(e, html) { tip.innerHTML = html; tip.hidden = false; moveTip(e); }
+function moveTip(e) { const x = Math.min(e.clientX + 14, innerWidth - tip.offsetWidth - 8); const y = Math.min(e.clientY + 14, innerHeight - tip.offsetHeight - 8); tip.style.left = x + "px"; tip.style.top = y + "px"; }
+function hideTip() { tip.hidden = true; }
 
-function line(l) {
-  switch (l.type) {
-    case "amount": {
-      const neg = Number(l.amount) < 0;
-      return `<span class="amt ${neg ? "neg" : "pos"}">${neg ? "−" : "+"}${num(Math.abs(l.amount))} ${UNIT[l.dimension] || l.dimension}</span> ${esc(mat(l.material))} <span class="mono">lot ${l.lot}</span> ${neg ? "out of" : "into"} <b>${esc(l.container)}</b>`;
+/* ---------- actors ---------- */
+const PEOPLE = { "p:lena": "Lena", "p:marco": "Marco", "p:sara": "Sara" };
+const PERSON_COLOR = ["#2091c9", "#1a9a85", "#7a5cd6", "#d4702a", "#546874"];
+function actor(id) {
+  if (!id) return { name: "someone", cls: "", init: "?", color: "#8396a1" };
+  if (id.startsWith("rule:")) return { name: "the protocol rule", cls: "rule", init: "R", color: css("--rule") };
+  if (id.startsWith("robot:")) return { name: id.slice(6).replace(/-/g, " "), cls: "robot", init: "⚙", color: "#546874" };
+  if (id.startsWith("instrument:")) return { name: id.slice(11).replace(/-/g, " "), cls: "robot", init: "◎", color: "#546874" };
+  if (id.startsWith("system:")) return { name: "an import", cls: "robot", init: "⇣", color: "#8396a1" };
+  const name = PEOPLE[id] || id.replace(/^p:/, "").replace(/^./, c => c.toUpperCase());
+  const i = Object.keys(PEOPLE).indexOf(id);
+  return { name, cls: "", init: name[0], color: PERSON_COLOR[(i >= 0 ? i : name.charCodeAt(0)) % PERSON_COLOR.length] };
+}
+
+/* ---------- tests: sentences ---------- */
+function amt(l) { const n = Math.abs(Number(l.amount)); return `${num(n)} ${UNIT[l.dimension] || l.dimension}`; }
+function sentence(e) {
+  const who = actor(e.performed_by || e.by).name;
+  const L = e.lines, of = t => L.filter(l => l.type === t);
+  const am = of("amount"), pos = am.filter(l => Number(l.amount) > 0), neg = am.filter(l => Number(l.amount) < 0);
+  const first = a => a[0] || {};
+  switch (e.kind) {
+    case "receive": return `<b>${who}</b> booked in ${amt(first(pos))} of ${esc(mat(first(pos).material))} into <b>${esc(first(pos).container)}</b>`;
+    case "register": {
+      const lab = of("label")[0], mv = of("move")[0];
+      return `<b>${who}</b> registered <b>${esc((lab && lab.barcode) || (mv && mv.container) || "a container")}</b>${mv ? ` in ${esc(mv.into)}` : ""}`;
     }
-    case "move": return `<b>${esc(l.container)}</b> into ${esc(l.into)}${l.slot ? ` at ${esc(l.slot)}` : ""}`;
-    case "label": return `${l.action === "attach" ? "Label" : "Label removed"} <span class="mono">${esc(l.barcode)}</span> on ${esc(l.container)}`;
-    case "scan": return `Saw <b>${esc(l.container)}</b>${l.code ? ` (read <span class="mono">${esc(l.code)}</span>)` : ""}`;
-    case "exit": return `<b>${esc(l.container)}</b> ${l.kind === "discard" ? "thrown away" : "shipped to " + esc(l.destination || "?")}`;
-    case "qc": return `QC <b>${esc(l.outcome)}</b> for <span class="mono">lot ${l.lot}</span>, ${esc(l.assay)}`;
-    case "hold": return `Hold on ${l.lot ? `<span class="mono">lot ${l.lot}</span>` : `<b>${esc(l.container)}</b>`}: ${esc(l.reason)}`;
-    case "release": return `Releases the hold from event #${l.hold}`;
-    case "count": return `<b>${esc(l.container)}</b> ${l.found ? "found" + (l.amount != null ? `, about <span class="amt">${num(l.amount)}</span>` : "") : "<b>not found</b>"}`;
-    case "measure": return `${esc(l.property)} of <span class="mono">lot ${l.lot}</span> in ${esc(l.container)}: <span class="amt">${num(l.value)} ${esc(l.unit)}</span>`;
-    case "new lot": return `New <span class="mono">lot ${l.lot}</span> of ${esc(mat(l.material))}${l.supplier_lot ? `, supplier lot <span class="mono">${esc(l.supplier_lot)}</span>` : ""}${l.parents ? `, made from lots ${l.parents.join(", ")}` : ""}`;
-    default: return esc(JSON.stringify(l));
+    case "split": return `<b>${who}</b> split ${amt(first(neg))} from <b>${esc(first(neg).container)}</b> into ${pos.length} tubes of ${amt(first(pos))}`;
+    case "transfer": return `<b>${who}</b> moved ${amt(first(pos))} of ${esc(mat(first(pos).material))} from <b>${esc(first(neg).container)}</b> to <b>${esc(first(pos).container)}</b>`;
+    case "make": return `<b>${who}</b> made ${amt(first(pos))} of ${esc(mat(first(pos).material))} in <b>${esc(first(pos).container)}</b> from ${neg.length} input${neg.length === 1 ? "" : "s"}`;
+    case "consume": return `<b>${who}</b> used ${amt(first(neg))} of ${esc(mat(first(neg).material))} from <b>${esc(first(neg).container)}</b>`;
+    case "loss": return `<b>${esc(first(neg).container)}</b> lost ${amt(first(neg))}`;
+    case "reconstitute": return `<b>${who}</b> dissolved the DNA in <b>${esc(first(pos).container)}</b> into ${amt(first(pos))}`;
+    case "move": { const m = first(of("move")); return `<b>${who}</b> moved <b>${esc(m.container)}</b> to ${esc(m.into)}${m.slot ? ` at ${esc(m.slot)}` : ""}`; }
+    case "scan": return `<b>${who}</b> scanned <b>${esc(first(of("scan")).container)}</b>`;
+    case "label": return `<b>${who}</b> labelled <b>${esc(first(of("label")).container)}</b> <span class="mono">${esc(first(of("label")).barcode)}</span>`;
+    case "discard": return `<b>${esc(of("exit").map(x => x.container).join(", "))}</b> thrown away${e.source === "rule" ? " by the protocol rule" : ` by ${who}`}`;
+    case "ship": return `<b>${esc(first(of("exit")).container)}</b> shipped to ${esc(first(of("exit")).destination)}`;
+    case "qc": return `<b>${who}</b> recorded QC <b>${esc(first(of("qc")).outcome)}</b> for lot ${first(of("qc")).lot}`;
+    case "hold": return `<b>${who}</b> put ${first(of("hold")).lot ? "lot " + first(of("hold")).lot : esc(first(of("hold")).container)} on hold`;
+    case "release": return `<b>${who}</b> released a hold`;
+    case "count": { const c = of("count"), miss = c.filter(x => !x.found).length; return `<b>${who}</b> counted ${c.length} container${c.length === 1 ? "" : "s"}${miss ? `, <b>${miss} not found</b>` : ", all found"}`; }
+    case "count approved": return `<b>${who}</b> approved the count`;
+    case "correction": return `<b>${who}</b> corrected event #${e.voids}`;
+    case "run started": return `<b>${who}</b> started run ${e.run ?? ""}`;
+    case "run finished": return `Run ${e.run} finished`;
+    case "run aborted": return `Run ${e.run} was <b>aborted</b>`;
+    case "measure": { const m = first(of("measure")); return `<b>${who}</b> measured ${esc(m.property)}: ${num(m.value)} ${esc(m.unit)}`; }
+    case "flag reviewed": return `<b>${who}</b> reviewed a flag and closed it`;
+    default: return `<b>${who}</b>: ${esc(e.kind)}`;
   }
 }
-
-function eventRow(e) {
-  const cls = ["ev"];
-  if (e.voided_by) cls.push("voided");
-  if (e.voids) cls.push("correction");
-  if (e.source === "rule") cls.push("byrule");
+function lineChip(l) {
+  switch (l.type) {
+    case "amount": { const n = Number(l.amount) < 0; return `<span class="ln"><span class="${n ? "neg" : "pos"}">${n ? "−" : "+"}${amt(l)}</span> ${esc(mat(l.material))} lot ${l.lot} ${n ? "from" : "in"} ${esc(l.container)}</span>`; }
+    case "new lot": return `<span class="ln">new lot ${l.lot}${l.parents ? ` from ${l.parents.join(", ")}` : ""}</span>`;
+    case "count": return `<span class="ln">${esc(l.container)} ${l.found ? "found" : "not found"}</span>`;
+    default: return "";
+  }
+}
+function lag(a, b) {
+  const ms = new Date(b) - new Date(a); if (!(ms > 60000)) return "";
+  const h = ms / 3600000; return h < 1 ? `${Math.round(h * 60)} min` : h < 48 ? `${Math.round(h)} h` : `${Math.round(h / 24)} days`;
+}
+function groupEvents(events) {
+  // consecutive registrations by the same person at the same minute collapse into one row
+  const out = [];
+  for (const e of events) {
+    const prev = out[out.length - 1];
+    if (prev && e.kind === "register" && prev.kind === "register" && prev.by === e.by && prev.occurred_at === e.occurred_at && !e.voided_by) {
+      (prev.group = prev.group || [prev.self || prev]).push(e); continue;
+    }
+    out.push(e.kind === "register" ? Object.assign({}, e, { self: e }) : e);
+  }
+  return out;
+}
+function evCard(e) {
+  const a = actor(e.performed_by || e.by);
+  const cls = ["card"]; if (e.voided_by) cls.push("voided"); if (e.voids) cls.push("correction"); if (e.source === "rule") cls.push("byrule");
   const late = lag(e.occurred_at, e.recorded_at);
-  return `<div class="${cls.join(" ")}">
-    <div class="when">${when(e.occurred_at)}</div>
-    <div class="what">
-      <div class="evtop">
-        <span class="kind">${esc(KIND[e.kind] || e.kind)}</span>
-        <span class="who">${esc(who(e.performed_by || e.by))}</span>
-        <span class="src ${esc(e.source)}">${esc(e.source.replace("_", " "))}</span>
-        ${e.run ? `<span class="src">run ${e.run}${e.step ? ` step ${e.step}` : ""}</span>` : ""}
-        ${late ? `<span class="late">${late}</span>` : ""}
-        <span class="src">#${e.id}</span>
+  const chips = e.kind === "register" ? [] : e.lines.map(lineChip).filter(Boolean);
+  const g = e.group ? e.group.length : 0;
+  const say = g > 1 ? `<b>${esc(a.name)}</b> registered ${g} containers: ${esc(e.group.map(x => (x.lines.find(l => l.type === "label") || {}).barcode).filter(Boolean).slice(0, 3).join(", "))}${g > 3 ? " and more" : ""}` : sentence(e);
+  return `<div class="ev" id="ev-${e.id}">
+    <div class="time">${hm(e.occurred_at)}</div>
+    <div class="rail"><div class="av ${a.cls}" style="background:${a.color}" title="${esc(a.name)}"><span>${esc(a.init)}</span></div></div>
+    <div class="${cls.join(" ")}">
+      <div class="say">${say}</div>
+      ${chips.length && e.kind !== "split" ? `<div class="lines">${chips.slice(0, 6).join("")}${chips.length > 6 ? `<span class="ln">+${chips.length - 6} more</span>` : ""}</div>` : ""}
+      ${e.voids ? `<div class="note">Why: ${esc(e.note)}</div>` : e.note && e.kind !== "run started" ? `<div class="note">${esc(e.note)}</div>` : ""}
+      <div class="meta">
+        <span class="tag ${esc(e.source)}">${e.source === "rule" ? "assumed by rule" : esc(e.source.replace("_", " "))}</span>
+        ${late ? `<span class="tag late">written down ${late} later</span>` : ""}
+        ${e.voided_by ? `<a href="#ev-${e.voided_by}" class="tag">corrected by #${e.voided_by}</a>` : ""}
+        ${e.voids ? `<a href="#ev-${e.voids}" class="tag">fixes #${e.voids}</a>` : ""}
+        <span class="tag">#${e.id}</span>
       </div>
-      ${e.lines.map(l => `<div class="ln">${line(l)}</div>`).join("")}
-      ${e.voids ? `<div class="note">Corrects event #${e.voids}: ${esc(e.note)}</div>` : e.note ? `<div class="note">${esc(e.note)}</div>` : ""}
-      ${e.voided_by ? `<div class="note">Corrected by event #${e.voided_by}</div>` : ""}
     </div>
   </div>`;
 }
-
-function checkRow(c) {
-  return `<div class="ck ${c.ok ? "yes" : "no"}">
-    <span class="mark" aria-label="${c.ok ? "passed" : "failed"}">${c.ok ? "✓" : "✗"}</span>
-    <div><div>${esc(c.what)}</div><div class="val">${c.ok ? esc(c.actual) : `expected ${esc(c.expected)}, got ${esc(c.actual)}`}</div></div>
-  </div>`;
+function feed(events) {
+  let html = "", day = "";
+  for (const e of groupEvents(events)) {
+    const d = dayOf(e.occurred_at);
+    if (d !== day) { day = d; html += `<div class="day"><span>${dayName(d)}</span></div>`; }
+    html += evCard(e);
+  }
+  return `<div class="feed">${html}</div>`;
 }
-
+function donut(ok, total, size = 56) {
+  const r = size / 2 - 5, c = 2 * Math.PI * r, f = total ? ok / total : 0;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" aria-label="${ok} of ${total} checks pass">
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${css("--line")}" stroke-width="6"/>
+    <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${f === 1 ? css("--ok") : css("--bad")}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c * f} ${c}" transform="rotate(-90 ${size / 2} ${size / 2})"/></svg>`;
+}
 function renderList() {
   document.getElementById("test-list").innerHTML = state.tests.map((t, i) => `
-    <button class="item" role="listitem" id="test-btn-${i}" data-i="${i}" aria-current="${i === state.test}">
-      <span class="n">${String(t.number).padStart(2, "0")}</span>
-      <span class="t">${esc(t.name)}</span>
-      <span class="pill ${t.passed ? "ok" : "bad"}">${t.checks_passed}/${t.checks_total}</span>
+    <button class="item" role="listitem" data-i="${i}" aria-current="${i === state.test}">
+      <span class="n">${String(t.number).padStart(2, "0")}</span><span class="t">${esc(nice(t.name))}</span>
+      <span class="ring" style="background:${t.passed ? css("--ok") : css("--bad")}" aria-label="${t.passed ? "passes" : "fails"}"></span>
     </button>`).join("");
 }
-
 function renderTest() {
-  const t = state.tests[state.test];
-  if (!t) return;
-  const chips = t.scenarios.map(id => `<button class="chip" data-sc="${id}">${id}</button>`).join("")
-    + t.decisions.map(d => `<span class="chip decision" title="See docs/decisions.md">${d}</span>`).join("");
+  const t = state.tests[state.test]; if (!t) return;
   document.getElementById("test-detail").innerHTML = `
-    <div class="head">
-      <div class="chips"><span class="pill ${t.passed ? "ok" : "bad"}">${t.passed ? "passes" : "fails"}, ${t.checks_passed} of ${t.checks_total} checks</span><span class="tag">${esc(t.file)}</span></div>
-      <h2 style="text-transform:capitalize">${esc(t.name)}</h2>
-      ${chips ? `<div class="chips">${chips}</div>` : ""}
+    <div class="thead">
+      <div class="stack" style="gap:10px">
+        <h2>${esc(nice(t.name))}</h2>
+        <div class="chips">${t.scenarios.map(id => `<button class="chip" data-sc="${id}">${id}</button>`).join("")}${t.decisions.map(d => `<span class="chip static">${d}</span>`).join("")}<span class="chip static">${esc(t.file)}</span></div>
+      </div>
+      <div class="score">${donut(t.checks_passed, t.checks_total)}<div><div class="big">${t.checks_passed}/${t.checks_total}</div><div class="muted" style="font-size:13px">checks pass</div></div></div>
     </div>
-    ${t.blocks.map((b, j) => `
-      <article class="block">
+    ${t.blocks.map(b => `
+      <article class="stack">
         ${b.story ? `<p class="story">${esc(b.story)}</p>` : ""}
-        ${b.error ? `<p class="err">${esc(b.error)}</p>` : ""}
-        <div class="cols">
-          <div><h3 class="label">What was recorded, in the order it happened (${b.events.length})</h3><div class="events">${b.events.map(eventRow).join("")}</div></div>
-          <div><h3 class="label">What the system had to say (${b.checks.length})</h3><div class="checks">${b.checks.map(checkRow).join("")}</div></div>
+        ${b.error ? `<p style="color:var(--bad)" class="mono">${esc(b.error)}</p>` : ""}
+        <div class="blockgrid">
+          <div><h3 class="sublabel">What happened, as it was recorded</h3>${feed(b.events)}</div>
+          <div><h3 class="sublabel">What the system had to say</h3><div class="checks">${b.checks.map(c => `
+            <div class="ck ${c.ok ? "" : "no"}"><span class="mk">${c.ok ? "✓" : "✕"}</span>
+            <div><div>${esc(c.what)}</div><div class="val">${c.ok ? esc(c.actual) : `expected ${esc(c.expected)}, got ${esc(c.actual)}`}</div></div></div>`).join("")}</div></div>
         </div>
         <details><summary>The test as SQL</summary><pre class="sql">${esc(b.sql)}</pre></details>
       </article>`).join("")}`;
 }
 
+/* ---------- simulations ---------- */
+const KINDS = [["hands", "Hands: did something in the lab", "--c1"], ["pen", "Pen: wrote it into the inventory", "--c2"], ["ask", "Asked the inventory a question", "--c3"], ["scanner", "Scanned a barcode", "--c4"], ["talk", "Read tasks or talked to someone", "--c0"]];
+const KCOLOR = k => css((KINDS.find(x => x[0] === k) || KINDS[4])[2]);
+const FATES = [["silently wrong", "Silently wrong", "--bad"], ["flagged", "Flagged by the system", "--warn-mark"], ["corrected", "Corrected by a person", "--ok"], ["refused at entry", "Refused when typed", "--c4"], ["no lasting harm", "No lasting harm", "--c0"]];
+const FCOLOR = f => css((FATES.find(x => x[0] === f) || FATES[4])[2]);
+const ERRTEXT = {
+  late_sync: "Written down late", move_unscanned: "Moved without a scan", step_unrecorded: "A step never written down", robot_step_missing: "Robot log line lost",
+  robot_log_late: "Robot log arrived late", discard_unscanned: "Binned without a scan", count_missed: "Count missed a tube", typo_small: "Small typo in an amount",
+  typo_big: "Big typo in an amount", wrong_position: "Put in the wrong slot", duplicate_label: "Same barcode on two tubes", supplier_short_fill: "Supplier short-filled a vial",
+  rule_default_wrong: "The protocol default was wrong", wrong_tube: "Wrong tube scanned", duplicate_delivery: "Delivery registered twice"
+};
+
+function howDice() {
+  return `<div class="panel how">
+    <h3>How the dice lab works</h3>
+    <div class="flow">
+      <div class="node"><b>The real lab</b><p class="muted">world.py keeps what really happens: every tube, every µL, every move, at Adaptyv’s throughput.</p></div><div class="arrow"></div>
+      <div class="node"><b>What people write down</b><p class="muted">Each action becomes a call to the record API. Mistakes are mixed in at researched rates: late scans, typos, bins nobody scans.</p></div><div class="arrow"></div>
+      <div class="node dark"><b>The inventory</b><p class="muted">Postgres with our schema only ever sees what was written down.</p></div><div class="arrow"></div>
+      <div class="node"><b>The scorer</b><p class="muted">At checkpoints, asks the inventory what it believes and compares with the real lab. Every mistake gets a fate.</p></div>
+    </div></div>`;
+}
+function howAgents() {
+  return `<div class="panel how">
+    <h3>How the agent lab works</h3>
+    <div class="flow">
+      <div class="node"><b>Lab staff</b><p class="muted">Each person is a headless Claude Code session with a role from Adaptyv’s job posts, a task list and deadlines.</p></div><div class="arrow"></div>
+      <div class="node"><b>Hands</b><p class="muted">Tools that change the real lab: look, pick up, pipette, split, bin. Frosted labels and short fills come from the noise model.</p></div><div class="arrow"></div>
+      <div class="node"><b>Pen and scanner</b><p class="muted">Separate tools that write to the inventory, true or not. Nobody is told to make mistakes; every action costs time.</p></div><div class="arrow"></div>
+      <div class="node dark"><b>Referee</b><p class="muted">Codex reads the day and the drift between the lab and the inventory, and writes up new scenarios.</p></div>
+    </div></div>`;
+}
+function runPicker() {
+  const agents = state.sim.filter(r => r.kind === "agents"), dice = state.sim.filter(r => r.kind === "dice");
+  const btn = r => `<button data-run="${esc(r.name)}" aria-pressed="${state.run === r.name}">${esc(shortTitle(r))}</button>`;
+  return `<div class="runbar">
+    ${agents.length ? `<div class="grp"><span>AI-agent lab</span><div class="seg">${agents.map(btn).join("")}</div></div>` : ""}
+    ${dice.length ? `<div class="grp"><span>Dice lab</span><div class="seg">${dice.map(btn).join("")}</div></div>` : ""}
+  </div>`;
+}
+function shortTitle(r) {
+  if (r.kind === "agents") { const d = new Set(r.calls.map(c => dayOf(c.start))).size; return `${d} day${d === 1 ? "" : "s"}, ${r.people.length} people${r.finished ? "" : " (running)"}`; }
+  return `${r.preset === "bad_week" ? "Bad week" : "Normal"}, ${Math.round(r.days / 7)} wk, ${num(r.designs_per_week)}/wk${r.seed != null ? `, seed ${r.seed}` : ""}`;
+}
+
+function swimlanes(r) {
+  const days = [...new Set(r.calls.map(c => dayOf(c.start)))].sort();
+  const people = r.people;
+  const DAYW = 440, LAB = 150, LANE = 42, TOP = 34, H = TOP + people.length * LANE + 16;
+  const W = LAB + days.length * DAYW + 12;
+  const mins = s => { const h = +s.slice(11, 13), m = +s.slice(14, 16); return Math.max(0, Math.min(630, (h - 8) * 60 + m)); };
+  const x = s => LAB + days.indexOf(dayOf(s)) * DAYW + (mins(s) / 630) * (DAYW - 10);
+  const hl = state.hl ? new Set(state.hl) : null;
+  let g = "";
+  days.forEach((d, i) => {
+    const x0 = LAB + i * DAYW;
+    g += `<rect x="${x0}" y="${TOP - 6}" width="${DAYW - 10}" height="${people.length * LANE + 8}" rx="8" fill="${css("--paper")}"/>`;
+    g += `<text x="${x0}" y="16" font-size="12" font-weight="500" fill="${css("--ink")}">${dayName(d)}</text>`;
+    for (const hr of [10, 12, 14, 16, 18]) { const xx = x0 + ((hr - 8) * 60 / 630) * (DAYW - 10); g += `<line x1="${xx}" x2="${xx}" y1="${TOP - 6}" y2="${TOP + people.length * LANE + 2}" stroke="${css("--line")}"/><text x="${xx}" y="${H - 2}" font-size="10" text-anchor="middle" fill="${css("--faint")}">${hr}:00</text>`; }
+  });
+  people.forEach((p, i) => {
+    const y = TOP + i * LANE;
+    g += `<text x="0" y="${y + 14}" font-size="12.5" font-weight="500" fill="${css("--ink")}">${esc(p.name)}</text><text x="0" y="${y + 27}" font-size="10.5" fill="${css("--muted")}">${esc(p.role)}</text>`;
+  });
+  for (const c of r.calls) {
+    const i = people.findIndex(p => p.id === c.who); if (i < 0) continue;
+    const y = TOP + i * LANE + 8, x0 = x(c.start), w = Math.max(3, x(c.end) - x0);
+    const dim = hl && !hl.has(c.n) ? 0.18 : 1, sel = state.sel === c.n;
+    g += `<rect class="mark" data-n="${c.n}" x="${x0}" y="${y}" width="${w}" height="24" rx="3" fill="${KCOLOR(c.kind)}" opacity="${dim}" ${sel ? `stroke="${css("--ink")}" stroke-width="2"` : ""}/>`;
+    if (c.refused) g += `<path d="M${x0 + w / 2 - 4} ${y - 5} l8 0 l-4 6 z" fill="${css("--bad")}" opacity="${dim}"/>`;
+    if (hl && hl.has(c.n)) g += `<circle cx="${x0 + w / 2}" cy="${y + 30}" r="3" fill="${css("--ink")}"/>`;
+  }
+  return `<div class="scroller"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Every action by every person, over the simulated days">${g}</svg></div>`;
+}
+function mdLite(s) {
+  return esc(s).split(/\n{2,}/).map(p => {
+    if (/^#{1,4} /.test(p)) return `<h4>${p.replace(/^#+ /, "")}</h4>`;
+    if (/^\s*[-*] /m.test(p)) return `<ul>${p.split(/\n/).filter(l => l.trim()).map(l => `<li>${l.replace(/^\s*[-*] /, "")}</li>`).join("")}</ul>`;
+    return `<p>${p.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\n/g, "<br>")}</p>`;
+  }).join("").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, '<span class="mono">$1</span>');
+}
+function evidence(s) { return [...new Set((JSON.stringify(s).match(/\bL0*(\d{1,5})\b/g) || []).map(x => +x.replace(/\D/g, "")))]; }
+function discStatus(s) { const t = JSON.stringify([s.status, s.novelty, s.marked, s.relation, s.verdict]).toLowerCase(); return t.includes("new") ? "new" : t.includes("variant") ? "variant" : "covered"; }
+
+function renderAgents(r) {
+  const s = r.stats, days = [...new Set(r.calls.map(c => dayOf(c.start)))].length;
+  const by = k => r.calls.filter(c => c.kind === k).length, refused = r.calls.filter(c => c.refused).length;
+  const tr = s.target_usable_really_ul, ti = s.target_usable_inventory_ul;
+  const disc = r.discovered;
+  const selC = r.calls.find(c => c.n === state.sel);
+  const handovers = Object.entries(r.handovers);
+  return `${howAgents()}
+    <p class="lede">${r.people.length} people worked ${days} simulated day${days === 1 ? "" : "s"}${r.finished ? "" : " so far (the run is still going)"}. They took <b>${num(r.calls.length)} actions</b>: ${num(by("hands"))} with their hands, ${num(by("pen"))} written into the inventory, ${num(by("ask"))} questions to it. <b>${refused}</b> were turned down by the lab or the database. The referee wrote up <b>${disc.length} scenarios</b>${disc.length ? `, ${disc.filter(d => discStatus(d) === "new").length} of them new to our catalog` : ""}.</p>
+    <div class="stats">
+      <div class="stat"><span class="v">${num(r.calls.length)}</span><span class="k">actions taken</span></div>
+      <div class="stat"><span class="v">${refused}</span><span class="k">refused</span></div>
+      <div class="stat"><span class="v">${disc.length}</span><span class="k">scenarios written up</span></div>
+      ${tr != null ? `<div class="stat"><span class="v">${num(ti)} / ${num(tr)} µL</span><span class="k">usable target: inventory says / really</span></div>` : ""}
+      ${s.amounts_compared != null ? `<div class="stat"><span class="v">${num(s.amounts_off)} of ${num(s.amounts_compared)}</span><span class="k">amounts off by more than 10%</span></div>` : ""}
+    </div>
+    <div class="panel stack">
+      <div><h3>Who did what, and when</h3><p class="muted" style="margin:4px 0 0">One lane per person. Each block is one action, as long as it took in lab time. A red triangle means it was refused. Hover for details, click to pin.</p></div>
+      <div class="legend">${KINDS.map(k => `<span><i style="background:${css(k[2])}"></i>${k[1]}</span>`).join("")}<span><i style="background:${css("--bad")};clip-path:polygon(0 0,100% 0,50% 100%)"></i>Refused</span></div>
+      ${swimlanes(r)}
+      ${selC ? `<div class="detail"><div class="meta"><b style="color:var(--ink)">${esc(selC.who.replace(/^./, c => c.toUpperCase()))}</b><span class="tag">${esc(selC.tool)}</span><span class="tag">${hm(selC.start)} to ${hm(selC.end)}</span>${selC.refused ? `<span class="tag" style="color:var(--bad)">refused</span>` : ""}<span class="tag">#${selC.n}</span></div><div class="res">${esc(selC.args)}\n\n${esc(selC.result)}</div></div>` : `<p class="muted" style="margin:0">Click any block to see what the person asked for and what came back.</p>`}
+    </div>
+    ${disc.length ? `<div class="stack"><div><h3>What the referee found</h3><p class="muted" style="margin:4px 0 0">Click a scenario to light up the actions behind it on the timeline.</p></div>
+      <div class="cards">${disc.map((d, i) => { const st = discStatus(d); return `<button class="sc" data-disc="${i}" aria-pressed="${state.hlDisc === i}"><div class="chips"><span class="status ${st}">${st === "new" ? "new scenario" : st === "variant" ? "variant" : "already covered"}</span>${d.id ? `<span class="tag">${esc(d.id)}</span>` : ""}</div><h3>${esc(d.title || d.id || "Scenario")}</h3><p>${esc(String(d.story || d.system_should || ""))}</p></button>`; }).join("")}</div></div>` : ""}
+    ${handovers.length ? `<div class="stack"><h3>What they handed over at the end of each block</h3>${handovers.map(([k, v]) => `<details class="panel"><summary>${esc(k.replace("handover-", "").replace("day-", "Day "))}</summary><div class="md">${mdLite(v)}</div></details>`).join("")}</div>` : ""}
+    ${Object.keys(r.verdicts).length ? `<div class="stack"><h3>The referee’s verdicts</h3>${Object.entries(r.verdicts).map(([k, v]) => `<details class="panel"><summary>${esc(k.replace("day-", "Day "))}</summary><div class="md">${mdLite(v)}</div></details>`).join("")}</div>` : ""}`;
+}
+
+function lineChart(points, series, title, unit) {
+  const W = 560, H = 220, L = 56, R = 120, T = 16, B = 30;
+  const vals = series.flatMap(s => points.map(p => p[s.key])).filter(v => v != null);
+  const max = Math.max(...vals) * 1.08 || 1, min = 0;
+  const x = i => L + (points.length === 1 ? (W - L - R) / 2 : i * (W - L - R) / (points.length - 1));
+  const y = v => T + (H - T - B) * (1 - (v - min) / (max - min));
+  let g = "";
+  for (let k = 0; k <= 4; k++) { const v = min + (max - min) * k / 4; g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="${css("--line")}"/><text x="${L - 8}" y="${y(v) + 4}" font-size="10.5" text-anchor="end" fill="${css("--faint")}">${num(Math.round(v))}</text>`; }
+  points.forEach((p, i) => { if (points.length <= 10 || i % Math.ceil(points.length / 8) === 0) g += `<text x="${x(i)}" y="${H - 8}" font-size="10.5" text-anchor="middle" fill="${css("--faint")}">${esc(p.label)}</text>`; });
+  series.forEach(s => {
+    const d = points.map((p, i) => `${i ? "L" : "M"}${x(i)} ${y(p[s.key])}`).join(" ");
+    g += `<path d="${d}" fill="none" stroke="${css(s.color)}" stroke-width="2" ${s.dash ? 'stroke-dasharray="5 4"' : ""}/>`;
+    points.forEach((p, i) => { g += `<circle class="pt" cx="${x(i)}" cy="${y(p[s.key])}" r="4" fill="${css(s.color)}" stroke="${css("--sheet")}" stroke-width="2" data-tip="${esc(`<b>${p.label}</b><br>${s.name}: ${num(p[s.key])} ${unit}`)}"/>`; });
+    const last = points[points.length - 1];
+    g += `<text x="${x(points.length - 1) + 10}" y="${y(last[s.key]) + 4 + (s.nudge || 0)}" font-size="11.5" fill="${css("--ink")}">${s.name}</text>`;
+  });
+  return `<div class="panel"><h3 class="sublabel" style="color:var(--ink)">${title}</h3><svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${g}</svg></div>`;
+}
+function barsChart(points, key, title, color) {
+  const W = 560, H = 160, L = 40, T = 12, B = 28;
+  const max = Math.max(1, ...points.map(p => p[key])) * 1.15;
+  const bw = Math.min(36, (W - L - 10) / points.length - 6);
+  let g = "";
+  points.forEach((p, i) => {
+    const x = L + i * ((W - L - 10) / points.length) + 3, h = (H - T - B) * p[key] / max, y = H - B - h;
+    g += `<rect class="pt" x="${x}" y="${y}" width="${bw}" height="${Math.max(h, 1)}" rx="3" fill="${css(color)}" data-tip="${esc(`<b>${p.label}</b><br>${title}: ${num(p[key])}`)}"/>`;
+    if (points.length <= 10 || i % Math.ceil(points.length / 8) === 0) g += `<text x="${x + bw / 2}" y="${H - 9}" font-size="10.5" text-anchor="middle" fill="${css("--faint")}">${esc(p.label)}</text>`;
+  });
+  g += `<line x1="${L}" x2="${W - 10}" y1="${H - B}" y2="${H - B}" stroke="${css("--line")}"/>`;
+  return `<div class="panel"><h3 class="sublabel" style="color:var(--ink)">${title}</h3><svg width="100%" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}">${g}</svg></div>`;
+}
+function fateBar(counts, total, tall) {
+  return `<div class="${tall ? "fatebar" : "bar"}">${FATES.filter(f => counts[f[0]]).map(f => `<div class="pt" style="flex:${counts[f[0]]};background:${css(f[2])}" data-tip="${esc(`<b>${f[1]}</b>: ${counts[f[0]]} of ${total}`)}"></div>`).join("")}</div>`;
+}
+function renderDice(r) {
+  const t = r.totals, total = r.mistakes_total, cp = r.checkpoints, last = cp[cp.length - 1] || {};
+  const silent = t["silently wrong"] || 0, flagged = t["flagged"] || 0, healed = t["no lasting harm"] || 0, fixed = (t["corrected"] || 0) + (t["refused at entry"] || 0);
+  const siblings = state.sim.filter(x => x.kind === "dice" && x.preset === r.preset && x.days === r.days && x.designs_per_week === r.designs_per_week);
+  const types = Object.entries(r.fates).map(([k, v]) => [k, v, Object.values(v).reduce((a, b) => a + b, 0)]).sort((a, b) => b[2] - a[2]);
+  const maxType = Math.max(1, ...types.map(x => x[2]));
+  const allMs = r.mistakes.filter(m => !state.fateFilter || m.fate === state.fateFilter);
+  const ms = state.showAll ? allMs : allMs.slice(0, 25);
+  const tgtGap = last.target_says - last.target_really, protGap = last.protein_really ? Math.round(100 * (last.protein_says - last.protein_really) / last.protein_really) : 0;
+  return `${howDice()}
+    <p class="lede">${r.days} simulated days at <b>${num(r.designs_per_week)} designs a week</b>, ${r.targets} targets, ${r.preset === "bad_week" ? "with <b>bad-week</b> noise (about ten times the researched error rates)" : "with the <b>researched</b> error rates"}. ${num(r.recorded_calls)} things were written down, and <b>${num(total)} mistakes</b> were mixed in. In the end, ${num(flagged)} were flagged, ${num(fixed)} were fixed or refused straight away, ${num(healed)} did no lasting harm, and <b style="color:var(--bad)">${num(silent)} stayed silently wrong</b>. Usable target ended ${Math.abs(tgtGap) < 5 ? "within 5 µL of the truth" : `${num(Math.abs(tgtGap))} µL ${tgtGap < 0 ? "under" : "over"} the truth`}; expressed protein ${protGap >= 0 ? "over" : "under"}stated by ${Math.abs(protGap)}%.</p>
+    <div class="panel stack">
+      <h3>What became of every mistake</h3>
+      ${fateBar(t, total, true)}
+      <div class="legend">${FATES.filter(f => t[f[0]]).map(f => `<span><i style="background:${css(f[2])}"></i>${f[1]}: ${t[f[0]]}</span>`).join("")}</div>
+      <div class="ftable" style="margin-top:8px">${types.map(([k, v, n]) => `<div class="frow"><span>${esc(ERRTEXT[k] || k.replaceAll("_", " "))}</span><div style="width:${100 * n / maxType}%">${fateBar(v, n, false)}</div><span class="n">${n}</span></div>`).join("")}</div>
+    </div>
+    ${cp.length ? `<div class="two">
+      ${lineChart(cp, [{ key: "target_says", name: "Inventory says", color: "--c1" }, { key: "target_really", name: "Really there", color: "--c2", dash: true, nudge: 12 }], "Usable target protein over time", "µL")}
+      ${lineChart(cp, [{ key: "protein_says", name: "Inventory says", color: "--c1" }, { key: "protein_really", name: "Really there", color: "--c2", dash: true, nudge: 12 }], "Usable expressed protein over time", "µL")}
+      ${barsChart(cp, "ghosts", "Ghost containers (binned, still on record)", "--bad")}
+      ${barsChart(cp, "flags", "Open flags for a person to look at", "--warn-mark")}
+    </div>` : ""}
+    ${siblings.length > 1 ? `<div class="panel stack"><h3>Same lab, different random seeds</h3><p class="muted" style="margin:0">If the design only worked by luck, these would disagree.</p><div style="overflow-x:auto"><table class="cmp"><tr><th>Seed</th><th>Mistakes</th><th>Flagged</th><th>No lasting harm</th><th>Silently wrong</th><th>Target gap at the end</th></tr>${siblings.map(x => { const l = x.checkpoints[x.checkpoints.length - 1] || {}; return `<tr><td>${x.seed ?? "?"}</td><td>${x.mistakes_total}</td><td>${x.totals["flagged"] || 0}</td><td>${x.totals["no lasting harm"] || 0}</td><td>${x.totals["silently wrong"] || 0}</td><td>${num((l.target_says || 0) - (l.target_really || 0))} µL</td></tr>`; }).join("")}</table></div></div>` : ""}
+    <div class="stack"><div><h3>The mistakes, one by one</h3><p class="muted" style="margin:4px 0 0">The worst first. Filter by what became of them.</p></div>
+      <div class="seg">${[["", "All"], ...FATES.filter(f => t[f[0]]).map(f => [f[0], f[1]])].map(([k, l]) => `<button data-fate="${k}" aria-pressed="${(state.fateFilter || "") === k}">${l}</button>`).join("")}</div>
+      <div class="mlog">${ms.map(m => `<div class="mrow"><span class="fate" style="background:${FCOLOR(m.fate)};color:#fff">${esc(m.fate)}</span><span class="muted">${esc(ERRTEXT[m.type] || m.type)}</span><span>${esc(m.what)} <span class="muted mono">${esc(actor(m.by).name)}, ${esc(m.at.slice(5, 16).replace("T", " "))}</span></span></div>`).join("")}</div>
+      ${allMs.length > ms.length ? `<button class="more" data-showall="1">Show all ${allMs.length}</button>` : ""}
+    </div>`;
+}
+function renderSim() {
+  const el = document.getElementById("sim-body");
+  if (!state.sim.length) { el.innerHTML = `<div class="panel"><h2>No simulation runs yet</h2></div>`; return; }
+  const r = state.sim.find(x => x.name === state.run) || state.sim[0];
+  state.run = r.name;
+  el.innerHTML = runPicker() + (r.kind === "agents" ? renderAgents(r) : renderDice(r));
+}
+
+/* ---------- scenarios ---------- */
 function scenarioCard(s) {
-  return `<button class="card" data-sc="${esc(s.id)}">
-    <div class="meta"><span class="mono">${esc(s.id)}</span>
-      ${s.depth === "core" ? `<span class="tag core">core</span>` : `<span class="tag">${esc(s.depth)}</span>`}
-      ${state.tested.has(s.id) ? `<span class="tag tested">tested</span>` : ""}
-      ${s.duplicate_of ? `<span class="tag">copy of ${esc(s.duplicate_of)}</span>` : ""}</div>
-    <h3>${esc(s.title)}</h3>
-    <p>${esc(s.story)}</p>
-    <div class="meta"><span class="tag">${esc((s.cluster || "").replaceAll("_", " "))}</span><span class="tag">${esc(s.frequency)}</span><span class="tag">cost if wrong: ${esc(s.cost_if_wrong)}</span></div>
+  return `<button class="sc card2" data-sc="${esc(s.id)}">
+    <div class="chips"><span class="tag">${esc(s.id)}</span>${s.depth === "core" ? `<span class="status variant">core</span>` : `<span class="tag">${esc(s.depth)}</span>`}${state.tested.has(s.id) ? `<span class="status new">tested</span>` : ""}</div>
+    <h3>${esc(s.title)}</h3><p>${esc(s.story)}</p>
+    <div class="chips"><span class="tag">${esc((s.cluster || "").replaceAll("_", " "))}</span><span class="tag">${esc(s.frequency)}</span><span class="tag">cost if wrong: ${esc(s.cost_if_wrong)}</span></div>
   </button>`;
 }
-
 function renderScenarios() {
-  const q = document.getElementById("sc-q").value.trim().toLowerCase();
-  const cl = document.getElementById("sc-cluster").value;
-  const short = document.getElementById("sc-short").checked;
-  const tested = document.getElementById("sc-tested").checked;
-  const rows = state.scenarios.filter(s =>
-    (!cl || s.cluster === cl) && (!short || s.shortlisted) && (!tested || state.tested.has(s.id)) &&
+  const q = document.getElementById("sc-q").value.trim().toLowerCase(), cl = document.getElementById("sc-cluster").value;
+  const short = document.getElementById("sc-short").checked, tested = document.getElementById("sc-tested").checked;
+  const rows = state.scenarios.filter(s => (!cl || s.cluster === cl) && (!short || s.shortlisted) && (!tested || state.tested.has(s.id)) &&
     (!q || JSON.stringify([s.id, s.title, s.story, s.real_life_noise, s.system_should]).toLowerCase().includes(q)));
   document.getElementById("sc-count").textContent = `${rows.length} of ${state.scenarios.length}`;
-  document.getElementById("sc-cards").innerHTML = rows.map(scenarioCard).join("") || `<p class="summary">Nothing matches. Try a shorter search or another theme.</p>`;
+  document.getElementById("sc-cards").innerHTML = rows.map(scenarioCard).join("") || `<p class="muted">Nothing matches. Try a shorter search or another theme.</p>`;
 }
-
 function openScenario(id) {
-  const s = state.byId[id];
-  if (!s) return;
+  const s = state.byId[id]; if (!s) return;
   const tests = state.tests.filter(t => t.scenarios.includes(id));
   const list = v => Array.isArray(v) ? `<ul>${v.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : `<p>${esc(v)}</p>`;
-  document.getElementById("drawer-root").innerHTML = `
-    <div class="scrim" id="scrim"></div>
-    <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="dr-title">
-      <button class="close" id="dr-close">Close</button>
-      <div class="meta chips"><span class="mono">${esc(s.id)}</span><span class="tag">${esc((s.cluster || "").replaceAll("_", " "))}</span><span class="tag ${s.depth === "core" ? "core" : ""}">${esc(s.depth)}</span></div>
+  document.getElementById("drawer-root").innerHTML = `<div class="scrim" id="scrim"></div>
+    <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="dr-title"><button class="close" id="dr-close">Close</button>
+      <div class="chips"><span class="tag">${esc(s.id)}</span><span class="tag">${esc((s.cluster || "").replaceAll("_", " "))}</span><span class="tag">${esc(s.depth)}</span></div>
       <h2 id="dr-title">${esc(s.title)}</h2>
-      <section><h3 class="label">Story</h3><p>${esc(s.story)}</p></section>
-      <section><h3 class="label">How it goes wrong in real life</h3>${list(s.real_life_noise)}</section>
-      <section><h3 class="label">What the system should do</h3><p>${esc(s.system_should)}</p></section>
-      <section><h3 class="label">Why it matters</h3><p>${esc(s.frequency)}, cost if wrong ${esc(s.cost_if_wrong)}: ${esc(s.cost_reason)}</p></section>
-      ${tests.length ? `<section><h3 class="label">Tested in</h3><div class="chips">${tests.map(t => `<button class="chip" data-goto="${state.tests.indexOf(t)}">${String(t.number).padStart(2, "0")} ${esc(t.name)}</button>`).join("")}</div></section>` : ""}
+      <section><h3 class="sublabel">Story</h3><p>${esc(s.story)}</p></section>
+      <section><h3 class="sublabel">How it goes wrong in real life</h3>${list(s.real_life_noise)}</section>
+      <section><h3 class="sublabel">What the system should do</h3><p>${esc(s.system_should)}</p></section>
+      <section><h3 class="sublabel">Why it matters</h3><p>${esc(s.frequency)}, cost if wrong ${esc(s.cost_if_wrong)}: ${esc(s.cost_reason)}</p></section>
+      ${tests.length ? `<section><h3 class="sublabel">Tested in</h3><div class="chips">${tests.map(t => `<button class="chip" data-goto="${state.tests.indexOf(t)}">${String(t.number).padStart(2, "0")} ${esc(t.name)}</button>`).join("")}</div></section>` : ""}
     </aside>`;
   document.getElementById("dr-close").focus();
 }
 const closeDrawer = () => { document.getElementById("drawer-root").innerHTML = ""; };
 
-function renderSim() {
-  const el = document.getElementById("sim-body");
-  if (!state.sim.length) {
-    el.innerHTML = `<div class="empty">
-      <h2>No simulation runs yet</h2>
-      <p>Two simulations will show up here. The first rolls dice for every mistake people make in a lab, at researched rates, and compares what really happened with what the inventory was told. The second lets AI agents play the lab staff for a week under time pressure, with a referee writing up what went wrong.</p>
-      <p>Each run will show how far the inventory drifted from the truth, how many mistakes its flags caught, and the ones that slipped through, with the events behind each one.</p>
-    </div>`;
-    return;
-  }
-  el.innerHTML = `<div class="runs">${state.sim.map(r => `
-    <article class="block">
-      <h3>${esc(r.title || r.path)}</h3>
-      <div class="stats">${Object.entries(r).filter(([k, v]) => typeof v === "number").map(([k, v]) => `<div class="stat"><span class="k">${esc(k.replaceAll("_", " "))}</span><span class="v">${num(v)}</span></div>`).join("")}</div>
-      <span class="tag">${esc(r.path)}</span>
-    </article>`).join("")}</div>`;
-}
-
-function show(view, push = true) {
+/* ---------- navigation ---------- */
+function show(view) {
   state.view = view;
-  for (const v of ["tests", "sim", "scenarios"]) {
-    document.getElementById("view-" + v).hidden = v !== view;
-    document.getElementById("nav-" + v).setAttribute("aria-current", String(v === view));
-  }
-  if (push) {
-    const h = view === "tests" ? "test-" + String(state.tests[state.test]?.number ?? 1).padStart(2, "0") : view;
-    try { history.replaceState(null, "", "#" + h); } catch (e) {}
-  }
+  for (const v of ["tests", "sim", "scenarios"]) { document.getElementById("view-" + v).hidden = v !== view; document.getElementById("nav-" + v).setAttribute("aria-current", String(v === view)); }
+  try { history.replaceState(null, "", "#" + (view === "tests" ? "test-" + String(state.tests[state.test]?.number ?? 1).padStart(2, "0") : view)); } catch (e) {}
 }
-
-function selectTest(i) {
-  state.test = i;
-  renderList();
-  renderTest();
-  show("tests");
-}
-
+function selectTest(i) { state.test = i; renderList(); renderTest(); show("tests"); window.scrollTo({ top: 0 }); }
 document.addEventListener("click", e => {
-  const nav = e.target.closest("nav button[data-view]");
-  if (nav) return show(nav.dataset.view);
-  const item = e.target.closest(".item[data-i]");
-  if (item) return selectTest(Number(item.dataset.i));
-  const go = e.target.closest("[data-goto]");
-  if (go) { closeDrawer(); return selectTest(Number(go.dataset.goto)); }
-  const sc = e.target.closest("[data-sc]");
-  if (sc) return openScenario(sc.dataset.sc);
-  if (e.target.id === "scrim" || e.target.id === "dr-close") closeDrawer();
+  const t = e.target;
+  const nav = t.closest("nav button[data-view]"); if (nav) return show(nav.dataset.view);
+  const item = t.closest(".item[data-i]"); if (item) return selectTest(+item.dataset.i);
+  const go = t.closest("[data-goto]"); if (go) { closeDrawer(); return selectTest(+go.dataset.goto); }
+  const run = t.closest("[data-run]"); if (run) { state.run = run.dataset.run; state.sel = null; state.hl = null; state.hlDisc = null; state.fateFilter = null; state.showAll = false; return renderSim(); }
+  const mark = t.closest(".mark"); if (mark) { state.sel = +mark.dataset.n; return renderSim(); }
+  const disc = t.closest("[data-disc]"); if (disc) { const r = state.sim.find(x => x.name === state.run); const i = +disc.dataset.disc; if (state.hlDisc === i) { state.hlDisc = null; state.hl = null; } else { state.hlDisc = i; state.hl = evidence(r.discovered[i]); } return renderSim(); }
+  const fate = t.closest("[data-fate]"); if (fate) { state.fateFilter = fate.dataset.fate || null; state.showAll = false; return renderSim(); }
+  const sa = t.closest("[data-showall]"); if (sa) { state.showAll = true; return renderSim(); }
+  const sc = t.closest("[data-sc]"); if (sc) return openScenario(sc.dataset.sc);
+  if (t.id === "scrim" || t.id === "dr-close") closeDrawer();
 });
+document.addEventListener("mouseover", e => {
+  const m = e.target.closest(".mark");
+  if (m) { const r = state.sim.find(x => x.name === state.run); const c = r && r.calls && r.calls.find(x => x.n === +m.dataset.n); if (c) showTip(e, `<b>${esc(c.who.replace(/^./, x => x.toUpperCase()))}</b>, ${hm(c.start)}: ${esc(c.tool)}${c.refused ? " (refused)" : ""}<br>${esc(c.result.slice(0, 160))}`); return; }
+  const p = e.target.closest(".pt"); if (p && p.dataset.tip) { showTip(e, p.dataset.tip); return; }
+  hideTip();
+});
+document.addEventListener("mousemove", e => { if (!tip.hidden) moveTip(e); });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDrawer(); });
 for (const id of ["sc-q", "sc-cluster", "sc-short", "sc-tested"]) document.getElementById(id).addEventListener("input", renderScenarios);
-
-async function load(name) {
-  try { const r = await fetch(`data/${name}.json`); return r.ok ? r.json() : []; } catch (e) { return []; }
-}
+async function load(name) { try { const r = await fetch(`data/${name}.json`); return r.ok ? r.json() : []; } catch (e) { return []; } }
 
 (async () => {
   [state.tests, state.scenarios, state.sim] = await Promise.all([load("tests"), load("scenarios"), load("sim")]);
   state.tests.sort((a, b) => a.number - b.number);
   for (const s of state.scenarios) state.byId[s.id] = s;
   for (const t of state.tests) for (const id of t.scenarios) state.tested.add(id);
-  const clusters = [...new Set(state.scenarios.map(s => s.cluster).filter(Boolean))].sort();
-  document.getElementById("sc-cluster").insertAdjacentHTML("beforeend", clusters.map(c => `<option value="${esc(c)}">${esc(c.replaceAll("_", " "))}</option>`).join(""));
-  const passed = state.tests.filter(t => t.passed).length;
+  const pref = state.sim.find(r => r.kind === "agents" && r.calls.length > 300) || state.sim.find(r => r.kind === "agents") || state.sim[0];
+  state.run = pref && pref.name;
+  document.getElementById("sc-cluster").insertAdjacentHTML("beforeend", [...new Set(state.scenarios.map(s => s.cluster).filter(Boolean))].sort().map(c => `<option value="${esc(c)}">${esc(c.replaceAll("_", " "))}</option>`).join(""));
   const checks = state.tests.reduce((n, t) => n + t.checks_total, 0);
-  document.getElementById("tally").textContent = `${passed}/${state.tests.length} tests pass, ${checks} checks, ${state.scenarios.length} scenarios`;
-  renderList(); renderScenarios(); renderSim();
-  const h = (location.hash || "").slice(1);
-  const m = h.match(/^test-(\d+)$/);
-  if (m) { const i = state.tests.findIndex(t => t.number === Number(m[1])); if (i >= 0) state.test = i; }
-  renderList(); renderTest();
-  show(["sim", "scenarios"].includes(h) ? h : "tests", false);
+  document.getElementById("tally").textContent = `${state.tests.filter(t => t.passed).length}/${state.tests.length} tests pass, ${checks} checks, ${state.sim.length} simulation runs`;
+  const h = (location.hash || "").slice(1), m = h.match(/^test-(\d+)$/);
+  if (m) { const i = state.tests.findIndex(t => t.number === +m[1]); if (i >= 0) state.test = i; }
+  renderList(); renderTest(); renderScenarios(); renderSim();
+  show(["sim", "scenarios"].includes(h) ? h : "tests");
 })();
 </script>

@@ -11,3 +11,4 @@ sim/out/
 .claude/worktrees/
 sim/out/
 sim/__pycache__/
+.playwright-mcp/
